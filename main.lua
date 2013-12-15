@@ -16,15 +16,14 @@ scroll:add(view)
 
 local buffer = view:get_buffer()
 buffer.on_changed:connect(function(w)
-  print('changed')
   print(test_lua_go(502, 285, 9.23, false, "foobarbaz"))
 end)
 
-local sig = GLib.unix_signal_add(GLib.PRIORITY_DEFAULT, 10, function()
-  print('signal')
-  return true
-end)
+function check_jobs_hook(event, line)
+  check_jobs()
+end
+
+debug.sethook(check_jobs_hook, 'c', 1024)
 
 win:show_all()
-initialized()
 Gtk.main()

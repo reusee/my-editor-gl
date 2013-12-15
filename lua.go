@@ -18,13 +18,13 @@ import (
 	"log"
 	"os"
 	"reflect"
-	"syscall"
 	"unsafe"
 )
 
 type Lua struct {
 	State     *C.lua_State
 	callbacks []*Callback
+	jobs      []func()
 }
 
 func NewLua(filename string) (*Lua, error) {
@@ -43,29 +43,24 @@ func NewLua(filename string) (*Lua, error) {
 		State: state,
 	}
 
-	// register functions
-	wait_init := make(chan bool)
-	lua.RegisterFunction("initialized", func() {
-		close(wait_init)
-	})
-
 	lua.RegisterFunction("test_lua_go", func(i, j int, f float64, b bool, s string) (int, bool, string, float64) {
 		return i + j, b, s, f
 	})
 
-	// run
-	go func() {
-		ret := C.lua_pcallk(state, 0, C.LUA_MULTRET, 0, 0, nil)
-		if ret != C.LUA_OK {
-			log.Fatalf("%s\n", C.GoString(C.lua_tolstring(state, -1, nil)))
-		}
-		os.Exit(0)
-	}()
-	<-wait_init
+	lua.RegisterFunction("check_jobs", lua.CheckJobs)
 
 	return &Lua{
 		State: state,
 	}, nil
+}
+
+func (self *Lua) Run() {
+	// run
+	ret := C.lua_pcallk(self.State, 0, C.LUA_MULTRET, 0, 0, nil)
+	if ret != C.LUA_OK {
+		log.Fatalf("%s\n", C.GoString(C.lua_tolstring(self.State, -1, nil)))
+	}
+	os.Exit(0)
 }
 
 func (self *Lua) Close() {
@@ -83,8 +78,18 @@ func (self *Lua) RegisterFunction(name string, fun interface{}) {
 	C.free(unsafe.Pointer(cName))
 }
 
-func (self *Lua) Signal() {
-	syscall.Kill(syscall.Getpid(), syscall.SIGUSR1)
+func (self *Lua) QueueJob(fun func()) {
+	self.jobs = append(self.jobs, fun)
+}
+
+func (self *Lua) CheckJobs() {
+	if len(self.jobs) > 0 {
+		job := self.jobs[len(self.jobs)-1]
+		job()
+		self.jobs = self.jobs[:len(self.jobs)-1]
+	} else {
+		print("no job\n")
+	}
 }
 
 type Callback struct {
@@ -126,6 +131,7 @@ func Invoke(p unsafe.Pointer) int {
 		}
 		args = append(args, value)
 	}
+	// return values
 	funcValue := reflect.ValueOf(callback.fun)
 	returnValues := funcValue.Call(args)
 	for _, value := range returnValues {

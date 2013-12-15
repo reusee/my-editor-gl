@@ -2,18 +2,21 @@ package main
 
 import (
 	"log"
+	"math/rand"
 	"runtime"
+	"time"
 )
 
 func init() {
 	runtime.GOMAXPROCS(32)
+	rand.Seed(time.Now().UnixNano())
 }
 
 func main() {
-	_, err := NewLua("main.lua")
+	lua, err := NewLua("main.lua")
 	if err != nil {
 		log.Fatal(err)
 	}
-	loop := make(chan bool)
-	<-loop
+
+	lua.Run()
 }
