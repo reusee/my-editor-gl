@@ -49,9 +49,7 @@ func NewLua(filename string) (*Lua, error) {
 
 	lua.RegisterFunction("check_jobs", lua.CheckJobs)
 
-	return &Lua{
-		State: state,
-	}, nil
+	return lua, nil
 }
 
 func (self *Lua) Run() {
@@ -87,8 +85,6 @@ func (self *Lua) CheckJobs() {
 		job := self.jobs[len(self.jobs)-1]
 		job()
 		self.jobs = self.jobs[:len(self.jobs)-1]
-	} else {
-		print("no job\n")
 	}
 }
 

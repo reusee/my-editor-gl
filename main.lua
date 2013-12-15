@@ -23,7 +23,7 @@ function check_jobs_hook(event, line)
   check_jobs()
 end
 
-debug.sethook(check_jobs_hook, 'c', 1024)
+debug.sethook(check_jobs_hook, 'c', 32)
 
 win:show_all()
 Gtk.main()
