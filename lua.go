@@ -5,7 +5,7 @@ package main
 #include <lualib.h>
 #include <lauxlib.h>
 #include <stdlib.h>
-#cgo pkg-config: lua
+#cgo pkg-config: luajit
 
 void register_function(lua_State*, const char*, void*);
 
@@ -18,6 +18,7 @@ import (
 	"log"
 	"os"
 	"reflect"
+	"runtime"
 	"time"
 	"unsafe"
 )
@@ -36,7 +37,7 @@ func NewLua(filename string) (*Lua, error) {
 	// load file
 	cFilename := C.CString(filename)
 	defer C.free(unsafe.Pointer(cFilename))
-	if ret := C.luaL_loadfilex(state, cFilename, nil); ret != C.LUA_OK {
+	if ret := C.luaL_loadfilex(state, cFilename, nil); ret != C.int(0) {
 		return nil, errors.New(fmt.Sprintf("%s", C.GoString(C.lua_tolstring(state, -1, nil))))
 	}
 
@@ -54,9 +55,10 @@ func NewLua(filename string) (*Lua, error) {
 }
 
 func (self *Lua) Run() {
+	runtime.LockOSThread()
 	// run
-	ret := C.lua_pcallk(self.State, 0, C.LUA_MULTRET, 0, 0, nil)
-	if ret != C.LUA_OK {
+	ret := C.lua_pcall(self.State, 0, C.LUA_MULTRET, 0)
+	if ret != C.int(0) {
 		log.Fatalf("%s\n", C.GoString(C.lua_tolstring(self.State, -1, nil)))
 	}
 	os.Exit(0)
@@ -64,6 +66,12 @@ func (self *Lua) Run() {
 
 func (self *Lua) Close() {
 	C.lua_close(self.State)
+}
+
+func (self *Lua) RegisterFunctions(funcs map[string]interface{}) {
+	for name, fun := range funcs {
+		self.RegisterFunction(name, fun)
+	}
 }
 
 func (self *Lua) RegisterFunction(name string, fun interface{}) {
@@ -117,9 +125,9 @@ func Invoke(p unsafe.Pointer) int {
 			switch paramType.Kind() {
 			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 				reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-				value.SetInt(int64(C.lua_tointegerx(state, i, nil)))
+				value.SetInt(int64(C.lua_tointeger(state, i)))
 			default:
-				value.SetFloat(float64(C.lua_tonumberx(state, i, nil)))
+				value.SetFloat(float64(C.lua_tonumber(state, i)))
 			}
 		} else if C.lua_type(state, i) == C.LUA_TSTRING {
 			value = reflect.ValueOf(C.GoString(C.lua_tolstring(state, i, nil)))

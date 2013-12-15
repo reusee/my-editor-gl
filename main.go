@@ -1,9 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"math/rand"
+	"os"
+	"path/filepath"
 	"runtime"
 	"time"
 )
@@ -19,13 +20,19 @@ func main() {
 		log.Fatal(err)
 	}
 
-	go func() {
-		for _ = range time.NewTicker(time.Millisecond * 200).C {
-			lua.QueueJob(func() {
-				fmt.Printf("heartbeat %v\n", time.Now())
-			})
-		}
-	}()
+	lua.RegisterFunctions(map[string]interface{}{
+
+		// argv
+		"argv": func() string {
+			return "foo bar baz" // TODO
+		},
+
+		// path utils
+		"program_path": func() string {
+			abs, _ := filepath.Abs(os.Args[0])
+			return filepath.Dir(abs)
+		},
+	})
 
 	lua.Run()
 }

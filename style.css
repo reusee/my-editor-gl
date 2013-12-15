@@ -1,0 +1,24 @@
+GtkWidget {
+  /*background-color: #272822;*/
+  background-color: #073642;
+  color: #CCCCCC;
+  font-family: Terminus;
+  font-size: 13px;
+}
+GtkEntry {
+  border: 0;
+}
+.scrollbar {
+  -GtkScrollbar-has-backward-stepper: 0;
+  -GtkScrollbar-has-forward-stepper: 0;
+  -GtkRange-slider-width: 2px;
+  border-radius: 3px;
+  border: 0;
+  background-color: #00AA00;
+}
+.scrollbar.trough {
+  background-color: #272822;
+}
+.scrollbar.slider {
+  border: 0;
+}
