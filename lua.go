@@ -18,6 +18,7 @@ import (
 	"log"
 	"os"
 	"reflect"
+	"time"
 	"unsafe"
 )
 
@@ -44,7 +45,7 @@ func NewLua(filename string) (*Lua, error) {
 	}
 
 	lua.RegisterFunction("test_lua_go", func(i, j int, f float64, b bool, s string) (int, bool, string, float64) {
-		return i + j, b, s, f
+		return i + j, b, fmt.Sprintf("%v", time.Now()), f
 	})
 
 	lua.RegisterFunction("check_jobs", lua.CheckJobs)

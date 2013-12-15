@@ -24,6 +24,9 @@ function check_jobs_hook(event, line)
 end
 
 debug.sethook(check_jobs_hook, 'c', 32)
+GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, function()
+  return true
+end)
 
 win:show_all()
 Gtk.main()

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"math/rand"
 	"runtime"
@@ -17,6 +18,14 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	go func() {
+		for _ = range time.NewTicker(time.Millisecond * 200).C {
+			lua.QueueJob(func() {
+				fmt.Printf("heartbeat %v\n", time.Now())
+			})
+		}
+	}()
 
 	lua.Run()
 }
