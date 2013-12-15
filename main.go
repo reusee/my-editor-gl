@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"runtime"
-	"time"
 )
 
 func init() {
@@ -11,11 +10,10 @@ func init() {
 }
 
 func main() {
-	lua, err := NewLua("main.lua")
+	_, err := NewLua("main.lua")
 	if err != nil {
 		log.Fatal(err)
 	}
-	for _ = range time.NewTicker(time.Second * 1).C {
-		lua.Signal()
-	}
+	loop := make(chan bool)
+	<-loop
 }

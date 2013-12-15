@@ -6,9 +6,7 @@ package main
 
 int invoke_go_func(lua_State* state) {
   void* p = lua_touserdata(state, lua_upvalueindex(1));
-  //TODO pass arguments and get return value
-  Invoke(p);
-  return 0;
+  return Invoke(p);
 }
 
 void register_function(lua_State* state, const char* name, void* func) {

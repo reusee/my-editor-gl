@@ -6,7 +6,6 @@ local GLib = lgi.require('GLib', '2.0')
 local win = Gtk.Window{type = Gtk.WindowType.TOPLEVEL}
 win.on_destroy:connect(function()
   Gtk.main_quit()
-  exit()
 end)
 
 scroll = Gtk.ScrolledWindow()
@@ -18,6 +17,7 @@ scroll:add(view)
 local buffer = view:get_buffer()
 buffer.on_changed:connect(function(w)
   print('changed')
+  print(test_lua_go(502, 285, 9.23, false, "foobarbaz"))
 end)
 
 local sig = GLib.unix_signal_add(GLib.PRIORITY_DEFAULT, 10, function()
