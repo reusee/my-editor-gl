@@ -21,8 +21,6 @@ function core_key_init(self)
   self.delay_chars = {}
   self.delay_chars_timer = false
 
-  --TODO bind numeric prefix keys
-
   --TODO mode indicator
 
   --TODO command prefix indicator
@@ -104,7 +102,7 @@ function core_key_init(self)
       if type(ret) == 'function' or type(ret) == 'table' then -- another handler
         buf.key_handler = ret
         self.emit_signal('key-prefix', string.char(val))
-      elseif ret == 'is_number_prefix' then -- a number prefix
+      elseif ret == 'is_numeric_prefix' then -- a number prefix
         self.emit_signal('numeric-prefix', tonumber(string.char(val)))
       elseif ret == 'propagate' then -- pass to gtk handler
         return false
@@ -221,6 +219,13 @@ function core_key_init(self)
   self.bind_command_key('i', function(args)
     self.enter_edit_mode(args.buf)
   end, 'enter edit mode')
+
+  for i = 0, 9 do
+    self.bind_command_key(tostring(i), function(args)
+      self.n = self.n * 10 + i
+      return 'is_numeric_prefix'
+    end, 'numeric prefix')
+  end
 
   function self.enter_command_mode(buf)
     self.operation_mode = self.COMMAND
