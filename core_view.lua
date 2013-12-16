@@ -6,7 +6,8 @@ function core_view_init(self)
   self.views = {}
 
   function self.create_view(buf)
-    local view = new_view(buf)
+    local view = View(buf)
+    if buf then view.set_buffer(buf) end
     view.widget:set_indent_width(self.default_indent_width)
     view.widget:modify_font(self.default_font)
     table.insert(self.views, view)
@@ -15,10 +16,8 @@ function core_view_init(self)
   end
 end
 
-function new_view(buf)
-  local self = {}
+View = class{function(self)
   self.widget = GtkSource.View()
-  if buf then self.widget:set_buffer(buf) end
 
   local scroll = Gtk.ScrolledWindow()
   scroll:set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
@@ -43,6 +42,5 @@ function new_view(buf)
   self.widget:set_show_line_numbers(true)
   self.widget:set_tab_width(2)
   self.widget:set_wrap_mode(Gtk.WrapMode.NONE)
-
-  return self
-end
+end}
+View.embed('widget')

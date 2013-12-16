@@ -6,8 +6,7 @@ require 'core_defs'
 require 'core_buffer'
 require 'core_view'
 
-function new_editor()
-  local self = {}
+Editor = class{function(self)
   self.widget = Gtk.Overlay()
 
   -- init core modules
@@ -45,6 +44,5 @@ function new_editor()
   -- first view
   view = self.create_view()
   self.views_grid:add(view.wrapper)
-
-  return self
-end
+end}
+Editor.embed('widget')

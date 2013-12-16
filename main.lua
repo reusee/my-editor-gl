@@ -6,9 +6,7 @@ local Gdk = lgi.Gdk
 
 require 'editor'
 
-function main_window()
-  local self = {}
-
+MainWindow = class{function(self)
   self.widget = Gtk.Window{type = Gtk.WindowType.TOPLEVEL}
   self.widget.on_destroy:connect(function()
     Gtk.main_quit()
@@ -28,7 +26,7 @@ function main_window()
   self.widget:add(self.root_container)
 
   -- editor
-  self.editor = new_editor()
+  self.editor = Editor()
   self.root_container:add(self.editor.widget)
 
   -- buffers
@@ -41,11 +39,10 @@ function main_window()
   ]]
 
   --self.editor.create_buffer()
+end}
+MainWindow.embed('widget')
 
-  return self
-end
-
-win = main_window()
+win = MainWindow()
 
 -- jobs from golang
 function check_jobs_hook(event, line)
