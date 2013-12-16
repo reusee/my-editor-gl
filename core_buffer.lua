@@ -10,6 +10,7 @@ function core_buffer_init(self)
 
   function self.create_buffer(filename)
     local buffer = Buffer(filename)
+    buffer.indent_width = self.default_indent_width
     table.insert(self.buffers, buffer)
     buffer.buf:set_style_scheme(self.style_scheme)
     self.emit_signal('buffer-created', buffer)
@@ -36,6 +37,7 @@ Buffer = class{
 
     self.filename = filename
     self.preferred_line_offset = 0
+    self.indent_width = 0
 
     self.lang = false
     local language_manager = GtkSource.LanguageManager.get_default()
