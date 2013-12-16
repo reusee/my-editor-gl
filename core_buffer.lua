@@ -48,7 +48,7 @@ Buffer = class{
     self.buf:set_highlight_syntax(true)
     self.buf:set_highlight_matching_brackets(true)
     self.buf:set_max_undo_levels(-1)
-    self.buf:get_insert():set_visible(false)
+    self.buf:get_insert():set_visible(true)
 
   end,
 }

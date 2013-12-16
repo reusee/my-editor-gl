@@ -1,6 +1,7 @@
 decl('core_view_init')
 function core_view_init(self)
   self.views = {}
+  self._views_map = {}
 
   self.define_signal('view-created')
   self.connect_signal('view-created', function(view)
@@ -17,12 +18,21 @@ function core_view_init(self)
     table.insert(self.views, view)
     --TODO update buffer list
     self.emit_signal('view-created', view)
+    self._views_map[view.widget] = view
     return view
+  end
+
+  function self.gview_to_View(gview)
+    return self._views_map[gview]
   end
 
   function self.gview_get_buffer(gview)
     local gbuffer = gview:get_buffer()
     return self.gbuffer_to_Buffer(gbuffer)
+  end
+
+  function self.view_get_buffer(view)
+    return self.gbuffer_to_Buffer(view.widget:get_buffer())
   end
 
 end
