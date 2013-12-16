@@ -158,7 +158,7 @@ function core_key_init(self)
   end
 
   function self.feed_keys(view, seq)
-    for c in string.gmatch(seq, '.') do
+    for c in seq:gmatch('.') do
       self.handle_key(view.widget, string.byte(c))
     end
   end
@@ -182,7 +182,7 @@ function core_key_init(self)
     self.handler_description[handler] = desc
     if type(seq) == 'string' then
       local ss = {}
-      for c in string.gmatch(seq, '.') do
+      for c in seq:gmatch('.') do
         table.insert(ss, c)
       end
       seq = ss
