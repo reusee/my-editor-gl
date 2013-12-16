@@ -12,7 +12,6 @@ function core_view_init(self)
 
   function self.create_view(buf)
     local view = View(buf)
-    if buf then view.set_buffer(buf) end
     view.widget:set_indent_width(self.default_indent_width)
     view.widget:modify_font(self.default_font)
     table.insert(self.views, view)
@@ -21,11 +20,19 @@ function core_view_init(self)
     return view
   end
 
+  function self.gview_get_buffer(gview)
+    local gbuffer = gview:get_buffer()
+    return self.gbuffer_to_Buffer(gbuffer)
+  end
+
 end
 
 decl('View')
-View = class{function(self)
-  self.widget = GtkSource.View()
+View = class{function(self, buf)
+  if buf == nil then
+    error('cannot create view without buffer')
+  end
+  self.widget = GtkSource.View.new_with_buffer(buf)
 
   local scroll = Gtk.ScrolledWindow()
   scroll:set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
