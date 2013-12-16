@@ -145,14 +145,6 @@ function core_key_init(self)
     self.delay_chars_timer = false
   end
 
-  function self.enter_command_mode(buf)
-    self.operation_mode = self.COMMAND
-    buf.key_handler = buf.command_key_handler
-    self.n = 0
-    self.emit_signal('key-done')
-    self.emit_signal('entered-command-mode')
-  end
-
   function self.copy_keymap(keymap)
     local copy = {}
     for k, v in pairs(keymap) do
