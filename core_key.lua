@@ -21,10 +21,6 @@ function core_key_init(self)
   self.delay_chars = {}
   self.delay_chars_timer = false
 
-  --TODO mode indicator
-
-  --TODO command prefix indicator
-
   -- setup Buffer
   Buffer.mix(function(self)
     self.command_key_handler = {}
@@ -239,6 +235,7 @@ function core_key_init(self)
     self.enter_command_mode(args.buf)
   end, 'enter command mode')
 
+  -- mode indicator
   self.edit_mode_indicator = self.create_overlay_label(
     Gtk.Align.END, Gtk.Align.CENTER)
   self.edit_mode_indicator:set_markup('<span font="24" foreground="lightgreen">EDITING</span>')
@@ -247,6 +244,37 @@ function core_key_init(self)
   end)
   self.connect_signal('entered-command-mode', function()
     self.edit_mode_indicator:hide()
+  end)
+
+  -- command prefix indicator
+  self.command_prefix_indicator = self.create_overlay_label(
+    Gtk.Align.END, Gtk.Align.END)
+  self.command_prefix = {}
+
+  function self.update_command_prefix_indicator()
+    if #self.command_prefix == 0 and self.n == 0 then
+      self.command_prefix_indicator:hide()
+      return
+    end
+    local text = table.concat(self.command_prefix, '')
+    if self.n ~= 0 then
+      text = tostring(self.n) .. text
+    end
+    self.command_prefix_indicator:set_markup(
+      '<span font="24" foreground="lightgreen">' .. text .. '</span>')
+    self.command_prefix_indicator:show()
+  end
+
+  self.connect_signal('key-done', function()
+    self.command_prefix = {}
+    self.update_command_prefix_indicator()
+  end)
+  self.connect_signal('key-prefix', function(c)
+    table.insert(self.command_prefix, c)
+    self.update_command_prefix_indicator()
+  end)
+  self.connect_signal('numeric-prefix', function()
+    self.update_command_prefix_indicator()
   end)
 
 end -- core_key_init
