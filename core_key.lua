@@ -157,6 +157,12 @@ function core_key_init(self)
     return copy
   end
 
+  function self.feed_keys(view, seq)
+    for c in string.gmatch(seq, '.') do
+      self.handle_key(view.widget, string.byte(c))
+    end
+  end
+
   function self.bind_command_key(seq, handler, desc)
     self.bind_key_handler(self.command_key_handler, seq, handler, desc)
     for _, buf in pairs(self.buffers) do
