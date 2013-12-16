@@ -1,12 +1,22 @@
 require 'Strict'
 decl = Strict.declareGlobal
 Strict.strong = true
+decl('_')
 
 local lgi = require 'lgi'
-local Gtk = lgi.require('Gtk', '3.0')
-local GtkSource = lgi.require('GtkSource', '3.0')
-local GLib = lgi.require('GLib', '2.0')
-local Gdk = lgi.Gdk
+decl('Gtk')
+Gtk = lgi.require('Gtk', '3.0')
+decl('GtkSource')
+GtkSource = lgi.require('GtkSource', '3.0')
+decl('GLib')
+GLib = lgi.require('GLib', '2.0')
+decl('Gdk')
+Gdk = lgi.Gdk
+decl('Pango')
+Pango = lgi.Pango
+
+require 'object'
+require 'utils'
 
 require 'editor'
 

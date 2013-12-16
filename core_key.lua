@@ -32,6 +32,24 @@ function core_key_init(self)
   --TODO command prefix indicator
 
   function self.handle_key(view, ev_or_keyval)
-    print(type(ev_or_keyval))
+    local val
+    if type(ev_or_keyval) == 'userdata' then -- gdk key event
+      self.emit_signal('key-pressed', view, ev_or_keyval) --TODO copy this
+      if self.key_pressed_return_value == true then
+        self.key_pressed_return_value = false
+        return true
+      end
+      val = ev_or_keyval.keyval
+    else -- by feed_keys
+      val = ev_or_keyval
+    end
+    print(val)
+    if Set{
+      Gdk.KEY_Shift_L,
+      }.contains(val) then
+      print('here')
+      return false
+    end
   end
+
 end

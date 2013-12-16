@@ -1,7 +1,3 @@
-local lgi = require 'lgi'
-local GtkSource = lgi.require('GtkSource', '3.0')
-require 'object'
-
 decl('core_buffer_init')
 function core_buffer_init(self)
   self.buffers = {}

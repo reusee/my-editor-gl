@@ -1,7 +1,3 @@
-local lgi = require 'lgi'
-local Gtk = lgi.require('Gtk', '3.0')
-local GtkSource = lgi.require('GtkSource', '3.0')
-
 require 'core_defs'
 require 'core_signal'
 require 'core_buffer'
