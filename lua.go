@@ -8,12 +8,12 @@ package main
 #cgo pkg-config: luajit
 
 void register_function(lua_State*, const char*, void*);
+void setup_message_handler(lua_State*);
 
 */
 import "C"
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -27,6 +27,7 @@ type Lua struct {
 	State     *C.lua_State
 	callbacks []*Callback
 	jobs      []func()
+	filename  string
 }
 
 func NewLua(filename string) (*Lua, error) {
@@ -34,15 +35,9 @@ func NewLua(filename string) (*Lua, error) {
 	state := C.luaL_newstate()
 	C.luaL_openlibs(state)
 
-	// load file
-	cFilename := C.CString(filename)
-	defer C.free(unsafe.Pointer(cFilename))
-	if ret := C.luaL_loadfilex(state, cFilename, nil); ret != C.int(0) {
-		return nil, errors.New(fmt.Sprintf("%s", C.GoString(C.lua_tolstring(state, -1, nil))))
-	}
-
 	lua := &Lua{
-		State: state,
+		State:    state,
+		filename: filename,
 	}
 
 	lua.RegisterFunction("test_lua_go", func(i, j int, f float64, b bool, s string) (int, bool, string, float64) {
@@ -56,8 +51,16 @@ func NewLua(filename string) (*Lua, error) {
 
 func (self *Lua) Run() {
 	runtime.LockOSThread()
+	// message handler
+	C.setup_message_handler(self.State)
+	// load file
+	cFilename := C.CString(self.filename)
+	defer C.free(unsafe.Pointer(cFilename))
+	if ret := C.luaL_loadfilex(self.State, cFilename, nil); ret != C.int(0) {
+		log.Fatalf("%s", C.GoString(C.lua_tolstring(self.State, -1, nil)))
+	}
 	// run
-	ret := C.lua_pcall(self.State, 0, C.LUA_MULTRET, 0)
+	ret := C.lua_pcall(self.State, 0, 0, C.lua_gettop(self.State)-C.int(1))
 	if ret != C.int(0) {
 		log.Fatalf("%s\n", C.GoString(C.lua_tolstring(self.State, -1, nil)))
 	}
