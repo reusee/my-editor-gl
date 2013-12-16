@@ -56,26 +56,26 @@ function core_key_init(self)
       return false
     end
     -- buffer and view
-    local buf = self.gview_get_buffer(view)
+    local buffer = self.gview_get_buffer(view)
     local view = self.gview_to_View(view)
     -- cancel command
     if val == Gdk.KEY_Escape then
-      self.enter_command_mode(buf)
+      self.enter_command_mode(buffer)
       return true
     end
     -- find handler
     local is_edit_mode = self.operation_mode == self.EDIT
     local handler = nil
-    if type(buf.key_handler) == 'table' then -- a keymap
+    if type(buffer.key_handler) == 'table' then -- a keymap
       local key
       if val >= 0x20 and val <= 0x7e then
         key = string.char(val)
       else
         key = val
       end
-      handler = buf.key_handler[key]
-    elseif type(buf.key_handler) == 'function' then -- a handler
-      handler = buf.key_handler
+      handler = buffer.key_handler[key]
+    elseif type(buffer.key_handler) == 'function' then -- a handler
+      handler = buffer.key_handler
     end
     -- run handler
     if type(handler) == 'function' then -- call the handler
@@ -84,19 +84,19 @@ function core_key_init(self)
           GLib.source_remove(self.delay_chars_timer)
           self.delay_chars_timer = false
         end
-        buf.key_handler = buf.edit_key_handler
+        buffer.key_handler = buffer.edit_key_handler
         self.delay_chars = {}
       else -- command mode
-        buf.key_handler = buf.command_key_handler
+        buffer.key_handler = buffer.command_key_handler
       end
       local ret = handler{
         view = view,
-        buf = buf,
+        buffer = buffer,
         n = self.n,
         keyval = val,
         }
       if type(ret) == 'function' or type(ret) == 'table' then -- another handler
-        buf.key_handler = ret
+        buffer.key_handler = ret
         self.emit_signal('key-prefix', string.char(val))
       elseif ret == 'is_numeric_prefix' then -- a number prefix
         self.emit_signal('numeric-prefix', tonumber(string.char(val)))
@@ -107,7 +107,7 @@ function core_key_init(self)
         self.emit_signal('key-done')
       end
     elseif type(handler) == 'table' then -- a sub-keymap
-      buf.key_handler = handler
+      buffer.key_handler = handler
       if is_edit_mode then -- delay insert command prefix
         table.insert(self.delay_chars, string.char(val))
         self.delay_chars_timer = GLib.timeout_add(GLib.PRIORITY_DEFAULT,
@@ -121,11 +121,11 @@ function core_key_init(self)
           self.delay_chars_timer = false
         end
         self.insert_delay_chars(view)
-        buf.key_handler = buf.edit_key_handler
+        buffer.key_handler = buffer.edit_key_handler
         return false
       else -- command mode
         --TODO show messge
-        buf.key_handler = buf.command_key_handler
+        buffer.key_handler = buffer.command_key_handler
       end
       self.emit_signal('key-done')
     end
@@ -205,7 +205,7 @@ function core_key_init(self)
   end
 
   self.bind_command_key('i', function(args)
-    self.enter_edit_mode(args.buf)
+    self.enter_edit_mode(args.buffer)
   end, 'enter edit mode')
 
   for i = 0, 9 do
@@ -224,7 +224,7 @@ function core_key_init(self)
   end
 
   self.bind_edit_key('kd', function(args)
-    self.enter_command_mode(args.buf)
+    self.enter_command_mode(args.buffer)
   end, 'enter command mode')
 
   -- mode indicator
