@@ -32,6 +32,10 @@ func main() {
 			abs, _ := filepath.Abs(os.Args[0])
 			return filepath.Dir(abs)
 		},
+		"abs_path": func(p string) string {
+			abs, _ := filepath.Abs(p)
+			return abs
+		},
 	})
 
 	lua.Run()
