@@ -3,10 +3,12 @@ local Gtk = lgi.require('Gtk', '3.0')
 local GtkSource = lgi.require('GtkSource', '3.0')
 
 require 'core_defs'
+require 'core_signal'
 require 'core_buffer'
 require 'core_view'
-require 'core_signal'
+require 'core_key'
 
+decl('Editor')
 Editor = class{
   function(self)
     self.widget = Gtk.Overlay()
@@ -17,6 +19,7 @@ Editor = class{
   core_defs_init,
   core_buffer_init,
   core_view_init,
+  core_key_init,
 
   function(self)
     -- root grid
@@ -47,7 +50,7 @@ Editor = class{
     -- extra modules
 
     -- first view
-    view = self.create_view()
+    local view = self.create_view()
     self.views_grid:add(view.wrapper)
 
   end,

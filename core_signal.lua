@@ -1,3 +1,4 @@
+decl('core_signal_init')
 function core_signal_init(self)
   self._signals = {}
 

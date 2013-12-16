@@ -1,3 +1,4 @@
+decl('class')
 function class(constructors)
   local klass = {}
 
@@ -26,6 +27,7 @@ function class(constructors)
         end,
         -- index embedded field
         __index = function(table, key)
+          local v
           for _, field in pairs(klass.embedded_fields) do
             v = self[field][key]
             if v ~= nil then
@@ -51,6 +53,7 @@ function class(constructors)
   return klass
 end
 
+decl('object_test')
 function object_test()
   -- new class with constructors
   Foo = class{

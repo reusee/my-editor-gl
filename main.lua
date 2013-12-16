@@ -1,3 +1,7 @@
+require 'Strict'
+decl = Strict.declareGlobal
+Strict.strong = true
+
 local lgi = require 'lgi'
 local Gtk = lgi.require('Gtk', '3.0')
 local GtkSource = lgi.require('GtkSource', '3.0')
@@ -6,6 +10,7 @@ local Gdk = lgi.Gdk
 
 require 'editor'
 
+decl('MainWindow')
 MainWindow = class{function(self)
   self.widget = Gtk.Window{type = Gtk.WindowType.TOPLEVEL}
   self.widget.on_destroy:connect(function()
@@ -42,9 +47,10 @@ MainWindow = class{function(self)
 end}
 MainWindow.embed('widget')
 
-win = MainWindow()
+local win = MainWindow()
 
 -- jobs from golang
+decl('check_jobs_hook')
 function check_jobs_hook(event, line)
   check_jobs()
 end

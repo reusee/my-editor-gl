@@ -2,8 +2,17 @@ local lgi = require 'lgi'
 local Gtk = lgi.require('Gtk', '3.0')
 local GtkSource = lgi.require('GtkSource', '3.0')
 
+decl('core_view_init')
 function core_view_init(self)
   self.views = {}
+
+  self.define_signal('view-created')
+  self.connect_signal('view-created', function(view)
+    self.gconnect(view.on_key_press_event, self.handle_key)
+  end)
+
+  self.define_signal('should-redraw')
+  --TODO connect this
 
   function self.create_view(buf)
     local view = View(buf)
@@ -12,10 +21,13 @@ function core_view_init(self)
     view.widget:modify_font(self.default_font)
     table.insert(self.views, view)
     --TODO update buffer list
+    self.emit_signal('view-created', view)
     return view
   end
+
 end
 
+decl('View')
 View = class{function(self)
   self.widget = GtkSource.View()
 

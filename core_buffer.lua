@@ -2,14 +2,17 @@ local lgi = require 'lgi'
 local GtkSource = lgi.require('GtkSource', '3.0')
 require 'object'
 
+decl('core_buffer_init')
 function core_buffer_init(self)
   self.buffers = {}
 
-  --TODO buffer-created signal
-  --TODO file-loaded signal
-  --TODO language-detected signal
+  self.define_signal('buffer-created')
+  self.define_signal('file-loaded')
+  self.define_signal('language-detected')
+
 end
 
+decl('Buffer')
 Buffer = class{
   function(self)
     self.buf = GtkSource.Buffer()
