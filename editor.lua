@@ -46,8 +46,9 @@ Editor = class{
     -- extra modules
 
     -- first view
-    local view = self.create_view()
-    self.views_grid:add(view.wrapper)
+    local first_buffer = self.create_buffer('')
+    local first_view = self.create_view(first_buffer.buf)
+    self.views_grid:add(first_view.wrapper)
 
   end,
 }
