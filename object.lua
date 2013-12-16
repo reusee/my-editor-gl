@@ -13,17 +13,17 @@ function class(constructors)
   -- setmetatable
   setmetatable(klass, {
     -- new instance
-    __call = function()
+    __call = function(_, ...)
       local self = {}
       -- construct
       for _, constructor in pairs(klass.constructors) do
-        constructor(self)
+        constructor(self, ...)
       end
       -- metatable
       setmetatable(self, {
         -- forbid newindex
         __newindex = function(table, key, value)
-          error('cannot set object member/property directly')
+          error('cannot set object member/property directly ' .. key)
         end,
         -- index embedded field
         __index = function(table, key)
