@@ -46,6 +46,30 @@ function core_view_init(self)
     return self.gbuffer_to_Buffer(view.widget:get_buffer())
   end
 
+  -- buffer switching
+  local function switch_buffer(view, buffer)
+    view.widget:set_buffer(buffer.buf)
+    view.widget:set_indent_width(buffer.indent_width)
+  end
+
+  self.bind_command_key('>', function(args)
+    local index = index_of(self.buffers, args.buffer)
+    index = index + 1
+    if index > #self.buffers then
+      index = 1
+    end
+    switch_buffer(args.view, self.buffers[index])
+  end, 'switch to next buffer')
+
+  self.bind_command_key('<', function(args)
+    local index = index_of(self.buffers, args.buffer)
+    index = index - 1
+    if index < 1 then
+      index = #self.buffers
+    end
+    switch_buffer(args.view, self.buffers[index])
+  end, 'switch to previous buffer')
+
 end
 
 decl('View')
