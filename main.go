@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"math/rand"
 	"os"
@@ -12,6 +13,7 @@ import (
 func init() {
 	runtime.GOMAXPROCS(32)
 	rand.Seed(time.Now().UnixNano())
+	fmt.Printf("")
 }
 
 func main() {
@@ -35,6 +37,12 @@ func main() {
 		"abs_path": func(p string) string {
 			abs, _ := filepath.Abs(p)
 			return abs
+		},
+
+		// time
+		"current_time_in_millisecond": func() int64 {
+			t := time.Now().UnixNano() / 1000000
+			return t
 		},
 	})
 

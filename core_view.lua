@@ -8,8 +8,25 @@ function core_view_init(self)
     self.gconnect(view.on_key_press_event, self.handle_key)
   end)
 
+  -- view redraw
   self.define_signal('should-redraw')
-  --TODO connect this
+  -- redraw when buffer changed
+  self.connect_signal('buffer-created', function(buffer)
+    self.gconnect(buffer.buf.on_changed, function()
+      self.emit_signal('should-redraw')
+    end)
+  end)
+  -- redraw current view
+  self.redraw_time = current_time_in_millisecond()
+  self.connect_signal('should-redraw', function()
+    if current_time_in_millisecond() - self.redraw_time < 20 then return end
+    for _, view in pairs(self.views) do
+      if view.widget.is_focus then
+        view.widget:queue_draw()
+        self.redraw_time = current_time_in_millisecond()
+      end
+    end
+  end)
 
   function self.create_view(buf)
     local view = View(buf)

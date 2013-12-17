@@ -17,6 +17,11 @@ function core_key_init(self)
   self.define_signal('entered-edit-mode')
   self.define_signal('entered-command-mode')
 
+  -- redraw when mode changed
+  self.connect_signal({'entered-edit-mode', 'entered-command-mode'}, function()
+    self.emit_signal('should-redraw')
+  end)
+
   self.n = 0
   self.delay_chars = {}
   self.delay_chars_timer = false
