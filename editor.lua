@@ -22,6 +22,21 @@ Editor = class{
       end)
       return label
     end
+
+    -- root grid
+    self.root_grid = Gtk.Grid()
+    self.widget:add(self.root_grid)
+
+    -- areas
+    self.east_area = Gtk.Grid()
+    self.root_grid:attach(self.east_area, 1, 0, 1, 1)
+    self.west_area = Gtk.Grid()
+    self.root_grid:attach(self.west_area, -1, 0, 1, 1)
+    self.north_area = Gtk.Grid()
+    self.root_grid:attach(self.north_area, 0, -1, 2, 1)
+    self.south_area = Gtk.Grid()
+    self.root_grid:attach(self.south_area, 0, 1, 2, 1)
+
   end,
 
   -- core modules
@@ -36,25 +51,12 @@ Editor = class{
   core_file_init,
 
   function(self)
-    -- root grid
-    self.root_grid = Gtk.Grid()
-    self.widget:add(self.root_grid)
 
     -- views
     self.views_grid = Gtk.Grid()
     self.views_grid:set_row_homogeneous(true)
     self.views_grid:set_column_homogeneous(true)
     self.root_grid:attach(self.views_grid, 0, 0, 1, 1)
-
-    -- areas
-    self.east_area = Gtk.Grid()
-    self.root_grid:attach(self.east_area, 1, 0, 1, 1)
-    self.west_area = Gtk.Grid()
-    self.root_grid:attach(self.west_area, -1, 0, 1, 1)
-    self.north_area = Gtk.Grid()
-    self.root_grid:attach(self.north_area, 0, -1, 2, 1)
-    self.south_area = Gtk.Grid()
-    self.root_grid:attach(self.south_area, 0, 1, 2, 1)
 
     -- font and style
     self.style_scheme_manager = GtkSource.StyleSchemeManager.get_default()
