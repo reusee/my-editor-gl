@@ -9,10 +9,19 @@ function core_signal_init(self)
   end
 
   function self.connect_signal(name, func)
-    if self._signals[name] == nil then
-      error('signal does not exists ' .. name)
+    if type(name) == 'table' then
+      for _, n in pairs(name) do
+        if self._signals[n] == nil then
+          error('signal does not exists ' .. n)
+        end
+        table.insert(self._signals[n], func)
+      end
+    else
+      if self._signals[name] == nil then
+        error('signal does not exists ' .. name)
+      end
+      table.insert(self._signals[name], func)
     end
-    table.insert(self._signals[name], func)
   end
 
   function self.emit_signal(name, ...)
