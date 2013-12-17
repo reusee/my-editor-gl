@@ -16,7 +16,7 @@ function class(constructors)
     __call = function(_, ...)
       local self = {}
       -- signal proxy
-      function self.proxy_gsignal(signal, name)
+      function self.proxy_gsignal(signal, name, ...)
         local callbacks = {}
         self[name] = function(func)
           table.insert(callbacks, func)
@@ -25,7 +25,7 @@ function class(constructors)
           for _, func in pairs(callbacks) do
             func(...)
           end
-        end)
+        end, ...)
       end
       -- construct
       for _, constructor in pairs(klass.constructors) do
