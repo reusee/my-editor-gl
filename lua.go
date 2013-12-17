@@ -116,7 +116,7 @@ func Invoke(p unsafe.Pointer) int {
 	argc := C.lua_gettop(state)
 	funcType := reflect.TypeOf(callback.fun)
 	numIn := funcType.NumIn()
-	if int(argc) != numIn {
+	if !funcType.IsVariadic() && int(argc) != numIn {
 		log.Fatalf("arguments not match: %v %v %v",
 			callback.fun, int(argc), numIn)
 	}
