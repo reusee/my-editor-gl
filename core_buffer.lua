@@ -35,6 +35,7 @@ end
 
 decl('Buffer')
 Buffer = class{
+  core_signal_init,
   function(self, filename)
     self.buf = GtkSource.Buffer()
     if filename then
@@ -58,8 +59,33 @@ Buffer = class{
     self.buf:set_max_undo_levels(-1)
     self.buf:get_insert():set_visible(false)
 
-    -- signals
+    -- proxy signal
     self.proxy_gsignal(self.buf.on_changed, 'on_changed')
+    self.proxy_gsignal(self.buf.on_notify, 'on_cursor_position', 'cursor-position')
+
+    -- line and column changed signal
+    self.define_signal('line-changed')
+    self.define_signal('column-changed')
+    local current_line = 0
+    local current_column = 0
+    local function check_line_changed()
+      local it = self.buf:get_iter_at_mark(self.buf:get_insert())
+      local line = it:get_line()
+      local column = it:get_line_offset()
+      if current_line ~= line then
+        current_line = line
+        self.emit_signal('line-changed', line)
+        print('line')
+      end
+      if current_column ~= column then
+        current_column = column
+        self.emit_signal('column-changed', column)
+        print('column')
+      end
+    end
+    self.on_changed(check_line_changed)
+    self.on_cursor_position(check_line_changed)
+
   end,
 }
 Buffer.embed('buf')
