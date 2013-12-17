@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"math/rand"
 	"os"
@@ -34,7 +35,7 @@ func main() {
 			abs, _ := filepath.Abs(os.Args[0])
 			return filepath.Dir(abs)
 		},
-		"abs_path": func(p string) string {
+		"abspath": func(p string) string {
 			abs, _ := filepath.Abs(p)
 			return abs
 		},
@@ -43,6 +44,19 @@ func main() {
 		"current_time_in_millisecond": func() int64 {
 			t := time.Now().UnixNano() / 1000000
 			return t
+		},
+
+		// file utils
+		"listdir": func(path string) ([]string, bool) {
+			files, err := ioutil.ReadDir(path)
+			if err != nil {
+				return nil, true
+			}
+			var names []string
+			for _, info := range files {
+				names = append(names, filepath.Join(path, info.Name()))
+			}
+			return names, false
 		},
 	})
 
