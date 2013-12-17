@@ -81,4 +81,21 @@ function core_layout_init(self)
     local _, x, y = win:get_origin()
     switch_to_view_at_pos(x + 20 + alloc.width, y + alloc.height / 3)
   end, 'switch to east view')
+
+  self.bind_command_key(',z', function(args)
+    if #self.views == 1 then return end -- dont close last view
+    local wrapper = args.view.wrapper
+    local index
+    for i, v in pairs(self.views) do
+      if v == args.view then index = i break end
+    end
+    table.remove(self.views, index)
+    index = index - 1
+    if index < 1 then index = 1 end
+    local next_view = self.views[index]
+    args.view.widget:freeze_notify()
+    wrapper:get_parent():remove(wrapper)
+    next_view.widget:grab_focus()
+  end, 'close current view')
+
 end
