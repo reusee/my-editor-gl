@@ -15,6 +15,18 @@ function class(constructors)
     -- new instance
     __call = function(_, ...)
       local self = {}
+      -- signal proxy
+      function self.proxy_gsignal(signal, name)
+        local callbacks = {}
+        self[name] = function(func)
+          table.insert(callbacks, func)
+        end
+        signal:connect(function(...)
+          for _, func in pairs(callbacks) do
+            func(...)
+          end
+        end)
+      end
       -- construct
       for _, constructor in pairs(klass.constructors) do
         constructor(self, ...)
