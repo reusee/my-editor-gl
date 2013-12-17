@@ -6,6 +6,7 @@ require 'core_key'
 require 'core_edit'
 require 'core_status'
 require 'core_layout'
+require 'core_file'
 
 decl('Editor')
 Editor = class{
@@ -31,6 +32,7 @@ Editor = class{
   core_edit_init,
   core_status_init,
   core_layout_init,
+  core_file_init,
 
   function(self)
     -- root grid
@@ -60,10 +62,17 @@ Editor = class{
 
     -- extra modules
 
+    -- buffers
+    for _, filename in pairs(argv()) do
+      self.create_buffer(filename)
+    end
+    if #self.buffers == 0 then
+      self.create_buffer()
+    end
+
     -- first view
-    local first_buffer = self.create_buffer('')
-    local first_view = self.create_view(first_buffer.buf)
-    self.views_grid:add(first_view.wrapper)
+    local view = self.create_view(self.buffers[1].buf)
+    self.views_grid:add(view.wrapper)
 
   end,
 }

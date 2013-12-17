@@ -46,11 +46,6 @@ MainWindow = class{function(self)
   self.editor = Editor()
   self.root_container:add(self.editor.widget)
 
-  -- buffers
-  for _, filename in pairs(argv()) do
-    self.editor.create_buffer(filename)
-  end
-
 end}
 MainWindow.embed('widget')
 
