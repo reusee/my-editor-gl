@@ -85,10 +85,7 @@ function core_layout_init(self)
   self.bind_command_key(',z', function(args)
     if #self.views == 1 then return end -- dont close last view
     local wrapper = args.view.wrapper
-    local index
-    for i, v in pairs(self.views) do
-      if v == args.view then index = i break end
-    end
+    local index = index_of(self.views, args.view)
     table.remove(self.views, index)
     index = index - 1
     if index < 1 then index = 1 end
