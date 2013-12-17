@@ -6,7 +6,6 @@ import (
 	"log"
 	"math/rand"
 	"os"
-	"os/user"
 	"path/filepath"
 	"runtime"
 	"time"
@@ -53,23 +52,6 @@ func main() {
 			}
 			return res
 		},
-		"expanduser": func(p string) string {
-			home := ""
-			user, err := user.Current()
-			if err == nil {
-				home = user.HomeDir
-			}
-			parts := filepath.SplitList(p)
-			res := ""
-			for _, part := range parts {
-				if part == "~" {
-					res = filepath.Join(res, home)
-				} else {
-					res = filepath.Join(res, part)
-				}
-			}
-			return res
-		},
 
 		// time
 		"current_time_in_millisecond": func() int64 {
@@ -88,6 +70,13 @@ func main() {
 				names = append(names, info.Name())
 			}
 			return names, false
+		},
+		"isdir": func(path string) bool {
+			info, err := os.Stat(path)
+			if err != nil {
+				return false
+			}
+			return info.IsDir()
 		},
 	})
 
