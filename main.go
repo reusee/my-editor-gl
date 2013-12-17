@@ -25,8 +25,8 @@ func main() {
 	lua.RegisterFunctions(map[string]interface{}{
 
 		// argv
-		"argv": func() string {
-			return "foo bar baz" // TODO
+		"argv": func() []string {
+			return os.Args[1:]
 		},
 
 		// path utils
