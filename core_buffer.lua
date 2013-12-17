@@ -1,12 +1,18 @@
 decl('core_buffer_init')
 function core_buffer_init(self)
   self.buffers = {}
+  self._buffer_map = {}
 
   self.define_signal('buffer-created')
   self.define_signal('file-loaded')
   self.define_signal('language-detected')
 
-  self._buffer_map = {}
+  -- redraw when buffer changed
+  self.connect_signal('buffer-created', function(buffer)
+    buffer.on_changed(function()
+      self.emit_signal('should-redraw')
+    end)
+  end)
 
   function self.create_buffer(filename)
     local buffer = Buffer(filename)
@@ -50,8 +56,10 @@ Buffer = class{
     self.buf:set_highlight_syntax(true)
     self.buf:set_highlight_matching_brackets(true)
     self.buf:set_max_undo_levels(-1)
-    self.buf:get_insert():set_visible(true)
+    self.buf:get_insert():set_visible(false)
 
+    -- signals
+    self.proxy_gsignal(self.buf.on_changed, 'on_changed')
   end,
 }
 Buffer.embed('buf')

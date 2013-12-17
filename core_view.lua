@@ -10,12 +10,6 @@ function core_view_init(self)
 
   -- view redraw
   self.define_signal('should-redraw')
-  -- redraw when buffer changed
-  self.connect_signal('buffer-created', function(buffer)
-    self.gconnect(buffer.buf.on_changed, function()
-      self.emit_signal('should-redraw')
-    end)
-  end)
   -- redraw current view
   self.redraw_time = current_time_in_millisecond()
   self.connect_signal('should-redraw', function()
