@@ -47,15 +47,10 @@ MainWindow = class{function(self)
   self.root_container:add(self.editor.widget)
 
   -- buffers
-  --[[
-  local args = argv():gmatch('[^%s]+')
-  for filename in args do
-    print(filename)
-    --TODO
+  for _, filename in pairs(argv()) do
+    self.editor.create_buffer(filename)
   end
-  ]]
 
-  --self.editor.create_buffer()
 end}
 MainWindow.embed('widget')
 

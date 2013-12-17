@@ -15,14 +15,18 @@ function core_buffer_init(self)
   end)
 
   function self.create_buffer(filename)
+    -- create GtkSource.Buffer
     local buffer = Buffer(filename)
+    if not buffer then return end -- error
+    -- property
     buffer.indent_width = self.default_indent_width
-    table.insert(self.buffers, buffer)
     buffer.buf:set_style_scheme(self.style_scheme)
     self.emit_signal('buffer-created', buffer)
     if buffer.lang then
       self.emit_signal('language-detected', buffer)
     end
+    -- register
+    table.insert(self.buffers, buffer)
     self._buffer_map[buffer.buf] = buffer
     return buffer
   end
@@ -39,7 +43,15 @@ Buffer = class{
   function(self, filename)
     self.buf = GtkSource.Buffer()
     if filename then
-      filename = abs_path(filename)
+      filename = abspath(filename)
+      -- load contents
+      local f = io.open(filename, 'r')
+      if not f then return end
+      self.buf:begin_not_undoable_action()
+      self.buf:set_text(f:read('*a'), -1)
+      self.buf:end_not_undoable_action()
+      self.buf:place_cursor(self.buf:get_start_iter())
+      self.buf:set_modified(false)
     end
 
     self.filename = filename
