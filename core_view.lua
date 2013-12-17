@@ -70,6 +70,25 @@ function core_view_init(self)
     switch_buffer(args.view, self.buffers[index])
   end, 'switch to previous buffer')
 
+  -- scroll
+  self.bind_command_key('M', function(args)
+    local alloc = args.view.widget:get_allocation()
+    local buf = args.buffer.buf
+    local view = args.view.widget
+    local it = view:get_line_at_y(alloc.height - 50 + view:get_vadjustment():get_value())
+    buf:place_cursor(it)
+    view:scroll_to_mark(buf:get_insert(), 0, true, 0, 0)
+  end, 'page down')
+
+  self.bind_command_key('U', function(args)
+    local alloc = args.view.widget:get_allocation()
+    local buf = args.buffer.buf
+    local view = args.view.widget
+    local it = view:get_line_at_y(view:get_vadjustment():get_value() - alloc.height)
+    buf:place_cursor(it)
+    view:scroll_to_mark(buf:get_insert(), 0, true, 0, 0)
+  end, 'page up')
+
 end
 
 decl('View')
