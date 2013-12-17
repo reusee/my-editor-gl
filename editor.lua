@@ -61,7 +61,7 @@ Editor = class{
     -- font and style
     self.style_scheme_manager = GtkSource.StyleSchemeManager.get_default()
     self.style_scheme_manager:append_search_path(program_path())
-    self.style_scheme = self.style_scheme_manager:get_scheme('solarizeddark')
+    self.style_scheme = self.style_scheme_manager:get_scheme(self.default_scheme)
 
     -- extra modules
 
