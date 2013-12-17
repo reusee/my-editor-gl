@@ -89,6 +89,16 @@ function core_view_init(self)
     view:scroll_to_mark(buf:get_insert(), 0, true, 0, 0)
   end, 'page up')
 
+  self.bind_command_key('gt', function(args)
+    args.view.widget:scroll_to_mark(args.buffer.buf:get_insert(), 0, true, 1, 0)
+  end, 'scroll cursor to screen top')
+  self.bind_command_key('gb', function(args)
+    args.view.widget:scroll_to_mark(args.buffer.buf:get_insert(), 0, true, 1, 1)
+  end, 'scroll cursor to screen bottom')
+  self.bind_command_key('gm', function(args)
+    args.view.widget:scroll_to_mark(args.buffer.buf:get_insert(), 0, true, 1, 0.5)
+  end, 'scroll cursor to middle of screen')
+
 end
 
 decl('View')
