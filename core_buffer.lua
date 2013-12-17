@@ -55,6 +55,7 @@ Buffer = class{
     end
 
     self.filename = filename
+    if not self.filename then self.filename = '' end
     self.preferred_line_offset = 0
     self.indent_width = 0
 
