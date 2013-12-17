@@ -6,6 +6,7 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"os/user"
 	"path/filepath"
 	"runtime"
 	"time"
@@ -39,6 +40,36 @@ func main() {
 			abs, _ := filepath.Abs(p)
 			return abs
 		},
+		"dirname": func(p string) string {
+			return filepath.Dir(p)
+		},
+		"splitpath": func(p string) (string, string) {
+			return filepath.Split(p)
+		},
+		"joinpath": func(ps ...string) string {
+			res := ""
+			for _, part := range ps {
+				res = filepath.Join(res, part)
+			}
+			return res
+		},
+		"expanduser": func(p string) string {
+			home := ""
+			user, err := user.Current()
+			if err == nil {
+				home = user.HomeDir
+			}
+			parts := filepath.SplitList(p)
+			res := ""
+			for _, part := range parts {
+				if part == "~" {
+					res = filepath.Join(res, home)
+				} else {
+					res = filepath.Join(res, part)
+				}
+			}
+			return res
+		},
 
 		// time
 		"current_time_in_millisecond": func() int64 {
@@ -54,7 +85,7 @@ func main() {
 			}
 			var names []string
 			for _, info := range files {
-				names = append(names, filepath.Join(path, info.Name()))
+				names = append(names, info.Name())
 			}
 			return names, false
 		},
