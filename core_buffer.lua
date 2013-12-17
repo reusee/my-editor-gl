@@ -7,9 +7,9 @@ function core_buffer_init(self)
   self.define_signal('file-loaded')
   self.define_signal('language-detected')
 
-  -- redraw when buffer changed
+  -- redraw when line or column changed
   self.connect_signal('buffer-created', function(buffer)
-    buffer.on_changed(function()
+    buffer.connect_signal({'line-changed', 'column-changed'}, function()
       self.emit_signal('should-redraw')
     end)
   end)
@@ -68,23 +68,21 @@ Buffer = class{
     self.define_signal('column-changed')
     local current_line = 0
     local current_column = 0
-    local function check_line_changed()
+    local function check_changed()
       local it = self.buf:get_iter_at_mark(self.buf:get_insert())
       local line = it:get_line()
       local column = it:get_line_offset()
       if current_line ~= line then
         current_line = line
         self.emit_signal('line-changed', line)
-        print('line')
       end
       if current_column ~= column then
         current_column = column
         self.emit_signal('column-changed', column)
-        print('column')
       end
     end
-    self.on_changed(check_line_changed)
-    self.on_cursor_position(check_line_changed)
+    self.on_changed(check_changed)
+    self.on_cursor_position(check_changed)
 
   end,
 }
