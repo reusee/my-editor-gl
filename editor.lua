@@ -12,11 +12,12 @@ decl('Editor')
 Editor = class{
   function(self)
     self.widget = Gtk.Overlay()
+    self.proxy_gsignal(self.widget.on_realize, 'on_realize')
 
     function self.create_overlay_label(halign, valign)
       local label = Gtk.Label{halign = halign, valign = valign}
       self.widget:add_overlay(label)
-      self.widget.on_realize:connect(function()
+      self.on_realize(function()
         label:hide()
       end)
       return label
