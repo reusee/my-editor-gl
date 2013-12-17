@@ -5,6 +5,7 @@ require 'core_view'
 require 'core_key'
 require 'core_edit'
 require 'core_status'
+require 'core_layout'
 
 decl('Editor')
 Editor = class{
@@ -29,6 +30,7 @@ Editor = class{
   core_key_init,
   core_edit_init,
   core_status_init,
+  core_layout_init,
 
   function(self)
     -- root grid

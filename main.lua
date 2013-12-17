@@ -14,6 +14,8 @@ decl('Gdk')
 Gdk = lgi.Gdk
 decl('Pango')
 Pango = lgi.Pango
+decl('GObject')
+GObject = lgi.GObject
 
 require 'object'
 require 'utils'
