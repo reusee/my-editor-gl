@@ -40,8 +40,12 @@ func NewLua(filename string) (*Lua, error) {
 		filename: filename,
 	}
 
-	lua.RegisterFunction("test_lua_go", func(i, j int, f float64, b bool, s string) (int, bool, string, float64) {
-		return i + j, b, fmt.Sprintf("%v", time.Now()), f
+	lua.RegisterFunction("test_lua_go", func(
+		i, j int, f float64, b bool, s string) (
+		int, bool, string, float64, []string) {
+		return i + j, b, fmt.Sprintf("%v", time.Now()), f, []string{
+			"foo", "bar", "baz",
+		}
 	})
 
 	lua.RegisterFunction("check_jobs", lua.CheckJobs)
@@ -143,7 +147,7 @@ func Invoke(p unsafe.Pointer) int {
 	funcValue := reflect.ValueOf(callback.fun)
 	returnValues := funcValue.Call(args)
 	for _, value := range returnValues {
-		switch value.Type().Kind() {
+		switch t := value.Type(); t.Kind() {
 		case reflect.Bool:
 			if value.Bool() {
 				C.lua_pushboolean(state, C.int(1))
@@ -157,6 +161,21 @@ func Invoke(p unsafe.Pointer) int {
 			C.lua_pushnumber(state, C.lua_Number(C.longlong(value.Int())))
 		case reflect.Float32, reflect.Float64:
 			C.lua_pushnumber(state, C.lua_Number(C.double(value.Float())))
+		case reflect.Slice:
+			switch t.Elem().Kind() {
+			case reflect.String:
+				slice := value.Interface().([]string)
+				C.lua_createtable(state, C.int(len(slice)), 0)
+				for i, s := range slice {
+					C.lua_pushnumber(state, C.lua_Number(i+1))
+					C.lua_pushstring(state, C.CString(s))
+					C.lua_settable(state, -3)
+				}
+			default:
+				log.Fatalf("wrong return value %v", value)
+			}
+		default:
+			log.Fatalf("wrong return value %v", value)
 		}
 	}
 	return len(returnValues)
