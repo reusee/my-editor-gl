@@ -9,6 +9,7 @@ require 'core_layout'
 require 'core_file'
 require 'core_message'
 require 'core_format'
+require 'core_search'
 
 decl('Editor')
 Editor = class{
@@ -53,6 +54,7 @@ Editor = class{
   core_file_init,
   core_message_init,
   core_format_init,
+  core_search_init,
 
   function(self)
 
