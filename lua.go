@@ -5,6 +5,7 @@ package main
 #include "luajit/src/lualib.h"
 #include "luajit/src/lauxlib.h"
 #include <stdlib.h>
+#include <string.h>
 #cgo LDFLAGS: luajit/src/libluajit.a -lm -ldl
 
 void register_function(lua_State*, const char*, void*);
@@ -86,6 +87,7 @@ func (self *Lua) RegisterFunction(name string, fun interface{}) {
 	callback := &Callback{
 		fun:   fun,
 		state: self.State,
+		name:  name,
 	}
 	C.register_function(self.State, cName, unsafe.Pointer(callback))
 	self.callbacks = append(self.callbacks, callback) // to avoid gc
@@ -107,6 +109,7 @@ func (self *Lua) CheckJobs() {
 type Callback struct {
 	fun   interface{}
 	state *C.lua_State
+	name  string
 }
 
 //export Invoke
@@ -138,7 +141,21 @@ func Invoke(p unsafe.Pointer) int {
 				value.SetFloat(float64(C.lua_tonumber(state, i)))
 			}
 		} else if C.lua_type(state, i) == C.LUA_TSTRING {
-			value = reflect.ValueOf(C.GoString(C.lua_tolstring(state, i, nil)))
+			if funcType.IsVariadic() { // variadic string slice
+				value = reflect.ValueOf(C.GoString(C.lua_tolstring(state, i, nil)))
+			} else { // string or bytes
+				paramType := funcType.In(int(i - 1))
+				value = reflect.New(paramType).Elem()
+				switch paramType.Kind() {
+				case reflect.String:
+					value.SetString(C.GoString(C.lua_tolstring(state, i, nil)))
+				case reflect.Slice:
+					cstr := C.lua_tolstring(state, i, nil)
+					value.SetBytes(C.GoBytes(unsafe.Pointer(cstr), C.int(C.strlen(cstr))))
+				default:
+					log.Fatalf("invalid string argument")
+				}
+			}
 		} else {
 			log.Fatalf("invalid argument type: %v %d", callback.fun, int(i))
 		}
