@@ -129,7 +129,7 @@ function core_key_init(self)
         buffer.key_handler = buffer.edit_key_handler
         return false
       else -- command mode
-        --TODO show messge
+        self.show_message('no handler')
         buffer.key_handler = buffer.command_key_handler
       end
       self.emit_signal('key-done')

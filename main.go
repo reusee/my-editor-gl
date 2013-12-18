@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/xml"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -135,6 +137,16 @@ func main() {
 		},
 		"rename": func(src, dst string) bool {
 			return os.Rename(src, dst) != nil
+		},
+
+		// text utils
+		"escapemarkup": func(s string) string {
+			buf := new(bytes.Buffer)
+			err := xml.EscapeText(buf, []byte(s))
+			if err != nil {
+				return ""
+			}
+			return string(buf.Bytes())
 		},
 	})
 

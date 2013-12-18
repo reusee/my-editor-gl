@@ -66,6 +66,7 @@ function core_file_init(self)
     if movefile(filename, backup_filename) then return end
     rename(tmp_filename, filename)
     buf:set_modified(false)
+    self.show_message('buffer saved to ' .. filename)
   end, 'save buffer to file')
 end
 

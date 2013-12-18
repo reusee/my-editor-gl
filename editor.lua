@@ -7,6 +7,7 @@ require 'core_edit'
 require 'core_status'
 require 'core_layout'
 require 'core_file'
+require 'core_message'
 
 decl('Editor')
 Editor = class{
@@ -49,6 +50,7 @@ Editor = class{
   core_status_init,
   core_layout_init,
   core_file_init,
+  core_message_init,
 
   function(self)
 

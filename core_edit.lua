@@ -29,7 +29,7 @@ function core_edit_init(self)
       buf:place_cursor(buf:get_iter_at_mark(buf:get_insert()))
       args.view.widget:scroll_to_mark(buf:get_insert(), 0, false, 0, 0)
     else
-      --TODO show message
+      self.show_message('no undo action')
     end
   end, 'undo')
   self.bind_command_key('Y', function(args)
@@ -39,7 +39,7 @@ function core_edit_init(self)
       buf:place_cursor(buf:get_iter_at_mark(buf:get_insert()))
       args.view.widget:scroll_to_mark(buf:get_insert(), 0, false, 0, 0)
     else
-      --TODO show message
+      self.show_message('no redo action')
     end
   end, 'redo')
 
