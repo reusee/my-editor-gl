@@ -1,11 +1,11 @@
 package main
 
 /*
-#include <lua.h>
-#include <lualib.h>
-#include <lauxlib.h>
+#include "luajit/src/lua.h"
+#include "luajit/src/lualib.h"
+#include "luajit/src/lauxlib.h"
 #include <stdlib.h>
-#cgo pkg-config: luajit
+#cgo LDFLAGS: -lluajit
 
 void register_function(lua_State*, const char*, void*);
 void setup_message_handler(lua_State*);

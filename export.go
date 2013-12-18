@@ -1,7 +1,8 @@
 package main
 
 /*
-#include <lua.h>
+#include "luajit/src/lua.h"
+#cgo CFLAGS: -lluajit
 #include <stdlib.h>
 
 int invoke_go_func(lua_State* state) {
