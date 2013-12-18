@@ -49,6 +49,7 @@ Buffer = class{
       if not f then return end
       self.buf:begin_not_undoable_action()
       self.buf:set_text(f:read('*a'), -1)
+      f:close()
       self.buf:end_not_undoable_action()
       self.buf:place_cursor(self.buf:get_start_iter())
       self.buf:set_modified(false)
