@@ -1,26 +1,20 @@
-local STP = require 'StackTracePlus'
+local STP = require 'lib.StackTracePlus'
 debug.traceback = STP.stacktrace
 
-require 'fun' ()
+require 'lib.fun' ()
 
-require 'Strict'
+local lgi = require 'lgi'
+Gtk = lgi.require('Gtk', '3.0')
+GtkSource = lgi.require('GtkSource', '3.0')
+GLib = lgi.require('GLib', '2.0')
+Gdk = lgi.Gdk
+Pango = lgi.Pango
+GObject = lgi.GObject
+
+require 'lib.Strict'
 decl = Strict.declareGlobal
 Strict.strong = true
 decl('_')
-
-local lgi = require 'lgi'
-decl('Gtk')
-Gtk = lgi.require('Gtk', '3.0')
-decl('GtkSource')
-GtkSource = lgi.require('GtkSource', '3.0')
-decl('GLib')
-GLib = lgi.require('GLib', '2.0')
-decl('Gdk')
-Gdk = lgi.Gdk
-decl('Pango')
-Pango = lgi.Pango
-decl('GObject')
-GObject = lgi.GObject
 
 require 'object'
 require 'utils'
