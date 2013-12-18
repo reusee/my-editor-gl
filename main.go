@@ -148,6 +148,9 @@ func main() {
 			}
 			return string(buf.Bytes())
 		},
+		"tochar": func(r rune) string {
+			return string(r)
+		},
 	})
 
 	lua.Run()
