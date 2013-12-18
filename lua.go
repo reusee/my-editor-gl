@@ -177,6 +177,8 @@ func pushGoValue(state *C.lua_State, value reflect.Value) {
 			pushGoValue(state, value.Index(i))
 			C.lua_settable(state, -3)
 		}
+	case reflect.Interface:
+		pushGoValue(state, value.Elem())
 	default:
 		log.Fatalf("wrong return value %v", value)
 	}
