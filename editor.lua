@@ -10,6 +10,7 @@ require 'core_file'
 require 'core_message'
 require 'core_format'
 require 'core_search'
+require 'core_word_collector'
 
 decl('Editor')
 Editor = class{
@@ -55,6 +56,7 @@ Editor = class{
   core_message_init,
   core_format_init,
   core_search_init,
+  core_word_collector_init,
 
   function(self)
 
@@ -72,7 +74,7 @@ Editor = class{
     -- extra modules
 
     -- buffers
-    for _, filename in pairs(argv()) do
+    for _, filename in ipairs(argv()) do
       self.create_buffer(filename)
     end
     if #self.buffers == 0 then

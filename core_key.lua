@@ -170,14 +170,14 @@ function core_key_init(self)
 
   function self.bind_command_key(seq, handler, desc)
     self.bind_key_handler(self.command_key_handler, seq, handler, desc)
-    for _, buf in pairs(self.buffers) do
+    for _, buf in ipairs(self.buffers) do
       self.bind_key_handler(buf.command_key_handler, seq, handler, desc)
     end
   end
 
   function self.bind_edit_key(seq, handler, desc)
     self.bind_key_handler(self.edit_key_handler, seq, handler, desc)
-    for _, buf in pairs(self.buffers) do
+    for _, buf in ipairs(self.buffers) do
       self.bind_key_handler(buf.edit_key_handler, seq, handler, desc)
     end
   end

@@ -41,7 +41,7 @@ function core_layout_init(self)
   end, 'sibling split current view')
 
   local function switch_to_view_at_pos(x, y)
-    for _, view in pairs(self.views) do
+    for _, view in ipairs(self.views) do
       local alloc = view.widget:get_allocation()
       local win = view.widget:get_window(Gtk.TextWindowType.WIDGET)
       local _, left, top = win:get_origin()

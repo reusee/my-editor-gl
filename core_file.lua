@@ -11,7 +11,7 @@ function core_file_init(self)
     if filename == '' then return end
     -- create or select buffer
     local buffer = false
-    for _, b in pairs(self.buffers) do
+    for _, b in ipairs(self.buffers) do
       if b.filename == filename then
         buffer = b
         break
@@ -166,14 +166,14 @@ FileChooser = class{
       self.store:clear()
       local candidates = {}
       local files = listdir(head)
-      for _, f in pairs(files) do
+      for _, f in ipairs(files) do
         if fuzzy_match(tail, f) then
           table.insert(candidates, joinpath(head, f))
           if #candidates > 30 then break end
         end
       end
       table.sort(candidates, function(a, b) return #a < #b end)
-      for _, f in pairs(candidates) do
+      for _, f in ipairs(candidates) do
         self.store:append{f}
       end
       select:select_path(Gtk.TreePath.new_from_string('0'))

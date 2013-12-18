@@ -23,14 +23,14 @@ function class(constructors)
           table.insert(callbacks, func)
         end
         signal:connect(function(...)
-          for _, func in pairs(callbacks) do
+          for _, func in ipairs(callbacks) do
             func(...)
           end
         end, ...)
       end
       -- construct
       local constructor_return
-      for _, constructor in pairs(klass.constructors) do
+      for _, constructor in ipairs(klass.constructors) do
         constructor_return = constructor(self, ...)
         if constructor_return ~= nil then -- construct fail
           return constructor_return
@@ -45,7 +45,7 @@ function class(constructors)
         -- index embedded field
         __index = function(table, key)
           local v
-          for _, field in pairs(klass.embedded_fields) do
+          for _, field in ipairs(klass.embedded_fields) do
             v = self[field][key]
             if v ~= nil then
               return v

@@ -10,7 +10,7 @@ function core_signal_init(self)
 
   function self.connect_signal(name, func)
     if type(name) == 'table' then
-      for _, n in pairs(name) do
+      for _, n in ipairs(name) do
         if self._signals[n] == nil then
           error('signal does not exists ' .. n)
         end
@@ -28,7 +28,7 @@ function core_signal_init(self)
     if self._signals[name] == nil then
       error('signal does not exists ' .. name)
     end
-    for _, func in pairs(self._signals[name]) do
+    for _, func in ipairs(self._signals[name]) do
       func(...)
     end
   end

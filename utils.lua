@@ -1,7 +1,7 @@
 decl('Set')
 function Set(t)
   local set = {}
-  for _, v in pairs(t) do set[v] = true end
+  for _, v in ipairs(t) do set[v] = true end
 
   function set.contains(e)
     return set[e]

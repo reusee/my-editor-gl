@@ -17,7 +17,7 @@ function core_search_init(self)
       local indexes = regexindex(pattern, content)
       local start = buf:get_start_iter()
       local stop = start:copy()
-      for _, match in pairs(indexes) do
+      for _, match in ipairs(indexes) do
         start:set_offset(offset + match[1])
         stop:set_offset(offset + match[2])
         buf:apply_tag(self.search_result_tag, start, stop)
