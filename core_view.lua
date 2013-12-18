@@ -49,7 +49,7 @@ function core_view_init(self)
 
   -- buffer switching
   self.bind_command_key('>', function(args)
-    local index = index_of(self.buffers, args.buffer)
+    local index = index_of(args.buffer, self.buffers)
     index = index + 1
     if index > #self.buffers then
       index = 1
@@ -58,7 +58,7 @@ function core_view_init(self)
   end, 'switch to next buffer')
 
   self.bind_command_key('<', function(args)
-    local index = index_of(self.buffers, args.buffer)
+    local index = index_of(args.buffer, self.buffers)
     index = index - 1
     if index < 1 then
       index = #self.buffers
