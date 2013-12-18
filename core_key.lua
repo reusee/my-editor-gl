@@ -17,8 +17,8 @@ function core_key_init(self)
   self.define_signal('entered-edit-mode')
   self.define_signal('entered-command-mode')
 
-  -- redraw when mode changed
-  self.connect_signal({'entered-edit-mode', 'entered-command-mode'}, function()
+  -- redraw
+  self.connect_signal({'entered-edit-mode', 'entered-command-mode', 'key-done'}, function()
     self.emit_signal('should-redraw')
   end)
 
