@@ -1,3 +1,6 @@
+local STP = require 'StackTracePlus'
+debug.traceback = STP.stacktrace
+
 require 'Strict'
 decl = Strict.declareGlobal
 Strict.strong = true
