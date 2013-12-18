@@ -130,9 +130,10 @@ func Invoke(p unsafe.Pointer) int {
 			paramType := funcType.In(int(i - 1))
 			value = reflect.New(paramType).Elem()
 			switch paramType.Kind() {
-			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-				reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 				value.SetInt(int64(C.lua_tointeger(state, i)))
+			case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+				value.SetUint(uint64(C.lua_tointeger(state, i)))
 			default:
 				value.SetFloat(float64(C.lua_tonumber(state, i)))
 			}
@@ -162,9 +163,10 @@ func pushGoValue(state *C.lua_State, value reflect.Value) {
 		}
 	case reflect.String:
 		C.lua_pushstring(state, C.CString(value.String()))
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		C.lua_pushnumber(state, C.lua_Number(C.longlong(value.Int())))
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		C.lua_pushnumber(state, C.lua_Number(C.ulonglong(value.Uint())))
 	case reflect.Float32, reflect.Float64:
 		C.lua_pushnumber(state, C.lua_Number(C.double(value.Float())))
 	case reflect.Slice:
