@@ -29,8 +29,12 @@ function class(constructors)
         end, ...)
       end
       -- construct
+      local constructor_return
       for _, constructor in pairs(klass.constructors) do
-        constructor(self, ...)
+        constructor_return = constructor(self, ...)
+        if constructor_return ~= nil then -- construct fail
+          return constructor_return
+        end
       end
       -- metatable
       setmetatable(self, {
