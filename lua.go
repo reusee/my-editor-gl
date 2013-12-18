@@ -5,7 +5,7 @@ package main
 #include "luajit/src/lualib.h"
 #include "luajit/src/lauxlib.h"
 #include <stdlib.h>
-#cgo LDFLAGS: -lluajit
+#cgo LDFLAGS: luajit/src/libluajit.a -lm -ldl
 
 void register_function(lua_State*, const char*, void*);
 void setup_message_handler(lua_State*);
