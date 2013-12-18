@@ -19,6 +19,7 @@ function class(constructors)
       function self.proxy_gsignal(signal, name, ...)
         local callbacks = {}
         self[name] = function(func)
+          if not func then error('cannot connect nil value') end
           table.insert(callbacks, func)
         end
         signal:connect(function(...)
