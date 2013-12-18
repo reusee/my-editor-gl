@@ -98,7 +98,7 @@ local function safe_tostring (value)
 end
 
 -- Private:
--- Parses a line, looking for possible function definitions (in a very naÔve way) 
+-- Parses a line, looking for possible function definitions (in a very na√Øve way) 
 -- Returns '(anonymous)' if no function name was found in the line
 local function ParseLine(line)
 	assert(type(line) == "string")
@@ -266,7 +266,7 @@ function Dumper:DumpLocals (level)
 			else
 				local source = info.short_src
 				if source:sub(2,7) == "string" then
-					source = source:sub(9)	-- uno m·s, por el espacio que viene (string "Baragent.Main", por ejemplo)
+					source = source:sub(9)	-- uno m√°s, por el espacio que viene (string "Baragent.Main", por ejemplo)
 				end
 				--for k,v in pairs(info) do print(k,v) end
 				fun_name = fun_name or GuessFunctionName(info)
