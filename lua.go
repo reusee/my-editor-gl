@@ -146,37 +146,36 @@ func Invoke(p unsafe.Pointer) int {
 	// return values
 	funcValue := reflect.ValueOf(callback.fun)
 	returnValues := funcValue.Call(args)
-	for _, value := range returnValues {
-		switch t := value.Type(); t.Kind() {
-		case reflect.Bool:
-			if value.Bool() {
-				C.lua_pushboolean(state, C.int(1))
-			} else {
-				C.lua_pushboolean(state, C.int(0))
-			}
-		case reflect.String:
-			C.lua_pushstring(state, C.CString(value.String()))
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
-			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			C.lua_pushnumber(state, C.lua_Number(C.longlong(value.Int())))
-		case reflect.Float32, reflect.Float64:
-			C.lua_pushnumber(state, C.lua_Number(C.double(value.Float())))
-		case reflect.Slice:
-			switch t.Elem().Kind() {
-			case reflect.String:
-				slice := value.Interface().([]string)
-				C.lua_createtable(state, C.int(len(slice)), 0)
-				for i, s := range slice {
-					C.lua_pushnumber(state, C.lua_Number(i+1))
-					C.lua_pushstring(state, C.CString(s))
-					C.lua_settable(state, -3)
-				}
-			default:
-				log.Fatalf("wrong return value %v", value)
-			}
-		default:
-			log.Fatalf("wrong return value %v", value)
-		}
+	for _, v := range returnValues {
+		pushGoValue(state, v)
 	}
 	return len(returnValues)
+}
+
+func pushGoValue(state *C.lua_State, value reflect.Value) {
+	switch t := value.Type(); t.Kind() {
+	case reflect.Bool:
+		if value.Bool() {
+			C.lua_pushboolean(state, C.int(1))
+		} else {
+			C.lua_pushboolean(state, C.int(0))
+		}
+	case reflect.String:
+		C.lua_pushstring(state, C.CString(value.String()))
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		C.lua_pushnumber(state, C.lua_Number(C.longlong(value.Int())))
+	case reflect.Float32, reflect.Float64:
+		C.lua_pushnumber(state, C.lua_Number(C.double(value.Float())))
+	case reflect.Slice:
+		length := value.Len()
+		C.lua_createtable(state, C.int(length), 0)
+		for i := 0; i < length; i++ {
+			C.lua_pushnumber(state, C.lua_Number(i+1))
+			pushGoValue(state, value.Index(i))
+			C.lua_settable(state, -3)
+		}
+	default:
+		log.Fatalf("wrong return value %v", value)
+	}
 }
