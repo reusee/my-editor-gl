@@ -13,6 +13,7 @@ import (
 	"regexp"
 	"runtime"
 	"time"
+	"unicode/utf8"
 )
 
 func init() {
@@ -162,6 +163,9 @@ func main() {
 				return false
 			}
 			return indexes
+		},
+		"is_valid_utf8": func(input []byte) bool {
+			return utf8.Valid(input)
 		},
 	})
 
