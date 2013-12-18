@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"time"
 )
@@ -150,6 +151,17 @@ func main() {
 		},
 		"tochar": func(r rune) string {
 			return string(r)
+		},
+		"regexindex": func(pattern, content string) interface{} {
+			re, err := regexp.Compile(pattern)
+			if err != nil {
+				return false
+			}
+			indexes := re.FindAllStringSubmatchIndex(content, -1)
+			if indexes == nil {
+				return false
+			}
+			return indexes
 		},
 	})
 
