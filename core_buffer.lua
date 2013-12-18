@@ -17,6 +17,11 @@ function core_buffer_init(self)
   function self.create_buffer(filename)
     -- create GtkSource.Buffer
     local buffer = Buffer(filename)
+    if type(buffer) == 'string' then -- error
+      self.show_message(buffer .. ' ' .. filename)
+      print(buffer .. ' ' .. filename)
+      return
+    end
     if not buffer then return end -- error
     -- property
     buffer.indent_width = self.default_indent_width
@@ -46,9 +51,11 @@ Buffer = class{
       filename = abspath(filename)
       -- load contents
       local f = io.open(filename, 'r')
-      if not f then return end
+      if not f then return 'cannot open file' end
       self.buf:begin_not_undoable_action()
-      self.buf:set_text(f:read('*a'), -1)
+      local content = f:read('*a')
+      if not is_valid_utf8(content) then return 'file is not utf8 encoded' end
+      self.buf:set_text(content, -1)
       f:close()
       self.buf:end_not_undoable_action()
       self.buf:place_cursor(self.buf:get_start_iter())

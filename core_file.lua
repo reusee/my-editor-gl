@@ -21,7 +21,9 @@ function core_file_init(self)
       buffer = self.create_buffer(filename)
     end
     -- switch to buffer
-    file_chooser.last_view.switch_to_buffer(buffer)
+    if buffer then
+      file_chooser.last_view.switch_to_buffer(buffer)
+    end
   end)
 
   -- open file chooser
