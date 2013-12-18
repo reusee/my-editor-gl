@@ -51,13 +51,8 @@ MainWindow.embed('widget')
 
 local win = MainWindow()
 
--- jobs from golang
-decl('check_jobs_hook')
-function check_jobs_hook(event, line)
-  check_jobs()
-end
-debug.sethook(check_jobs_hook, 'r')
 GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, function()
+  check_jobs()
   return true
 end)
 
