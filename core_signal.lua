@@ -10,12 +10,12 @@ function core_signal_init(self)
 
   function self.connect_signal(name, func)
     if type(name) == 'table' then
-      for _, n in ipairs(name) do
+      each(function(n)
         if self._signals[n] == nil then
           error('signal does not exists ' .. n)
         end
         table.insert(self._signals[n], func)
-      end
+      end, name)
     else
       if self._signals[name] == nil then
         error('signal does not exists ' .. name)

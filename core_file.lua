@@ -173,9 +173,7 @@ FileChooser = class{
         end
       end
       table.sort(candidates, function(a, b) return #a < #b end)
-      for _, f in ipairs(candidates) do
-        self.store:append{f}
-      end
+      each(function(f) self.store:append{f} end, candidates)
       select:select_path(Gtk.TreePath.new_from_string('0'))
     end
 

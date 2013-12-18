@@ -74,9 +74,9 @@ Editor = class{
     -- extra modules
 
     -- buffers
-    for _, filename in ipairs(argv()) do
+    each(function(filename)
       self.create_buffer(filename)
-    end
+    end, argv())
     if #self.buffers == 0 then
       self.create_buffer()
     end

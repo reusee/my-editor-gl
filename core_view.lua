@@ -18,6 +18,7 @@ function core_view_init(self)
       if view.widget.is_focus then
         view.widget:queue_draw()
         self.redraw_time = current_time_in_millisecond()
+        return
       end
     end
   end)
