@@ -47,18 +47,13 @@ function core_view_init(self)
   end
 
   -- buffer switching
-  local function switch_buffer(view, buffer)
-    view.widget:set_buffer(buffer.buf)
-    view.widget:set_indent_width(buffer.indent_width)
-  end
-
   self.bind_command_key('>', function(args)
     local index = index_of(self.buffers, args.buffer)
     index = index + 1
     if index > #self.buffers then
       index = 1
     end
-    switch_buffer(args.view, self.buffers[index])
+    args.view.switch_to_buffer(self.buffers[index])
   end, 'switch to next buffer')
 
   self.bind_command_key('<', function(args)
@@ -67,7 +62,7 @@ function core_view_init(self)
     if index < 1 then
       index = #self.buffers
     end
-    switch_buffer(args.view, self.buffers[index])
+    args.view.switch_to_buffer(self.buffers[index])
   end, 'switch to previous buffer')
 
   -- scroll
@@ -131,5 +126,10 @@ View = class{function(self, buf)
   self.widget:set_show_line_numbers(true)
   self.widget:set_tab_width(2)
   self.widget:set_wrap_mode(Gtk.WrapMode.NONE)
+
+  function self.switch_to_buffer(buffer)
+    self.widget:set_buffer(buffer.buf)
+    self.widget:set_indent_width(buffer.indent_width)
+  end
 end}
 View.embed('widget')
