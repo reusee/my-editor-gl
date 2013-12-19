@@ -4,7 +4,6 @@ function core_buffer_init(self)
   self._buffer_map = {}
 
   self.define_signal('buffer-created')
-  self.define_signal('file-loaded')
   self.define_signal('language-detected')
 
   -- redraw when line or column changed
@@ -52,11 +51,11 @@ Buffer = class{
       -- load contents
       local f = io.open(filename, 'r')
       if not f then return 'cannot open file' end
-      self.buf:begin_not_undoable_action()
       local content = f:read('*a')
-      if not is_valid_utf8(content) then return 'file is not utf8 encoded' end
-      self.buf:set_text(content, -1)
       f:close()
+      if not is_valid_utf8(content) then return 'file is not utf8 encoded' end
+      self.buf:begin_not_undoable_action()
+      self.buf:set_text(content, -1)
       self.buf:end_not_undoable_action()
       self.buf:place_cursor(self.buf:get_start_iter())
       self.buf:set_modified(false)
@@ -105,6 +104,16 @@ Buffer = class{
     self.on_changed(check_changed)
     self.on_cursor_position(check_changed)
 
+    -- word definition
+    function self.is_word_char(c)
+      if #c == 0 then return false end
+      if c >= 'a' and c <= 'z' then return true end
+      if c >= 'A' and c <= 'Z' then return true end
+      if c >= '0' and c <= '9' then return true end
+      if c == '-' or c == '_' then return true end
+      return false
+    end
+    self.word_regex = '[a-zA-Z0-9-_]+'
   end,
 }
 Buffer.embed('buf')
