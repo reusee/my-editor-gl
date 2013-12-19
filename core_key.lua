@@ -209,10 +209,10 @@ function core_key_init(self)
     keymap[seq[#seq]] = handler
   end
 
-  function self.enter_edit_mode(buf)
+  function self.enter_edit_mode(buffer)
     self.operation_mode = self.EDIT
-    buf.key_handler = buf.edit_key_handler
-    self.emit_signal('entered-edit-mode')
+    buffer.key_handler = buffer.edit_key_handler
+    self.emit_signal('entered-edit-mode', buffer)
   end
 
   self.bind_command_key('i', function(args)
@@ -226,12 +226,12 @@ function core_key_init(self)
     end, 'numeric prefix')
   end
 
-  function self.enter_command_mode(buf)
+  function self.enter_command_mode(buffer)
     self.operation_mode = self.COMMAND
-    buf.key_handler = buf.command_key_handler
+    buffer.key_handler = buffer.command_key_handler
     self.n = 0
     self.emit_signal('key-done')
-    self.emit_signal('entered-command-mode')
+    self.emit_signal('entered-command-mode', buffer)
   end
 
   self.bind_edit_key('kd', function(args)
