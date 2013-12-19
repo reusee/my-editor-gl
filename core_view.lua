@@ -47,6 +47,12 @@ function core_view_init(self)
     return self.gbuffer_to_Buffer(view.widget:get_buffer())
   end
 
+  function self.get_current_view()
+    for _, view in ipairs(self.views) do
+      if view.widget.is_focus then return view end
+    end
+  end
+
   -- buffer switching
   self.bind_command_key('>', function(args)
     local index = index_of(args.buffer, self.buffers)
