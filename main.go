@@ -29,6 +29,15 @@ func main() {
 	}
 
 	lua.RegisterFunctions(map[string]interface{}{
+		// test
+		"foobar": func() {
+			go func() {
+				for i := 0; i < 10; i++ {
+					time.Sleep(time.Millisecond * 200)
+					lua.Results <- "foobar"
+				}
+			}()
+		},
 
 		// argv
 		"argv": func() []string {

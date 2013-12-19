@@ -8,6 +8,9 @@ package main
 #include <string.h>
 #cgo LDFLAGS: luajit/src/libluajit.a -lm -ldl
 
+#include <gtk/gtk.h>
+#cgo pkg-config: gtk+-3.0
+
 void register_function(lua_State*, const char*, void*);
 void setup_message_handler(lua_State*);
 
@@ -15,20 +18,18 @@ void setup_message_handler(lua_State*);
 import "C"
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"reflect"
 	"runtime"
-	"time"
 	"unsafe"
 )
 
 type Lua struct {
 	State     *C.lua_State
 	callbacks []*Callback
-	jobs      []func()
 	filename  string
+	Results   chan interface{}
 }
 
 func NewLua(filename string) (*Lua, error) {
@@ -39,17 +40,26 @@ func NewLua(filename string) (*Lua, error) {
 	lua := &Lua{
 		State:    state,
 		filename: filename,
+		Results:  make(chan interface{}, 512),
 	}
 
-	lua.RegisterFunction("test_lua_go", func(
-		i, j int, f float64, b bool, s string) (
-		int, bool, string, float64, []string) {
-		return i + j, b, fmt.Sprintf("%v", time.Now()), f, []string{
-			"foo", "bar", "baz",
+	lua.RegisterFunction("main_loop", func() {
+		luaCallback := C.CString("process_go_result")
+		for {
+			C.gtk_main_iteration()
+			select {
+			case res := <-lua.Results:
+				C.lua_getfield(lua.State, C.LUA_GLOBALSINDEX, luaCallback)
+				pushGoValue(lua.State, reflect.ValueOf(res))
+				C.lua_call(lua.State, 1, 0)
+			default:
+			}
 		}
 	})
 
-	lua.RegisterFunction("check_jobs", lua.CheckJobs)
+	lua.RegisterFunction("main_quit", func() {
+		os.Exit(0)
+	})
 
 	return lua, nil
 }
@@ -72,10 +82,6 @@ func (self *Lua) Run() {
 	os.Exit(0)
 }
 
-func (self *Lua) Close() {
-	C.lua_close(self.State)
-}
-
 func (self *Lua) RegisterFunctions(funcs map[string]interface{}) {
 	for name, fun := range funcs {
 		self.RegisterFunction(name, fun)
@@ -92,18 +98,6 @@ func (self *Lua) RegisterFunction(name string, fun interface{}) {
 	C.register_function(self.State, cName, unsafe.Pointer(callback))
 	self.callbacks = append(self.callbacks, callback) // to avoid gc
 	C.free(unsafe.Pointer(cName))
-}
-
-func (self *Lua) QueueJob(fun func()) {
-	self.jobs = append(self.jobs, fun)
-}
-
-func (self *Lua) CheckJobs() {
-	if len(self.jobs) > 0 {
-		job := self.jobs[len(self.jobs)-1]
-		job()
-		self.jobs = self.jobs[:len(self.jobs)-1]
-	}
 }
 
 type Callback struct {

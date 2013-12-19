@@ -25,7 +25,7 @@ decl('MainWindow')
 MainWindow = class{function(self)
   self.widget = Gtk.Window{type = Gtk.WindowType.TOPLEVEL}
   self.widget.on_destroy:connect(function()
-    Gtk.main_quit()
+    main_quit()
   end)
   self.widget:set_title('my editor')
 
@@ -49,11 +49,11 @@ end}
 MainWindow.embed('widget')
 
 local win = MainWindow()
-
-GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, function()
-  check_jobs()
-  return true
-end)
-
 win.widget:show_all()
-Gtk.main()
+
+decl('process_go_result')
+function process_go_result(res)
+  print('result from golang', current_time_in_millisecond(), res)
+end
+
+main_loop()
