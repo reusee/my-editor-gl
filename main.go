@@ -164,6 +164,13 @@ func main() {
 			}
 			return indexes
 		},
+		"regexfindall": func(pattern, content string) (ret []string) {
+			re := regexp.MustCompile(pattern)
+			if words := re.FindAllString(content, -1); words != nil {
+				ret = words
+			}
+			return
+		},
 		"is_valid_utf8": func(input []byte) bool {
 			return utf8.Valid(input)
 		},
