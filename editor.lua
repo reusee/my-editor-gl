@@ -11,6 +11,7 @@ require 'core_message'
 require 'core_format'
 require 'core_search'
 require 'core_word_collector'
+require 'core_bookmark'
 
 decl('Editor')
 Editor = class{
@@ -57,6 +58,7 @@ Editor = class{
   core_format_init,
   core_search_init,
   core_word_collector_init,
+  core_bookmark_init,
 
   function(self)
 
