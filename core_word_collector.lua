@@ -28,12 +28,6 @@ function core_word_collector_init(self)
       end
       return end_iter, word_ended
     end
-
-    -- collect words
-    local text = self.buf:get_text(self.buf:get_start_iter(), self.buf:get_end_iter(), false)
-    local words = regexfindall(self.word_regex, text)
-    each(function(word) self.emit_signal('found-word', word) end, words)
-
   end)
 
   self.connect_signal('buffer-created', function(buffer)
@@ -57,6 +51,11 @@ function core_word_collector_init(self)
         buf:move_mark(buffer.word_end, end_iter)
       end
     end)
+
+    -- collect words
+    local text = buf:get_text(buf:get_start_iter(), buf:get_end_iter(), false)
+    local words = regexfindall(buffer.word_regex, text)
+    each(function(word) buffer.emit_signal('found-word', word) end, words)
   end)
 
   self.connect_signal('entered-edit-mode', function(buffer)
