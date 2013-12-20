@@ -74,7 +74,7 @@ end
 
 decl('FileChooser')
 FileChooser = class{
-  core_signal_init,
+  signal_init,
   function(self, editor)
     self.editor = editor
 

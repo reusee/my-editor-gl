@@ -89,7 +89,7 @@ end
 
 decl('SearchEntry')
 SearchEntry = class{
-  core_signal_init,
+  signal_init,
   function(self, editor)
     self.editor = editor
 

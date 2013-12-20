@@ -43,7 +43,7 @@ end
 
 decl('Buffer')
 Buffer = class{
-  core_signal_init,
+  signal_init,
   function(self, filename)
     self.buf = GtkSource.Buffer()
     if filename then

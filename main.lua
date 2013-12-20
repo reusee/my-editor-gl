@@ -17,6 +17,7 @@ decl = Strict.declareGlobal
 Strict.strong = true
 decl('_')
 
+require 'signal'
 require 'object'
 require 'utils'
 require 'callback'

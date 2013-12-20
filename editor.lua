@@ -1,5 +1,4 @@
 require 'core_defs'
-require 'core_signal'
 require 'core_buffer'
 require 'core_key'
 require 'core_view'
@@ -19,6 +18,7 @@ require 'core_transform'
 
 decl('Editor')
 Editor = class{
+  signal_init,
   function(self)
     self.widget = Gtk.Overlay()
     self.proxy_gsignal(self.widget.on_realize, 'on_realize')
@@ -49,7 +49,6 @@ Editor = class{
   end,
 
   -- core modules
-  core_signal_init,
   core_defs_init,
   core_buffer_init,
   core_key_init,

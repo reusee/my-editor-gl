@@ -1,5 +1,5 @@
-decl('core_signal_init')
-function core_signal_init(self)
+decl('signal_init')
+function signal_init(self)
   self._signals = {}
 
   function self.define_signal(name)
