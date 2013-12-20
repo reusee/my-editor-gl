@@ -156,6 +156,8 @@ func Invoke(p unsafe.Pointer) int {
 					log.Fatalf("invalid string argument")
 				}
 			}
+		} else if C.lua_type(state, i) == C.LUA_TLIGHTUSERDATA {
+			value = reflect.ValueOf(C.lua_topointer(state, i))
 		} else {
 			log.Fatalf("invalid argument type: %v %d", callback.fun, int(i))
 		}
@@ -196,7 +198,9 @@ func pushGoValue(state *C.lua_State, value reflect.Value) {
 		}
 	case reflect.Interface:
 		pushGoValue(state, value.Elem())
+	case reflect.Ptr:
+		C.lua_pushlightuserdata(state, unsafe.Pointer(value.Pointer()))
 	default:
-		log.Fatalf("wrong return value %v", value)
+		log.Fatalf("wrong return value %v %v", value, t.Kind())
 	}
 }
