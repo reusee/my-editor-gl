@@ -126,12 +126,11 @@ func Invoke(p unsafe.Pointer) int {
 	// arguments
 	var args []reflect.Value
 	for i := C.int(1); i <= argc; i++ {
-		var value reflect.Value
 		if C.lua_type(state, i) == C.LUA_TBOOLEAN {
-			value = reflect.ValueOf(C.lua_toboolean(state, i) == C.int(1))
+			args = append(args, reflect.ValueOf(C.lua_toboolean(state, i) == C.int(1)))
 		} else if C.lua_type(state, i) == C.LUA_TNUMBER {
 			paramType := funcType.In(int(i - 1))
-			value = reflect.New(paramType).Elem()
+			value := reflect.New(paramType).Elem()
 			switch paramType.Kind() {
 			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 				value.SetInt(int64(C.lua_tointeger(state, i)))
@@ -140,12 +139,13 @@ func Invoke(p unsafe.Pointer) int {
 			default:
 				value.SetFloat(float64(C.lua_tonumber(state, i)))
 			}
+			args = append(args, value)
 		} else if C.lua_type(state, i) == C.LUA_TSTRING {
 			if funcType.IsVariadic() { // variadic string slice
-				value = reflect.ValueOf(C.GoString(C.lua_tolstring(state, i, nil)))
+				args = append(args, reflect.ValueOf(C.GoString(C.lua_tolstring(state, i, nil))))
 			} else { // string or bytes
 				paramType := funcType.In(int(i - 1))
-				value = reflect.New(paramType).Elem()
+				value := reflect.New(paramType).Elem()
 				switch paramType.Kind() {
 				case reflect.String:
 					value.SetString(C.GoString(C.lua_tolstring(state, i, nil)))
@@ -155,13 +155,13 @@ func Invoke(p unsafe.Pointer) int {
 				default:
 					log.Fatalf("invalid string argument")
 				}
+				args = append(args, value)
 			}
 		} else if C.lua_type(state, i) == C.LUA_TLIGHTUSERDATA {
-			value = reflect.ValueOf(C.lua_topointer(state, i))
+			args = append(args, reflect.ValueOf(C.lua_topointer(state, i)))
 		} else {
 			log.Fatalf("invalid argument type: %v %d", callback.fun, int(i))
 		}
-		args = append(args, value)
 	}
 	// return values
 	funcValue := reflect.ValueOf(callback.fun)
