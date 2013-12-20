@@ -15,6 +15,7 @@ require 'core.completion'
 require 'core.iter'
 require 'core.selection'
 require 'core.transform'
+require 'core.macro'
 
 decl('Editor')
 Editor = class{
@@ -66,6 +67,7 @@ Editor = class{
   core_iter_init,
   core_selection_init,
   core_transform_init,
+  core_macro_init,
 
   function(self)
 
