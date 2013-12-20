@@ -2,7 +2,6 @@ local STP = require 'lib.StackTracePlus'
 debug.traceback = STP.stacktrace
 
 require 'lib.fun' ()
-require 'extra_method'
 
 local lgi = require 'lgi'
 Gtk = lgi.require('Gtk', '3.0')
@@ -12,15 +11,17 @@ Gdk = lgi.Gdk
 Pango = lgi.Pango
 GObject = lgi.GObject
 
+require 'extra_method'
+
 require 'lib.Strict'
 decl = Strict.declareGlobal
 Strict.strong = true
 decl('_')
 
-require 'signal'
-require 'object'
-require 'utils'
-require 'callback'
+require 'base.signal'
+require 'base.object'
+require 'base.container'
+require 'base.callback'
 
 require 'editor'
 
