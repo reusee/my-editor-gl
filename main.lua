@@ -2,6 +2,7 @@ local STP = require 'lib.StackTracePlus'
 debug.traceback = STP.stacktrace
 
 require 'lib.fun' ()
+require 'extra_method'
 
 local lgi = require 'lgi'
 Gtk = lgi.require('Gtk', '3.0')
