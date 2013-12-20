@@ -14,6 +14,8 @@ require 'core_word_collector'
 require 'core_bookmark'
 require 'core_completion'
 require 'core_iter'
+require 'core_selection'
+require 'core_transform'
 
 decl('Editor')
 Editor = class{
@@ -63,6 +65,8 @@ Editor = class{
   core_bookmark_init,
   core_completion_init,
   core_iter_init,
+  core_selection_init,
+  core_transform_init,
 
   function(self)
 
