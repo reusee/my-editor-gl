@@ -18,6 +18,7 @@ decl('_')
 
 require 'object'
 require 'utils'
+require 'callback'
 
 require 'editor'
 
@@ -50,10 +51,5 @@ MainWindow.embed('widget')
 
 local win = MainWindow()
 win.widget:show_all()
-
-decl('process_go_result')
-function process_go_result(res)
-  print('result from golang', current_time_in_millisecond(), res)
-end
 
 main_loop()

@@ -10,6 +10,10 @@ function core_message_init(self)
 
   local message_history = {}
 
+  register_callback('foobar', function(res)
+    print('foobar', res)
+  end)
+
   self.bind_command_key(',,,', function()
     self.show_message('> yes, sir ' .. current_time_in_millisecond())
     foobar()

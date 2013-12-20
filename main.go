@@ -34,7 +34,7 @@ func main() {
 			go func() {
 				for i := 0; i < 10; i++ {
 					time.Sleep(time.Millisecond * 200)
-					lua.Results <- "foobar"
+					lua.Results <- &Result{"foobar", "FOOBAR"}
 				}
 			}()
 		},

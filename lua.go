@@ -25,11 +25,16 @@ import (
 	"unsafe"
 )
 
+type Result struct {
+	tag   string
+	value interface{}
+}
+
 type Lua struct {
 	State     *C.lua_State
 	callbacks []*Callback
 	filename  string
-	Results   chan interface{}
+	Results   chan *Result
 }
 
 func NewLua(filename string) (*Lua, error) {
@@ -40,7 +45,7 @@ func NewLua(filename string) (*Lua, error) {
 	lua := &Lua{
 		State:    state,
 		filename: filename,
-		Results:  make(chan interface{}, 512),
+		Results:  make(chan *Result, 512),
 	}
 
 	lua.RegisterFunction("main_loop", func() {
@@ -50,8 +55,9 @@ func NewLua(filename string) (*Lua, error) {
 			select {
 			case res := <-lua.Results:
 				C.lua_getfield(lua.State, C.LUA_GLOBALSINDEX, luaCallback)
-				pushGoValue(lua.State, reflect.ValueOf(res))
-				C.lua_call(lua.State, 1, 0)
+				pushGoValue(lua.State, reflect.ValueOf(res.tag))
+				pushGoValue(lua.State, reflect.ValueOf(res.value))
+				C.lua_call(lua.State, 2, 0)
 			default:
 			}
 		}
