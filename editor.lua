@@ -13,6 +13,7 @@ require 'core_search'
 require 'core_word_collector'
 require 'core_bookmark'
 require 'core_completion'
+require 'core_iter'
 
 decl('Editor')
 Editor = class{
@@ -61,6 +62,7 @@ Editor = class{
   core_word_collector_init,
   core_bookmark_init,
   core_completion_init,
+  core_iter_init,
 
   function(self)
 
