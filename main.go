@@ -1,5 +1,8 @@
 package main
 
+//#include <gdk/gdk.h>
+import "C"
+
 import (
 	"bytes"
 	"encoding/xml"
@@ -14,6 +17,7 @@ import (
 	"runtime"
 	"time"
 	"unicode/utf8"
+	"unsafe"
 )
 
 func init() {
@@ -182,6 +186,14 @@ func main() {
 		},
 		"is_valid_utf8": func(input []byte) bool {
 			return utf8.Valid(input)
+		},
+
+		// gdk
+		"gdk_event_copy": func(event unsafe.Pointer) *C.GdkEvent {
+			return C.gdk_event_copy((*C.GdkEvent)(event))
+		},
+		"gdk_event_put": func(event unsafe.Pointer) {
+			C.gdk_event_put((*C.GdkEvent)(event))
 		},
 	})
 
