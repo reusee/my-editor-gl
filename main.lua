@@ -11,7 +11,7 @@ Gdk = lgi.Gdk
 Pango = lgi.Pango
 GObject = lgi.GObject
 
-require 'extra_method'
+require 'base.extra_method'
 
 require 'lib.Strict'
 decl = Strict.declareGlobal
