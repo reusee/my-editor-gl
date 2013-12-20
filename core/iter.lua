@@ -24,13 +24,13 @@ function core_iter_init(self)
     for _ = 1, n do
       if backward then
         local res = it:backward_search(s, 0, buffer.buf:get_start_iter())
-        if res then it = res[0]
+        if res then it:set_offset(res:get_offset())
         else break end
       else
         local pin = it:copy()
         pin:forward_char()
         local res = pin:forward_search(s, 0, buffer.buf:get_end_iter())
-        if res then it = res[0]
+        if res then it:set_offset(res:get_offset())
         else break end
       end
     end

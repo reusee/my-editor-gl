@@ -14,6 +14,59 @@ function core_transform_init(self)
     {self.iter_jump_relative_line_with_preferred_offset, args.n, true},
     {'iter'}, 'cursor').apply(args.buffer)
     end, 'relative backward line jump')
+  self.bind_command_key('l', function(args) Transform(
+    {self.iter_jump_relative_char, args.n},
+    {'iter'}, 'cursor').apply(args.buffer)
+    end, 'relative forward char jump')
+  self.bind_command_key('h', function(args) Transform(
+    {self.iter_jump_relative_char, args.n, true},
+    {'iter'}, 'cursor').apply(args.buffer)
+    end, 'relative backward char jump')
+  self.bind_command_key('f', function() return function(args) Transform(
+    {self.iter_jump_to_string, args.n, tochar(args.keyval)},
+    {'iter'}, 'cursor').apply(args.buffer)
+    end end, 'specified forward char jump')
+  self.bind_command_key('mf', function() return function(args) Transform(
+    {self.iter_jump_to_string, args.n, tochar(args.keyval), true},
+    {'iter'}, 'cursor').apply(args.buffer)
+    end end, 'specified backward char jump')
+  self.bind_command_key('s', function(args) return function(args1) return function(args2)
+    Transform({self.iter_jump_to_string, args.n, tochar(args1.keyval) .. tochar(args2.keyval)},
+    {'iter'}, 'cursor').apply(args.buffer)
+    end end end, 'specified forward two-chars jump')
+  self.bind_command_key('ms', function(args) return function(args1) return function(args2)
+    Transform({self.iter_jump_to_string, args.n, tochar(args1.keyval) .. tochar(args2.keyval), true},
+    {'iter'}, 'cursor').apply(args.buffer)
+    end end end, 'specified backward two-chars jump')
+  self.bind_command_key('gg', function(args) Transform(
+    {self.iter_jump_to_line_n, args.n},
+    {'iter'}, 'cursor').apply(args.buffer)
+    end, 'specified line jump')
+  self.bind_command_key('G', function(args) Transform(
+    {self.iter_jump_to_line_n, args.buffer.buf:get_line_count()},
+    {'iter'}, 'cursor').apply(args.buffer)
+    end, 'jump to end of buffer')
+  self.bind_command_key('mr', function(args) Transform(
+    {self.iter_jump_to_line_start_or_nonspace_char, args.n},
+    {'iter'}, 'cursor').apply(args.buffer)
+    end, 'jump to line start or first non-space char')
+  self.bind_command_key('r', function(args) Transform(
+    {self.iter_jump_to_line_end, 0},
+    {'iter'}, 'cursor').apply(args.buffer)
+    end, 'jump to line end')
+  self.bind_command_key('[', function(args) Transform(
+    {self.iter_jump_to_empty_line, args.n, true},
+    {'iter'}, 'cursor').apply(args.buffer)
+    end, 'jump to previous empty line')
+  self.bind_command_key(']', function(args) Transform(
+    {self.iter_jump_to_empty_line, args.n},
+    {'iter'}, 'cursor').apply(args.buffer)
+    end, 'jump to next empty line')
+  --TODO jump to matching bracket
+
+  --TODO selection moves
+
+  --TODO selection extends
 end
 
 decl('Transform')
