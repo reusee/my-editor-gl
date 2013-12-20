@@ -94,10 +94,12 @@ function core_key_init(self)
       else -- command mode
         buffer.key_handler = buffer.command_key_handler
       end
+      local n = self.n
+      if n == 0 then n = 1 end
       local ret = handler{
         view = view,
         buffer = buffer,
-        n = self.n,
+        n = n,
         keyval = val,
         }
       if type(ret) == 'function' or type(ret) == 'table' then -- another handler
