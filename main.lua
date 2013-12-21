@@ -12,6 +12,7 @@ GLib = lgi.require('GLib', '2.0')
 Gdk = lgi.Gdk
 Pango = lgi.Pango
 GObject = lgi.GObject
+Vte = lgi.Vte
 
 require 'base.extra_method'
 
