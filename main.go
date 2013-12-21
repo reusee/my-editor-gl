@@ -27,7 +27,7 @@ func init() {
 }
 
 func main() {
-	lua, err := NewLua("main.lua")
+	lua, err := NewLua(filepath.Join(filepath.Dir(os.Args[0]), "main.lua"))
 	if err != nil {
 		log.Fatal(err)
 	}

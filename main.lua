@@ -1,3 +1,5 @@
+package.path = program_path() .. '/?.lua;' .. package.path
+
 local STP = require 'lib.StackTracePlus'
 debug.traceback = STP.stacktrace
 
