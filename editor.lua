@@ -16,6 +16,7 @@ require 'core.iter'
 require 'core.selection'
 require 'core.transform'
 require 'core.macro'
+require 'core.pattern'
 
 decl('Editor')
 Editor = class{
@@ -68,6 +69,7 @@ Editor = class{
   core_selection_init,
   core_transform_init,
   core_macro_init,
+  core_pattern_init,
 
   function(self)
 
