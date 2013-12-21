@@ -2,8 +2,6 @@ package main
 
 /*
 #include "luajit/src/lua.h"
-#cgo CFLAGS: -lluajit
-#include <stdlib.h>
 
 int invoke_go_func(lua_State* state) {
   void* p = lua_touserdata(state, lua_upvalueindex(1));
