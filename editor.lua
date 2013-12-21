@@ -18,6 +18,8 @@ require 'core.transform'
 require 'core.macro'
 require 'core.pattern'
 require 'core.terminal'
+require 'core.folding'
+require 'core.snippet'
 
 decl('Editor')
 Editor = class{
@@ -72,6 +74,8 @@ Editor = class{
   core_macro_init,
   core_pattern_init,
   core_terminal_init,
+  core_folding_init,
+  core_snippet_init,
 
   function(self)
 
