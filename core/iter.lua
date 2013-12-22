@@ -144,7 +144,22 @@ function core_iter_init(self)
     iter:set_offset(it:get_offset())
   end
 
-  --TODO mark_jump_to_word_edge
+  function self.iter_jump_to_word_edge(it, buffer, backward)
+    if backward then it:backward_char() end
+    local at_begin = false
+    while buffer.is_word_char(tochar(it:get_char())) do
+      if backward then
+        if not it:backward_char() then
+          at_begin = true
+          break
+        end
+      else
+        if:forward_char()
+      end
+    end
+    if backward and not at_begin then it:forward_char() end
+  end
+
   --TODO mark_jump_to_indent_block_edge
   --TODO iter_get_indent_level
 
