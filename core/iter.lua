@@ -160,8 +160,42 @@ function core_iter_init(self)
     if backward and not at_begin then it:forward_char() end
   end
 
-  --TODO mark_jump_to_indent_block_edge
-  --TODO iter_get_indent_level
+  local function iter_get_indent_level(iter)
+    local it = iter:copy()
+    it:set_line_offset(0)
+    while not it:ends_line() and tochar(it:get_char()):isspace() do
+      it:forward_char()
+    end
+    return it:get_line_offset()
+  end
+
+  function self.iter_jump_to_indent_block_edge(iter, buffer, n, backward)
+    local it = iter:copy()
+    local indent_level = iter_get_indent_level(it)
+    local buf = buffer.buf
+    if backward then
+      it:set_line_offset(0)
+      iter:set_offset(it:get_offset())
+      it:backward_line()
+      local i = iter_get_indent_level(it)
+      while it:get_bytes_in_line() == 1 or i >= indent_level do
+        iter:set_offset(it:get_offset())
+        if not it:backward_line() then break end
+        i = iter_get_indent_level(it)
+      end
+    else
+      local end_of_buffer = buf:get_end_iter()
+      it:forward_line()
+      iter:set_offset(it:get_offset())
+      local i = iter_get_indent_level(it)
+      while it:ends_line() or i >= indent_level do
+        local res = it:forward_line()
+        iter:set_offset(it:get_offset())
+        if not res then break end
+        i = iter_get_indent_level(it)
+      end
+    end
+  end
 
   -- update preferred_line_offset
   Buffer.mix(function(buffer)
