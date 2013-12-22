@@ -84,6 +84,8 @@ function core_selection_init(self)
 
     function buffer.clear_selections()
       buffer.selections = {}
+      local buf = buffer.buf
+      buf:place_cursor(buf:get_iter_at_mark(buf:get_insert()))
       --TODO update indicator
     end
 
