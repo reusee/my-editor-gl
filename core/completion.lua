@@ -53,21 +53,36 @@ function core_completion_init(self)
     completion_view.wrapper:set_margin_top(y)
   end
 
+  local current_input = false
+  local current_selected = false
+  self.define_signal('word-completed')
+
   local function update_completion(buffer)
     if completion_replacing then return end
     completion_view.wrapper:hide()
     completion_candidates.clear()
+    if current_selected then
+      self.emit_signal('word-completed', {
+        input = current_input,
+        word = current_selected,
+        file_type = buffer.lang_name,
+      })
+      current_input = false
+      current_selected = false
+    end
     if self.operation_mode ~= self.EDIT then return end
     local candidates = Set()
     -- from vocabulary
     local buf = buffer.buf
-    local word = buf:get_text(
+    local input = buf:get_text(
       buf:get_iter_at_mark(buffer.word_start),
       buf:get_iter_at_mark(buffer.word_end), false)
-    if word ~= "" then
+    current_input = input
+    current_selected = false
+    if input ~= "" then
       local n = 0
       for i = #vocabulary.get(), 1, -1 do
-        if fuzzy_match(vocabulary.get(i), word) then
+        if fuzzy_match(vocabulary.get(i), input) then
           candidates.add(vocabulary.get(i))
           n = n + 1
           if n > 30 then break end
@@ -75,7 +90,7 @@ function core_completion_init(self)
       end
     end
     -- extra providers
-    each(function(provider) provider(buffer, word, candidates) end,
+    each(function(provider) provider(buffer, input, candidates) end,
       buffer.completion_providers)
     -- sort and show
     each(function(c) completion_candidates.append(c) end, candidates.get())
@@ -92,7 +107,9 @@ function core_completion_init(self)
     completion_replacing = true
     buf:begin_user_action()
     buf:delete(buf:get_iter_at_mark(start_mark), buf:get_iter_at_mark(end_mark))
-    buf:insert(buf:get_iter_at_mark(start_mark), completion_candidates.pop(), -1)
+    local word = completion_candidates.pop()
+    current_selected = word
+    buf:insert(buf:get_iter_at_mark(start_mark), word, -1)
     buf:end_user_action()
     completion_replacing = false
     completion_candidates.append(text)

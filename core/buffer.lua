@@ -67,11 +67,13 @@ Buffer = class{
     self.indent_width = 0
 
     self.lang = false
+    self.lang_name = ''
     local language_manager = GtkSource.LanguageManager.get_default()
     local lang = language_manager:guess_language(filename, 'plain/text')
     if lang then
       self.buf:set_language(lang)
       self.lang = lang
+      self.lang_name = lang:get_name()
     end
 
     self.buf:set_highlight_syntax(true)
