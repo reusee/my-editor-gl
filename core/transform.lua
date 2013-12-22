@@ -204,7 +204,12 @@ Transform = class{function(self, start_func, end_func, target)
         buf:move_mark(sel.stop, stop_iter)
       end
     end
-    --TODO delayed selection operation
+    if buffer.delayed_selection_operation then
+      buf:begin_user_action()
+      buffer.delayed_selection_operation()
+      buf:end_user_action()
+      buffer.delayed_selection_operation = false
+    end
     buffer.last_transform = self
   end
 end}

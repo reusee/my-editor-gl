@@ -15,6 +15,7 @@ require 'core.completion'
 require 'core.iter'
 require 'core.selection'
 require 'core.transform'
+require 'core.operation'
 require 'core.macro'
 require 'core.pattern'
 require 'core.terminal'
@@ -71,6 +72,7 @@ Editor = class{
   core_iter_init,
   core_selection_init,
   core_transform_init,
+  core_operation_init,
   core_macro_init,
   core_pattern_init,
   core_terminal_init,
