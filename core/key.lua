@@ -170,6 +170,8 @@ function core_key_init(self)
     end
   end
 
+  -- binding
+
   function self.bind_command_key(seq, handler, desc)
     self.bind_key_handler(self.command_key_handler, seq, handler, desc)
     each(function(buf)
@@ -209,6 +211,8 @@ function core_key_init(self)
     keymap[seq[#seq]] = handler
   end
 
+  -- aliasing
+
   function self.alias_key_handler(dst_seq, src_seq, keymap)
     local cur = keymap
     if type(src_seq) == 'string' then
@@ -244,6 +248,16 @@ function core_key_init(self)
       end, self.buffers)
   end
 
+  -- numeric prefix
+  for i = 0, 9 do
+    self.bind_command_key(tostring(i), function(args)
+      self.n = self.n * 10 + i
+      return 'is_numeric_prefix'
+    end, 'numeric prefix')
+  end
+
+  -- mode switching
+
   function self.enter_edit_mode(buffer)
     self.operation_mode = self.EDIT
     buffer.key_handler = buffer.edit_key_handler
@@ -253,13 +267,6 @@ function core_key_init(self)
   self.bind_command_key('i', function(args)
     self.enter_edit_mode(args.buffer)
   end, 'enter edit mode')
-
-  for i = 0, 9 do
-    self.bind_command_key(tostring(i), function(args)
-      self.n = self.n * 10 + i
-      return 'is_numeric_prefix'
-    end, 'numeric prefix')
-  end
 
   function self.enter_command_mode(buffer)
     self.operation_mode = self.COMMAND
@@ -315,4 +322,28 @@ function core_key_init(self)
     self.update_command_prefix_indicator()
   end)
 
+  -- get keymap
+
+  function self.get_subkeymap(seq, keymap)
+    if type(seq) == 'string' then
+      local ss = {}
+      for c in seq:gmatch('.') do table.insert(ss, c) end
+      seq = ss
+    end
+    for i = 1, #seq - 1 do
+      key = seq[i]
+      if not keymap[key] or type(keymap[key]) ~= 'table' then -- not found
+        error('subkeymap not found')
+      end
+      keymap = keymap[key]
+    end
+    if not keymap[seq[#seq]] then
+      error('subkeymap not found')
+    end
+    return keymap[seq[#seq]]
+  end
+
+  function self.get_command_subkeymap(seq)
+    return self.get_subkeymap(seq, self.command_key_handler)
+  end
 end -- core_key_init
