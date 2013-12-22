@@ -154,7 +154,7 @@ function core_iter_init(self)
           break
         end
       else
-        if:forward_char()
+        it:forward_char()
       end
     end
     if backward and not at_begin then it:forward_char() end
