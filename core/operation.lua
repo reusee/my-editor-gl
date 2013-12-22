@@ -35,6 +35,28 @@ function core_operation_init(self)
       end
       return has_selection
     end
+
+    local function indent_selection(sel, indent_string)
+      local buf = buffer.buf
+      local start = buf:get_iter_at_mark(sel.start)
+      local stop = buf:get_iter_at_mark(sel.stop)
+      while start:compare(stop) < 0 do
+        if not start:starts_line() then
+          start:forward_line()
+        end
+        if start:compare(stop) >= 0 then break end
+        buf:begin_user_action()
+        buf:insert(start, indent_string, -1)
+        buf:end_user_action()
+        stop = buf:get_iter_at_mark(sel.stop)
+      end
+    end
+    function buffer.indent_selection(indent_string)
+      for _, sel in ipairs(buffer.selections) do
+        indent_selection(sel, indent_string)
+      end
+      indent_selection(buffer.cursor, indent_string)
+    end
   end)
 
   self.bind_command_key('d', function(args)
@@ -83,4 +105,19 @@ function core_operation_init(self)
       return self.selection_extend_subkeymap
     end
   end, 'copy selection')
+
+  self.bind_command_key(',>', function(args)
+    local buf = args.buffer.buf
+    local gview = args.view.widget
+    local indent_string = (' '):rep(gview:get_indent_width() * args.n)
+    if not buf:get_has_selection() then -- select current line
+      local it = buf:get_iter_at_mark(buf:get_insert())
+      if not it:starts_line() then it:set_line_offset(0) end
+      buf:move_mark(buf:get_selection_bound(), it)
+      if not it:ends_line() then it:forward_to_line_end() end
+      buf:move_mark(buf:get_insert(), it)
+    end
+    args.buffer.indent_selection(indent_string)
+    args.buffer.clear_selections()
+  end, 'indent selection')
 end
