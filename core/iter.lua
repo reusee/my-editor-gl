@@ -87,4 +87,17 @@ function core_iter_init(self)
   --TODO mark_jump_to_word_edge
   --TODO mark_jump_to_indent_block_edge
   --TODO iter_get_indent_level
+
+  -- update preferred_line_offset
+  Buffer.mix(function(buffer)
+    buffer.on_cursor_position(function()
+      if buffer.current_transform and self.operation_mode == self.COMMAND then
+        if buffer.current_transform.start_func == self.iter_jump_relative_line_with_preferred_offset then
+          do return end
+        end
+      end
+      buffer.preferred_line_offset = buffer.buf:get_iter_at_mark(
+        buffer.buf:get_insert()):get_offset()
+    end)
+  end)
 end
