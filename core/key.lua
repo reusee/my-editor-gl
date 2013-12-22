@@ -189,9 +189,7 @@ function core_key_init(self)
     self.handler_description[handler] = desc
     if type(seq) == 'string' then
       local ss = {}
-      for c in seq:gmatch('.') do
-        table.insert(ss, c)
-      end
+      for c in seq:gmatch('.') do table.insert(ss, c) end
       seq = ss
     end
     local key
@@ -209,6 +207,41 @@ function core_key_init(self)
       error('key binding conflict ' .. table.concat(seq, ''))
     end
     keymap[seq[#seq]] = handler
+  end
+
+  function self.alias_key_handler(dst_seq, src_seq, keymap)
+    local cur = keymap
+    if type(src_seq) == 'string' then
+      local ss = {}
+      for c in src_seq:gmatch('.') do table.insert(ss, c) end
+      src_seq = ss
+    end
+    for i = 1, #src_seq - 1 do
+      local key = src_seq[i]
+      if not cur[key] or type(cur[key]) ~= 'table' then -- invalid src
+        error('invalid alias source')
+      end
+      cur = cur[key]
+    end
+    if not cur[src_seq[#src_seq]] then
+      error('invalid alias source')
+    end
+    local src = cur[src_seq[#src_seq]]
+    self.bind_key_handler(keymap, dst_seq, src, self.handler_description[src])
+  end
+
+  function self.alias_command_key(dst_seq, src_seq)
+    self.alias_key_handler(dst_seq, src_seq, self.command_key_handler)
+    each(function(buffer)
+      self.alias_key_handler(dst_seq, src_seq, buffer.command_key_handler)
+      end, self.buffers)
+  end
+
+  function self.alias_edit_key(dst_seq, src_seq)
+    self.alias_key_handler(dst_seq, src_seq, self.edit_key_handler)
+    each(function(buffer)
+      self.alias_key_handler(dst_seq, src_seq, buffer.edit_key_handler)
+      end, self.buffers)
   end
 
   function self.enter_edit_mode(buffer)
