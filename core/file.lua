@@ -162,7 +162,12 @@ FileChooser = class{
 
     function self.update_list(current_dir)
       local head, tail = splitpath(self.entry:get_text())
-      if head == "" then head = current_dir end
+      if head == "" then
+         head = current_dir
+      end
+      if head:sub(1, 1) ~= pathsep() then -- relative path
+        head = joinpath(current_dir, head)
+      end
       self.store:clear()
       local candidates = {}
       local files = listdir(head)
@@ -175,6 +180,7 @@ FileChooser = class{
       table.sort(candidates, function(a, b) return #a < #b end)
       each(function(f) self.store:append{f} end, candidates)
       select:select_path(Gtk.TreePath.new_from_string('0'))
+      self.view:columns_autosize()
     end
 
   end,
