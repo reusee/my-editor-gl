@@ -52,4 +52,20 @@ function core_operation_init(self)
       return self.selection_extend_subkeymap
     end
   end, 'delete selection')
+
+  self.bind_command_key('c', function(args)
+    local buffer = args.buffer
+    local func = function()
+      if not buffer.copy_selection() then -- nothing is selected
+        return false
+      end
+      buffer.delete_selection()
+      self.enter_edit_mode(buffer)
+      return true
+    end
+    if not func() then
+      buffer.delayed_selection_operation = func
+      return self.selection_extend_subkeymap
+    end
+  end, 'change selection')
 end
