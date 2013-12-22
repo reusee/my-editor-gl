@@ -60,6 +60,9 @@ func main() {
 		"dirname": func(p string) string {
 			return filepath.Dir(p)
 		},
+		"basename": func(p string) string {
+		  return filepath.Base(p)
+		},
 		"splitpath": func(p string) (string, string) {
 			return filepath.Split(p)
 		},
