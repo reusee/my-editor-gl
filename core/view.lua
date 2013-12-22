@@ -110,6 +110,8 @@ View = class{function(self, buf)
   end
   self.widget = GtkSource.View.new_with_buffer(buf)
   self.proxy_gsignal(self.widget.on_draw, 'on_draw')
+  self.proxy_gsignal(self.widget.on_notify, 'on_buffer_changed', 'buffer')
+  self.proxy_gsignal(self.widget.on_grab_focus, 'on_grab_focus')
 
   local scroll = Gtk.ScrolledWindow()
   scroll:set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)

@@ -31,4 +31,32 @@ function core_status_init(self)
       cr:stroke()
     end)
   end)
+
+  -- buffer list
+  local buffer_list = Gtk.Label()
+  self.south_area:add(buffer_list)
+  buffer_list:set_hexpand(true)
+  buffer_list:set_line_wrap(true)
+  buffer_list:show_all()
+  local function update_buffer_list(current_buffer)
+    local markup = {}
+    for _, buffer in ipairs(self.buffers) do
+      if buffer == current_buffer then
+        table.insert(markup, '<span foreground="lightgreen">'
+          .. basename(buffer.filename) .. '</span>')
+      else
+        table.insert(markup, '<span>' .. basename(buffer.filename) .. '</span>')
+      end
+    end
+    buffer_list:set_markup(table.concat(markup, '   '))
+  end
+  View.mix(function(view)
+    view.on_buffer_changed(function()
+      update_buffer_list(self.view_get_buffer(view))
+    end)
+    view.on_grab_focus(function()
+      update_buffer_list(self.view_get_buffer(view))
+    end)
+  end)
+
 end

@@ -39,6 +39,9 @@ function core_buffer_init(self)
     return self._buffer_map[gbuffer]
   end
 
+  --TODO close buffer
+  --TODO update buffer list after close
+
 end
 
 decl('Buffer')
