@@ -109,6 +109,7 @@ View = class{function(self, buf)
     error('cannot create view without buffer')
   end
   self.widget = GtkSource.View.new_with_buffer(buf)
+  self.proxy_gsignal(self.widget.on_draw, 'on_draw')
 
   local scroll = Gtk.ScrolledWindow()
   scroll:set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)

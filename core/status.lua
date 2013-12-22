@@ -1,12 +1,12 @@
 decl('core_status_init')
 function core_status_init(self)
   -- current line and column
-  self.connect_signal('view-created', function(view)
-    self.gconnect(view.widget.on_draw, function(view, cr)
-      if not view.is_focus then return end
-      local rect = view:get_allocation()
-      local buf = self.gview_get_buffer(view).buf
-      local cursor_rect = view:get_iter_location(buf:get_iter_at_mark(buf:get_insert()))
+  View.mix(function(view)
+    view.on_draw(function(gview, cr)
+      if not gview.is_focus then return end
+      local rect = gview:get_allocation()
+      local buf = self.gview_get_buffer(gview).buf
+      local cursor_rect = gview:get_iter_location(buf:get_iter_at_mark(buf:get_insert()))
 
       if buf:get_modified() then
         cr:set_source_rgb(0, 0.3, 0.5)
@@ -18,7 +18,7 @@ function core_status_init(self)
       else
         cr:set_line_width(4)
       end
-      local x, y = view:buffer_to_window_coords(Gtk.TextWindowType.WIDGET,
+      local x, y = gview:buffer_to_window_coords(Gtk.TextWindowType.WIDGET,
         cursor_rect.x, cursor_rect.y)
       cr:move_to(x, 0)
       cr:line_to(x, rect.height)
