@@ -136,6 +136,35 @@ function core_transform_init(self)
     {self.iter_jump_to_word_edge, true},
     {self.iter_jump_to_word_edge},
     'all').apply(args.buffer) end, 'extend inside word')
+  self.bind_command_key('vb', function(args) Transform(
+    {false},
+    {self.iter_jump_to_indent_block_edge, 0},
+    'all').apply(args.buffer) end, 'extend to end of indentation block')
+  self.bind_command_key('vmb', function(args) Transform(
+    {self.iter_jump_to_indent_block_edge, 0, true},
+    {false},
+    'all').apply(args.buffer) end, 'extend to start of indentation block')
+  self.bind_command_key('vib', function(args) Transform(
+    {self.iter_jump_to_indent_block_edge, 0, true},
+    {self.iter_jump_to_indent_block_edge, 0},
+    'all').apply(args.buffer) end, 'extend inside indentation block')
+  self.bind_command_key('v%', function(args) Transform(
+    {false},
+    {self.iter_jump_to_matching_bracket},
+    'all').apply(args.buffer) end, 'forward extend to matching bracket')
+
+  self.selection_extend_subkeymap = self.get_command_subkeymap('v')
+
+  -- numeric prefix in selection extend
+  for i = 0, 9 do
+    self.bind_command_key('v' .. tostring(i), function(args)
+      self.n = self.n * 10 + i
+      return self.selection_extend_subkeymap
+    end, 'numeric prefix')
+  end
+
+  --TODO brackets in selection extend
+
 end
 
 decl('Transform')
