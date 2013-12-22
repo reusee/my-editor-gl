@@ -61,7 +61,7 @@ function core_iter_init(self)
     if not it:ends_line() then it:forward_to_line_end() end
   end
 
-  function self.mark_jump_to_line_start(it, buffer, n, backward)
+  function self.iter_jump_to_line_start(it, buffer, n, backward)
     if not it:starts_line() then it:set_line_offset(0) end
     for _ = 1, n - 1 do
       if backward then it:backward_line()

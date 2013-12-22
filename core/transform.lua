@@ -5,6 +5,10 @@ function core_transform_init(self)
     self.last_transform = false
   end)
 
+  self.bind_command_key(';', function(args)
+    args.buffer.last_transform.apply(args.buffer)
+    end, 'redo last transform')
+
   -- cursor moves
   self.bind_command_key('j', function(args) Transform(
     {self.iter_jump_relative_line_with_preferred_offset, args.n},
@@ -69,7 +73,69 @@ function core_transform_init(self)
 
   --TODO selection moves
 
-  --TODO selection extends
+  self.bind_command_key('vj', function(args) Transform(
+    {self.iter_jump_to_line_start, 1},
+    {self.iter_jump_to_line_start, args.n + 1},
+    'all').apply(args.buffer) end, 'relative forward line extend')
+  self.alias_command_key('vd', 'vj')
+  self.alias_command_key('vy', 'vj')
+  self.bind_command_key('vk', function(args) Transform(
+    {self.iter_jump_to_line_start, args.n, true},
+    {self.iter_jump_to_line_start, 2},
+    'all').apply(args.buffer) end, 'relative backward line extend')
+  self.bind_command_key('vh', function(args) Transform(
+    {self.iter_jump_relative_char, args.n, true},
+    {false},
+    'all').apply(args.buffer) end, 'relative backward char extend')
+  self.bind_command_key('vl', function(args) Transform(
+    {false},
+    {self.iter_jump_relative_char, args.n},
+    'all').apply(args.buffer) end, 'relative forward cha extend')
+  self.bind_command_key('vf', function(args) return function(args2) Transform(
+    {false},
+    {self.iter_jump_to_string, args.n, tochar(args2.keyval)},
+    'all').apply(args.buffer) end end, 'relative forward char extend')
+  self.alias_command_key('vt', 'vf')
+  self.bind_command_key('vmf', function(args) return function(args2) Transform(
+    {self.iter_jump_to_string, args.n, tochar(args2.keyval), true},
+    {false},
+    'all').apply(args.buffer) end end, 'relative backward char extend')
+  self.bind_command_key('vs', function(args) return function(args2) return function(args3) Transform(
+    {false},
+    {self.iter_jump_to_string, args.n, tochar(args2.keyval) .. tochar(args3.keyval)},
+    'all').apply(args.buffer) end end end, 'specified forward two-chars extend')
+  self.bind_command_key('vms', function(args) return function(args2) return function(args3) Transform(
+    {self.iter_jump_to_string, args.n, tochar(args2.keyval) .. tochar(args3.keyval), true},
+    {false},
+    'all').apply(args.buffer) end end end, 'specified backward, two-chars extend')
+  self.bind_command_key('vw', function(args) Transform(
+    {false},
+    {self.iter_jump_to_word_edge},
+    'all').apply(args.buffer) end, 'relative forward word extend')
+  self.bind_command_key('vmw', function(args) Transform(
+    {self.iter_jump_to_word_edge, true},
+    {false},
+    'all').apply(args.buffer) end, 'relative backward word extend')
+  self.bind_command_key('vr', function(args) Transform(
+    {false},
+    {self.iter_jump_to_line_end, 0},
+    'all').apply(args.buffer) end, 'extend to line end')
+  self.bind_command_key('vmr', function(args) Transform(
+    {self.iter_jump_to_line_start_or_nonspace_char, args.n},
+    {false},
+    'all').apply(args.buffer) end, 'extend to line start of fisrt non-space char')
+  self.bind_command_key('v[', function(args) Transform(
+    {self.iter_jump_to_empty_line, args.n, true},
+    {false},
+    'all').apply(args.buffer) end, 'extend to previous empty line')
+  self.bind_command_key('v]', function(args) Transform(
+    {false},
+    {self.iter_jump_to_empty_line, args.n},
+    'all').apply(args.buffer) end, 'extend to empty line')
+  self.bind_command_key('viw', function(args) Transform(
+    {self.iter_jump_to_word_edge, true},
+    {self.iter_jump_to_word_edge},
+    'all').apply(args.buffer) end, 'extend inside word')
 end
 
 decl('Transform')
