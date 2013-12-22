@@ -62,7 +62,10 @@ function core_transform_init(self)
     {self.iter_jump_to_empty_line, args.n},
     {'iter'}, 'cursor').apply(args.buffer)
     end, 'jump to next empty line')
-  --TODO jump to matching bracket
+  self.bind_command_key('%', function(args) Transform(
+    {self.iter_jump_to_matching_bracket},
+    {'iter'}, 'cursor').apply(args.buffer)
+    end, 'jump to matching bracket')
 
   --TODO selection moves
 

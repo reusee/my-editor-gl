@@ -83,7 +83,67 @@ function core_iter_init(self)
     end
   end
 
-  --TODO mark_jump_to_matching_bracket
+  function self.iter_jump_to_matching_bracket(iter, buffer)
+    local it = iter:copy()
+    local start = tochar(it:get_char())
+    local is_left = false
+    local match = false
+    for left, right in pairs(self.BRACKETS) do
+      if left == right then goto continue end
+      if left == start then
+        is_left = true
+        match = right
+        break
+      elseif right == start then
+        match = left
+        break
+      end
+    ::continue::
+    end
+    if not match then it:backward_char() end
+
+    start = tochar(it:get_char())
+    is_left = false
+    match = false
+    for left, right in pairs(self.BRACKETS) do
+      if left == right then goto continue2 end
+      if left == start then
+        is_left = true
+        match = right
+        break
+      elseif right == start then
+        match = left
+        break
+      end
+      ::continue2::
+    end
+    if not match then return end
+
+    local balance = 0
+    local found = false
+    if is_left then it:forward_char()
+    else it:backward_char() end
+    local c
+    while true do
+      c = tochar(it:get_char())
+      if c == match and balance == 0 then -- found
+        found = true
+        break
+      elseif c == match then
+        balance = balance - 1
+      elseif c == start then
+        balance = balance + 1
+      end
+      if is_left then
+        if not it:forward_char() then break end
+      else
+        if not it:backward_char() then break end
+      end
+    end
+    if not found then return end
+    iter:set_offset(it:get_offset())
+  end
+
   --TODO mark_jump_to_word_edge
   --TODO mark_jump_to_indent_block_edge
   --TODO iter_get_indent_level
@@ -97,7 +157,7 @@ function core_iter_init(self)
         end
       end
       buffer.preferred_line_offset = buffer.buf:get_iter_at_mark(
-        buffer.buf:get_insert()):get_offset()
+        buffer.buf:get_insert()):get_line_offset()
     end)
   end)
 end
