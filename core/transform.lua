@@ -71,8 +71,6 @@ function core_transform_init(self)
     {'iter'}, 'cursor').apply(args.buffer)
     end, 'jump to matching bracket')
 
-  --TODO selection moves
-
   self.bind_command_key('vj', function(args) Transform(
     {self.iter_jump_to_line_start, 1},
     {self.iter_jump_to_line_start, args.n + 1},
@@ -163,7 +161,71 @@ function core_transform_init(self)
     end, 'numeric prefix')
   end
 
-  --TODO brackets in selection extend
+  -- brackets in selection extend
+  for left, right in pairs(self.BRACKETS) do
+    self.bind_command_key('vi' .. left, function(args) Transform(
+      {self.selection_brackets_expand, left, right, false},
+      {'single'}, 'all').apply(args.buffer)
+    end, 'extend inside ' .. left .. right)
+    self.bind_command_key('va' .. left, function(args) Transform(
+      {self.selection_brackets_expand, left, right, true},
+      {'single'}, 'all').apply(args.buffer)
+    end, 'extend around ' .. left .. right)
+    if right == left then goto continue end
+    self.bind_command_key('vi' .. right, function(args) Transform(
+      {self.selection_brackets_expand, left, right, false},
+      {'single'}, 'all').apply(args.buffer)
+    end, 'extend inside ' .. left .. right)
+    self.bind_command_key('va' .. right, function(args) Transform(
+      {self.selection_brackets_expand, left, right, true},
+      {'single'}, 'all').apply(args.buffer)
+    end, 'extend around ' .. left .. right)
+    ::continue::
+  end
+
+  function self.selection_brackets_expand(sel, buffer, left, right, around)
+    local buf = buffer.buf
+    local start = buf:get_iter_at_mark(sel.stop)
+    local stop = start:copy()
+
+    local balance = 0
+    start:backward_char()
+    local found = false
+    while true do
+      local c = tochar(start:get_char())
+      if c == left and balance == 0 then
+        found = true
+        break
+      elseif c == left then
+        balance = balance - 1
+      elseif c == right then
+        balance = balance + 1
+      end
+      if not start:backward_char() then break end
+    end
+    if not found then return end
+    if not around then start:forward_char() end
+
+    balance = 0
+    found = false
+    while true do
+      local c = tochar(stop:get_char())
+      if c == right and balance == 0 then
+        found = true
+        break
+      elseif c == right then
+        balance = balance - 1
+      elseif c == left then
+        balance = balance + 1
+      end
+      if not stop:forward_char() then break end
+    end
+    if not found then return end
+    if around then stop:forward_char() end
+
+    buf:move_mark(sel.start, start)
+    buf:move_mark(sel.stop, stop)
+  end
 
 end
 
