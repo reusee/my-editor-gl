@@ -100,6 +100,17 @@ function core_view_init(self)
     args.view.widget:scroll_to_mark(args.buffer.buf:get_insert(), 0, true, 1, 0.5)
   end, 'scroll cursor to middle of screen')
 
+  -- auto scroll TODO
+  Buffer.mix(function(buffer)
+    buffer.on_cursor_position(function()
+      for _, view in ipairs(self.views) do
+        if self.view_get_buffer(view) ~= buffer then goto continue end
+        view.widget:scroll_to_mark(buffer.buf:get_insert(), 0, false, 0, 0)
+        ::continue::
+      end
+    end)
+  end)
+
 end
 
 decl('View')
