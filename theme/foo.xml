@@ -16,7 +16,6 @@
   <style name="def:function" foreground="green" />
   <style name="def:keyword" foreground="pink" />
   <style name="def:statement" foreground="pink" />
-  <style name="bracket-match" foreground="pink" />
   <style name="def:preprocessor" foreground="green" />
   <style name="def:specials" foreground="cyan" />
   <style name="def:type" foreground="cyan" />
@@ -26,9 +25,11 @@
   <color name="bg" value="#27281E" />
   <color name="white" value="#FFFFFF" />
   <color name="grey" value="#75715E" />
+  <color name="em" value="#FF009B" />
 
   <style name="cursor" foreground="white" />
   <style name="text" foreground="fg" background="bg" />
   <style name="def:comment" foreground="grey" />
+  <style name="bracket-match" foreground="em" />
 
 </style-scheme>

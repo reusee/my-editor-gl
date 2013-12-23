@@ -48,7 +48,23 @@ function core_selection_init(self)
       buf:delete_mark(stop_mark)
     end, nil, true)
 
-    -- insertion following TODO
+    buffer.buf.on_insert_text:connect(function(buf, location, text, length)
+      if self.operation_mode ~= self.EDIT then return end
+      if buffer.skip_insert_delete_signals then return end
+      local cursor_offset = buf:get_iter_at_mark(buf:get_insert()):get_offset()
+      if cursor_offset ~= location:get_offset() then return end -- not input
+      local m = buf:create_mark(nil, location, true)
+      buffer.skip_insert_delete_signals = true
+      buf:begin_user_action()
+      for _, sel in ipairs(buffer.selections) do
+        local it = buf:get_iter_at_mark(sel.start)
+        buf:insert(it, text, -1)
+      end
+      buf:end_user_action()
+      buffer.skip_insert_delete_signals = false
+      location:assign(buf:get_iter_at_mark(m))
+      buf:delete_mark(m)
+    end)
 
     buffer.delayed_selection_operation = false
 
