@@ -78,14 +78,12 @@ function core_selection_init(self)
         table.insert(buffer.selections, Selection(
           buf:create_mark(nil, it), buf:create_mark(nil, it)))
       end
-      --TODO update indicator
     end
 
     function buffer.clear_selections()
       buffer.selections = {}
       local buf = buffer.buf
       buf:place_cursor(buf:get_iter_at_mark(buf:get_insert()))
-      --TODO update indicator
     end
 
     function buffer.jump_selection_mark(backward)
@@ -192,7 +190,5 @@ function core_selection_init(self)
         ::continue::
       end
     end)
-
-    -- number of selections indicator TODO
   end)
 end

@@ -5,18 +5,20 @@ function core_status_init(self)
     view.on_draw(function(gview, cr)
       if not gview.is_focus then return end
       local rect = gview:get_allocation()
-      local buf = self.gview_get_buffer(gview).buf
+      local buffer = self.gview_get_buffer(gview)
+      local buf = buffer.buf
       local cursor_rect = gview:get_iter_location(buf:get_iter_at_mark(buf:get_insert()))
 
+      -- column
       if buf:get_modified() then
-        cr:set_source_rgb(0, 0.3, 0.5)
-      else
-        cr:set_source_rgb(0, 0.5, 0)
+        cr:set_source_rgb(0.49, 0.63, 1)
+      else -- normal
+        cr:set_source_rgb(0.5, 1, 0.46)
       end
       if self.operation_mode == self.COMMAND then
-        cr:set_line_width(2)
+        cr:set_line_width(1)
       else
-        cr:set_line_width(4)
+        cr:set_line_width(2)
       end
       local x, y = gview:buffer_to_window_coords(Gtk.TextWindowType.WIDGET,
         cursor_rect.x, cursor_rect.y)
@@ -24,8 +26,13 @@ function core_status_init(self)
       cr:line_to(x, rect.height)
       cr:stroke()
 
+      -- row
       cr:set_line_width(1)
-      cr:set_source_rgb(0.8, 0.8, 0.8)
+      if #buffer.selections > 0 then
+        cr:set_source_rgb(0.49, 0.63, 1)
+      else -- normal
+        cr:set_source_rgb(0.5, 1, 0.46)
+      end
       cr:move_to(0, y + cursor_rect.height)
       cr:line_to(rect.width, y + cursor_rect.height)
       cr:stroke()
