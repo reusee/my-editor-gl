@@ -1,0 +1,34 @@
+<?xml version="1.0" ?>
+<style-scheme id="foo" name="Foo" version="1.0">
+	<author/>
+	<_description>Port of the Molokai Text Mate Theme to GTKSourceView. </_description>
+
+	<color name="cyan" value="#AAFFEC" />
+	<color name="purple" value="#ABABE8" />
+	<color name="pink" value="#FF9CD1" />
+	<color name="yellow" value="#E8BC8E" />
+	<color name="green" value="#FFFFA1" />
+
+  <style name="def:boolean" foreground="purple" />
+  <style name="def:number" foreground="purple" />
+  <style name="def:constant" foreground="purple" />
+  <style name="def:string" foreground="yellow" />
+  <style name="def:function" foreground="green" />
+  <style name="def:keyword" foreground="pink" />
+  <style name="def:statement" foreground="pink" />
+  <style name="bracket-match" foreground="pink" />
+  <style name="def:preprocessor" foreground="green" />
+  <style name="def:specials" foreground="cyan" />
+  <style name="def:type" foreground="cyan" />
+  <style name="def:identifier" foreground="yellow" />
+
+  <color name="fg" value="#F2F2F8" />
+  <color name="bg" value="#27281E" />
+  <color name="white" value="#FFFFFF" />
+  <color name="grey" value="#75715E" />
+
+  <style name="cursor" foreground="white" />
+  <style name="text" foreground="fg" background="bg" />
+  <style name="def:comment" foreground="grey" />
+
+</style-scheme>
