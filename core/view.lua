@@ -53,6 +53,16 @@ function core_view_init(self)
   end
 
   -- buffer switching
+
+  View.mix(function(view)
+    view.define_signal('before-buffer-switch')
+    function view.switch_to_buffer(buffer)
+      view.emit_signal('before-buffer-switch', self.view_get_buffer(view))
+      view.widget:set_buffer(buffer.buf)
+      view.widget:set_indent_width(buffer.indent_width)
+    end
+  end)
+
   self.bind_command_key('>', function(args)
     local index = index_of(args.buffer, self.buffers)
     index = index + 1
@@ -72,6 +82,7 @@ function core_view_init(self)
   end, 'switch to previous buffer')
 
   -- scroll
+
   self.bind_command_key('M', function(args)
     local alloc = args.view.widget:get_allocation()
     local buf = args.buffer.buf
@@ -100,14 +111,54 @@ function core_view_init(self)
     args.view.widget:scroll_to_mark(args.buffer.buf:get_insert(), 0, true, 1, 0.5)
   end, 'scroll cursor to middle of screen')
 
-  -- auto scroll TODO
+  -- auto scroll
+
   Buffer.mix(function(buffer)
-    buffer.on_cursor_position(function()
+    buffer.on_cursor_position(function() -- auto scroll to insert cursor
       for _, view in ipairs(self.views) do
         if self.view_get_buffer(view) ~= buffer then goto continue end
+        if not view.widget.is_focus then goto continue end
         view.widget:scroll_to_mark(buffer.buf:get_insert(), 0, false, 0, 0)
         ::continue::
       end
+    end)
+  end)
+
+  View.mix(function(view)
+    local buffer_scroll_state = {}
+    function view.save_scroll_state()
+      local buffer = self.gview_get_buffer(view.widget)
+      local buf = buffer.buf
+      local scroll = view.scroll
+      buffer_scroll_state[buffer] = {
+        scroll:get_vadjustment():get_value(),
+        scroll:get_hadjustment():get_value(),
+        buf:get_iter_at_mark(buf:get_insert()):get_offset(),
+      }
+    end
+    function view.restore_scroll_state()
+      local buffer = self.gview_get_buffer(view.widget)
+      local scroll = view.scroll
+      local buf = buffer.buf
+      local state = buffer_scroll_state[buffer]
+      if not state then return end
+      scroll:get_vadjustment():set_value(state[1])
+      scroll:get_hadjustment():set_value(state[2])
+      local it = buf:get_start_iter()
+      it:set_offset(state[3])
+      buf:place_cursor(it)
+    end
+    view.on_focus_out(function() -- remember buffer scroll state
+      view.save_scroll_state()
+    end)
+    view.on_focus_in(function() -- restore buffer scroll state
+      view.restore_scroll_state()
+    end)
+    view.connect_signal('before-buffer-switch', function(buffer) -- remember buffer scroll state
+      view.save_scroll_state()
+    end)
+    view.on_buffer_changed(function() -- restore buffer scroll state
+      view.restore_scroll_state()
     end)
   end)
 
@@ -122,6 +173,8 @@ View = class{function(self, buf)
   self.proxy_gsignal(self.widget.on_draw, 'on_draw')
   self.proxy_gsignal(self.widget.on_notify, 'on_buffer_changed', 'buffer')
   self.proxy_gsignal(self.widget.on_grab_focus, 'on_grab_focus')
+  self.proxy_gsignal(self.widget.on_focus_in_event, 'on_focus_in')
+  self.proxy_gsignal(self.widget.on_focus_out_event, 'on_focus_out')
 
   local scroll = Gtk.ScrolledWindow()
   scroll:set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
@@ -129,6 +182,7 @@ View = class{function(self, buf)
   scroll:set_vexpand(true)
   scroll:set_hexpand(true)
   scroll:add(self.widget)
+  self.scroll = scroll
 
   local overlay = Gtk.Overlay()
   overlay:set_vexpand(true)
@@ -147,9 +201,6 @@ View = class{function(self, buf)
   self.widget:set_tab_width(2)
   self.widget:set_wrap_mode(Gtk.WrapMode.NONE)
 
-  function self.switch_to_buffer(buffer)
-    self.widget:set_buffer(buffer.buf)
-    self.widget:set_indent_width(buffer.indent_width)
-  end
 end}
 View.embed('widget')
+View.mix(signal_init)
