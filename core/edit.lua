@@ -7,12 +7,24 @@ function core_edit_init(self)
   -- paste
   self.bind_command_key('p', function(args)
     local buf = args.buffer.buf
+    local buffer = args.buffer
     local n = args.n
     if n == 0 then n = 1 end
     for i = 1, n do
       buf:paste_clipboard(self.clipboard, nil, true)
     end
-    --TODO multiple selections
+    buf:begin_user_action()
+    for i = 1, #self.extra_clipboard do
+      local sel = buffer.selections[i]
+      local start_iter = buf:get_iter_at_mark(sel.start)
+      local stop_iter = buf:get_iter_at_mark(sel.stop)
+      buf:delete(start_iter, stop_iter)
+      for _ = 1, n do
+        buf:insert(start_iter, self.extra_clipboard[i], -1)
+      end
+    end
+    buf:end_user_action()
+    buffer.clear_selections()
   end, 'paste')
   self.bind_command_key(',p', function(args)
     local buf = args.buffer.buf
@@ -82,8 +94,15 @@ function core_edit_init(self)
     self.enter_edit_mode(args.buffer)
   end, 'insert new line above')
 
-  --TODO append current pos
-  --TODO append current line
+  self.bind_command_key('a', function(args)
+    Transform({self.iter_jump_relative_char, 1}, {'iter'}, 'cursor').apply(args.buffer)
+    self.enter_edit_mode(args.buffer)
+  end, 'append after current char')
+  self.bind_command_key('A', function(args) Transform(
+    {self.iter_jump_to_line_end, 0},
+    {'iter'}, 'cursor').apply(args.buffer)
+    self.enter_edit_mode(args.buffer)
+  end, 'append at line end')
 
   self.bind_command_key('x', function(args)
     local buf = args.buffer.buf
@@ -153,7 +172,6 @@ function core_edit_init(self)
 
   -- macros
 
-  --TODO not working
   self.bind_command_key('.j', function(args)
     self.feed_keys(args.view, 'b1' .. tostring(args.n) .. "ggdd'1,p")
   end, 'move line n to next line')
