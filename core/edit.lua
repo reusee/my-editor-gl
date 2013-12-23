@@ -16,6 +16,7 @@ function core_edit_init(self)
     buf:begin_user_action()
     for i = 1, #self.extra_clipboard do
       local sel = buffer.selections[i]
+      if not sel then break end
       local start_iter = buf:get_iter_at_mark(sel.start)
       local stop_iter = buf:get_iter_at_mark(sel.stop)
       buf:delete(start_iter, stop_iter)
