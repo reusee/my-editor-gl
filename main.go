@@ -61,7 +61,7 @@ func main() {
 			return filepath.Dir(p)
 		},
 		"basename": func(p string) string {
-		  return filepath.Base(p)
+			return filepath.Base(p)
 		},
 		"splitpath": func(p string) (string, string) {
 			return filepath.Split(p)
@@ -169,14 +169,32 @@ func main() {
 		"tochar": func(r rune) string {
 			return string(r)
 		},
-		"regexindex": func(pattern, content string) interface{} {
+		"regexindex": func(pattern string, content []byte) interface{} {
 			re, err := regexp.Compile(pattern)
 			if err != nil {
 				return false
 			}
-			indexes := re.FindAllStringSubmatchIndex(content, -1)
+			indexes := re.FindAllSubmatchIndex(content, -1)
 			if indexes == nil {
 				return false
+			}
+			// convert byte index to char index
+			byte_index := 0
+			char_index := 0
+			var size int
+			for i, index := range indexes {
+				for byte_index != index[0] {
+					_, size = utf8.DecodeRune(content[byte_index:])
+					byte_index += size
+					char_index += 1
+				}
+				indexes[i][0] = char_index
+				for byte_index != index[1] {
+					_, size = utf8.DecodeRune(content[byte_index:])
+					byte_index += size
+					char_index += 1
+				}
+				indexes[i][1] = char_index
 			}
 			return indexes
 		},
