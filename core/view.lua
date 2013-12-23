@@ -130,7 +130,7 @@ function core_view_init(self)
       local buffer = self.gview_get_buffer(view.widget)
       local buf = buffer.buf
       local scroll = view.scroll
-      buffer_scroll_state[buffer] = {
+      buffer_scroll_state[buffer.filename] = {
         scroll:get_vadjustment():get_value(),
         scroll:get_hadjustment():get_value(),
         buf:get_iter_at_mark(buf:get_insert()):get_offset(),
@@ -140,13 +140,17 @@ function core_view_init(self)
       local buffer = self.gview_get_buffer(view.widget)
       local scroll = view.scroll
       local buf = buffer.buf
-      local state = buffer_scroll_state[buffer]
+      local state = buffer_scroll_state[buffer.filename]
       if not state then return end
-      scroll:get_vadjustment():set_value(state[1])
-      scroll:get_hadjustment():set_value(state[2])
       local it = buf:get_start_iter()
       it:set_offset(state[3])
       buf:place_cursor(it)
+      if state[1] > 0 then
+        scroll:get_vadjustment():set_value(state[1])
+      end
+      if state[2] > 0 then
+        scroll:get_hadjustment():set_value(state[2])
+      end
     end
     view.on_focus_out(function() -- remember buffer scroll state
       view.save_scroll_state()
@@ -157,7 +161,7 @@ function core_view_init(self)
     view.connect_signal('before-buffer-switch', function(buffer) -- remember buffer scroll state
       view.save_scroll_state()
     end)
-    view.on_buffer_changed(function() -- restore buffer scroll state
+    view.after_buffer_changed(function() -- restore buffer scroll state
       view.restore_scroll_state()
     end)
   end)
@@ -172,6 +176,7 @@ View = class{function(self, buf)
   self.widget = GtkSource.View.new_with_buffer(buf)
   self.proxy_gsignal(self.widget.on_draw, 'on_draw')
   self.proxy_gsignal(self.widget.on_notify, 'on_buffer_changed', 'buffer')
+  self.proxy_gsignal(self.widget.on_notify, 'after_buffer_changed', 'buffer', true)
   self.proxy_gsignal(self.widget.on_grab_focus, 'on_grab_focus')
   self.proxy_gsignal(self.widget.on_focus_in_event, 'on_focus_in')
   self.proxy_gsignal(self.widget.on_focus_out_event, 'on_focus_out')
