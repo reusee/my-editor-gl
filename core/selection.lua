@@ -124,44 +124,62 @@ function core_selection_init(self)
   --TODO toggle selection results
   --TODO toggle selections vertically
 
+  self.bind_command_key(',t', function(args)
+    local buffer = args.buffer
+    buffer.clear_selections()
+    local it = buffer.buf:get_start_iter()
+    local tag = buffer.search_result_tag
+    while it:forward_to_tag_toggle(tag) do
+      if not it:ends_tag(tag) then
+        buffer.toggle_selection(it)
+      end
+    end
+  end, 'toggle selections at search results')
+
   View.mix(function(view)
     -- draw selections
     view.on_draw(function(gview, cr)
       if not gview.is_focus then return end
       local buffer = self.gview_get_buffer(gview)
       local buf = buffer.buf
+      local alloc = gview:get_allocation()
+      local set_source_rgb = cr.set_source_rgb
+      local move_to = cr.move_to
+      local set_line_width = cr.set_line_width
+      local line_to = cr.line_to
+      local stroke = cr.stroke
+      local x, y, rect
       for _, selection in ipairs(buffer.selections) do
-        local set_source_rgb = cr.set_source_rgb
-        set_source_rgb(cr, 1, 0, 0)
-        local start_rect = gview:get_iter_location(
+        rect = gview:get_iter_location(
           buf:get_iter_at_mark(selection.start))
-        local x, y = gview:buffer_to_window_coords(Gtk.TextWindowType.WIDGET,
-          start_rect.x, start_rect.y)
-        local move_to = cr.move_to
+        x, y = gview:buffer_to_window_coords(Gtk.TextWindowType.WIDGET,
+          rect.x, rect.y)
+        if x > alloc.width or y > alloc.height or x < 0 or y < 0 then
+          goto continue
+        end
+        set_source_rgb(cr, 1, 0, 0)
         move_to(cr, x, y)
-        local set_line_width = cr.set_line_width
         set_line_width(cr, 2)
-        local line_to = cr.line_to
         line_to(cr, x + 6, y)
-        local stroke = cr.stroke
         stroke(cr)
         move_to(cr, x, y)
         set_line_width(cr, 1)
-        line_to(cr, x, y + start_rect.height)
+        line_to(cr, x, y + rect.height)
         stroke(cr)
         set_source_rgb(cr, 0, 1, 0)
-        local end_rect = gview:get_iter_location(
+        rect = gview:get_iter_location(
           buf:get_iter_at_mark(selection.stop))
         x, y = gview:buffer_to_window_coords(Gtk.TextWindowType.WIDGET,
-          end_rect.x, end_rect.y)
+          rect.x, rect.y)
         move_to(cr, x, y)
         set_line_width(cr, 1)
-        line_to(cr, x, y + end_rect.height)
+        line_to(cr, x, y + rect.height)
         stroke(cr)
-        move_to(cr, x, y + end_rect.height)
+        move_to(cr, x, y + rect.height)
         set_line_width(cr, 2)
-        line_to(cr, x - 6, y + end_rect.height)
+        line_to(cr, x - 6, y + rect.height)
         stroke(cr)
+        ::continue::
       end
     end)
 
