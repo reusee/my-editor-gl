@@ -70,6 +70,34 @@ function core_file_init(self)
     buf:set_modified(false)
     self.show_message('buffer saved to ' .. filename)
   end, 'save buffer to file')
+
+  -- close buffer
+  self.bind_command_key(',q', function(args)
+    local buf = args.buffer.buf
+    local buffer = args.buffer
+    if buf:get_modified() then
+      self.show_message('cannot close modified buffer')
+      return
+    end
+    if buffer.filename == '' then
+      self.show_message('cannot close unnamed buffer')
+      return
+    end
+    if #self.buffers == 1 then
+      self.show_message('cannot close last buffer')
+      return
+    end
+    local index = index_of(buffer, self.buffers)
+    table.remove(self.buffers, index)
+    index = index + 1
+    if index > #self.buffers then index = 1 end
+    for _, view in ipairs(self.views) do
+      if view.widget:get_buffer() == buf then
+        view.switch_to_buffer(self.buffers[index])
+      end
+    end
+    self.show_message('close buffer of ' .. buffer.filename)
+  end, 'close buffer')
 end
 
 decl('FileChooser')

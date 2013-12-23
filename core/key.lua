@@ -43,7 +43,7 @@ function core_key_init(self)
     -- get keyval
     local val
     if type(ev_or_keyval) == 'userdata' then -- gdk key event
-      self.emit_signal('key-pressed', view, ev_or_keyval) --TODO copy this
+      self.emit_signal('key-pressed', view, ev_or_keyval)
       if self.key_pressed_return_value == true then
         self.key_pressed_return_value = false
         return true

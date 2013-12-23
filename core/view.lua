@@ -28,7 +28,6 @@ function core_view_init(self)
     view.widget:set_indent_width(self.default_indent_width)
     view.widget:modify_font(self.default_font)
     table.insert(self.views, view)
-    --TODO update buffer list
     self.emit_signal('view-created', view)
     self._views_map[view.widget] = view
     return view
