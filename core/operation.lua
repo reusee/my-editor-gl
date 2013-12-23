@@ -57,6 +57,32 @@ function core_operation_init(self)
       end
       indent_selection(buffer.cursor, indent_string)
     end
+
+    local function dedent_selection(sel, dedent_level)
+      local buf = buffer.buf
+      local start = buf:get_iter_at_mark(sel.start)
+      local stop = buf:get_iter_at_mark(sel.stop)
+      if not start:starts_line() then start:forward_line() end
+      while start:compare(stop) < 0 do
+        local it = start:copy()
+        while tochar(it:get_char()):isspace() and it:get_line_offset() < dedent_level do
+          it:forward_char()
+        end
+        if it:get_line_offset() <= dedent_level then
+          buf:begin_user_action()
+          buf:delete(start, it)
+          buf:end_user_action()
+        end
+        start:forward_line()
+        stop = buf:get_iter_at_mark(sel.stop)
+      end
+    end
+    function buffer.dedent_selection(dedent_level)
+      for _, sel in ipairs(buffer.selections) do
+        dedent_selection(sel, dedent_level)
+      end
+      dedent_selection(buffer.cursor, dedent_level)
+    end
   end)
 
   self.bind_command_key('d', function(args)
@@ -120,4 +146,19 @@ function core_operation_init(self)
     args.buffer.indent_selection(indent_string)
     args.buffer.clear_selections()
   end, 'indent selection')
+
+  self.bind_command_key(',<', function(args)
+    local buf = args.buffer.buf
+    local gview = args.view.widget
+    local dedent_level = gview:get_indent_width() * args.n
+    if not buf:get_has_selection() then -- select current line
+      local it = buf:get_iter_at_mark(buf:get_insert())
+      if not it:starts_line() then it:set_line_offset(0) end
+      buf:move_mark(buf:get_selection_bound(), it)
+      if not it:ends_line() then it:forward_to_line_end() end
+      buf:move_mark(buf:get_insert(), it)
+    end
+    args.buffer.dedent_selection(dedent_level)
+    args.buffer.clear_selections()
+  end, 'dedent selection')
 end
