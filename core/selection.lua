@@ -121,8 +121,18 @@ function core_selection_init(self)
   self.bind_command_key('}', function(args)
     args.buffer.jump_selection_mark()
   end, 'jump to next selection')
-  --TODO toggle selection results
-  --TODO toggle selections vertically
+  self.bind_command_key('mt', function(args)
+    local buffer = args.buffer
+    local buf = buffer.buf
+    local offset = buf:get_iter_at_mark(buf:get_insert()):get_line_offset()
+    for _ = 1, args.n do
+      if buf:get_iter_at_mark(buf:get_insert()):get_line_offset() == offset then
+        buffer.toggle_selection()
+      end
+      Transform({self.iter_jump_relative_line_with_preferred_offset, 1},
+        {'iter'}, 'cursor').apply(buffer)
+    end
+  end, 'toggle selections vertically')
 
   self.bind_command_key(',t', function(args)
     local buffer = args.buffer
