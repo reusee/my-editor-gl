@@ -83,6 +83,16 @@ function core_operation_init(self)
       end
       dedent_selection(buffer.cursor, dedent_level)
     end
+
+    function buffer.insert_at_selection_ends(s)
+      local buf = buffer.buf
+      buf:begin_user_action()
+      for _, sel in ipairs(buffer.selections) do
+        buf:insert(buf:get_iter_at_mark(sel.stop), s, -1)
+      end
+      buf:insert(buf:get_iter_at_mark(buf:get_insert()), s, -1)
+      buf:end_user_action()
+    end
   end)
 
   self.bind_command_key('d', function(args)
