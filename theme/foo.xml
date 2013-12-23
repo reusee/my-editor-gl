@@ -22,7 +22,7 @@
   <style name="def:type" foreground="cyan" />
   <style name="def:identifier" foreground="yellow" />
 
-  <color name="fg" value="#F2F2F8" />
+  <color name="fg" value="#FFF3F0" />
   <color name="bg" value="#27281E" />
   <color name="white" value="#FFFFFF" />
   <color name="grey" value="#75715E" />
