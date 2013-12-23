@@ -50,7 +50,6 @@ function core_selection_init(self)
 
     -- insertion following TODO
 
-    -- delayed selection operation TODO
     buffer.delayed_selection_operation = false
 
     -- selection toggle

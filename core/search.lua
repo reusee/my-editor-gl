@@ -84,7 +84,18 @@ function core_search_init(self)
     next_search_result(args.view, true)
   end, 'previous search result')
 
-  --TODO search current word
+  self.bind_command_key('*', function(args)
+    Transform({self.iter_jump_to_word_edge, true}, {self.iter_jump_to_word_edge},
+      'cursor').apply(args.buffer)
+    local buffer = args.buffer
+    local buf = buffer.buf
+    buffer.search_pattern = buf:get_text(buf:get_iter_at_mark(buf:get_selection_bound()),
+      buf:get_iter_at_mark(buf:get_insert()), false)
+    buf:move_mark(buffer.search_range_start, buf:get_start_iter())
+    buf:move_mark(buffer.search_range_end, buf:get_end_iter())
+    buffer.clear_selections()
+    buffer.update_search_result(buffer)
+  end, 'search current word')
 end
 
 decl('SearchEntry')
@@ -140,7 +151,7 @@ SearchEntry = class{
         local start, stop = buf:get_selection_bounds()
         buf:move_mark(buffer.search_range_start, start)
         buf:move_mark(buffer.search_range_end, stop)
-        --TODO clear selections
+        buffer.clear_selections()
       else
         buf:move_mark(buffer.search_range_start, buf:get_start_iter())
         buf:move_mark(buffer.search_range_end, buf:get_end_iter())
