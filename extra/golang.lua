@@ -20,13 +20,7 @@ function extra_golang_init(self)
       if #ret == 0 then -- no candidates, use last provided
         last_provided.each(function(text, sources)
           if self.completion_fuzzy_match(text, input) then
-            for source, desc in pairs(sources) do
-              candidates.add({
-                text = text,
-                source = source,
-                desc = desc,
-              })
-            end
+            candidates.merge(text, sources)
           end
         end)
         do return end

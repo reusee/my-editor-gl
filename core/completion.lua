@@ -30,6 +30,15 @@ Vocabulary = class{function(self)
     for k, _ in pairs(text_set) do text_set[k] = nil end
     for k, _ in pairs(sources) do sources[k] = nil end
   end
+  function self.merge(text, sources)
+    for source, desc in pairs(sources) do
+      self.add({
+        text = text,
+        source = source,
+        desc = desc,
+      })
+    end
+  end
 end}
 
 local CandidateList = class{function(self)
@@ -141,13 +150,7 @@ function core_completion_init(self)
       for i = vocabulary.count(), 1, -1 do
         local text, sources = vocabulary.get(i)
         if self.completion_fuzzy_match(text, input) then
-          for source, desc in pairs(sources) do
-            candidates.add({
-              text = text,
-              source = source,
-              desc = desc,
-            })
-          end
+          candidates.merge(text, sources)
           n = n + 1
           if n > 30 then break end
         end
