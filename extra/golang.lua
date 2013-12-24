@@ -2,7 +2,7 @@ decl('extra_golang_init')
 function extra_golang_init(self)
   -- setup
   self.connect_signal('language-detected', function(buffer)
-    if buffer.lang:get_name() ~= 'Go' then return end
+    if buffer.lang_name ~= 'Go' then return end
 
     -- gocode completion provider
     local last_provided = Vocabulary()
@@ -40,7 +40,7 @@ function extra_golang_init(self)
   end)
 
   self.connect_signal('before-saving', function(buffer)
-    if buffer.lang:get_name() ~= 'Go' then return end
+    if buffer.lang_name ~= 'Go' then return end
     local buf = buffer.buf
     local out, err = gofmt(buf:get_text(buf:get_start_iter(), buf:get_end_iter(), false))
     local view = self.get_current_view()
