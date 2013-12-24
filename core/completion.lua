@@ -1,22 +1,34 @@
 decl('Vocabulary')
 Vocabulary = class{function(self)
-  local words = {}
-  local word_set = {}
+  local text_list = {}
+  local text_set = {}
+  local sources = {}
   function self.add(word)
-    if word_set[word.source .. '|' .. word.text] then return end
     if not word.source then word.source = '' end
     if not word.desc then word.desc = '' end
-    table.insert(words, word)
-    word_set[word.source .. '|' .. word.text] = true
+    if not text_set[word.text] then -- insert to text_list
+      text_set[word.text] = true
+      table.insert(text_list, word.text)
+    end
+    if not sources[word.text] then
+      sources[word.text] = {}
+    end
+    sources[word.text][word.source] = word.desc
   end
-  function self.count() return #words end
-  function self.get(i) return words[i] end
+  function self.count() return #text_list end
+  function self.get(i)
+    local text = text_list[i]
+    return text, sources[text]
+  end
   function self.each(func)
-    for _, word in ipairs(words) do func(word) end
+    for _, text in ipairs(text_list) do
+      func(text, sources[text])
+    end
   end
   function self.clear()
-    for _ = 1, #words do table.remove(words) end
-    for k, _ in pairs(word_set) do word_set[k] = nil end
+    for _ = 1, #text_list do table.remove(text_list) end
+    for k, _ in pairs(text_set) do text_set[k] = nil end
+    for k, _ in pairs(sources) do sources[k] = nil end
   end
 end}
 
@@ -127,8 +139,15 @@ function core_completion_init(self)
     if input ~= "" then
       local n = 0
       for i = vocabulary.count(), 1, -1 do
-        if self.completion_fuzzy_match(vocabulary.get(i).text, input) then
-          candidates.add(vocabulary.get(i))
+        local text, sources = vocabulary.get(i)
+        if self.completion_fuzzy_match(text, input) then
+          for source, desc in pairs(sources) do
+            candidates.add({
+              text = text,
+              source = source,
+              desc = desc,
+            })
+          end
           n = n + 1
           if n > 30 then break end
         end
@@ -138,7 +157,22 @@ function core_completion_init(self)
     each(function(provider) provider(buffer, input, candidates) end,
       buffer.completion_providers)
     -- sort and show
-    candidates.each(function(word) completion_candidates.append(word) end)
+    candidates.each(function(text, sources)
+      local s = ''
+      local d = ''
+      local sep = ''
+      for source, desc in pairs(sources) do -- merge souce and desc
+        s = s .. sep .. source
+        d = d .. sep .. desc
+        sep = '\n'
+      end
+      completion_candidates.append({ -- merge to one word
+        text = text,
+        source = s,
+        desc = d
+      })
+    end)
+
     completion_candidates.sort(function(a, b) return #a.text < #b.text end)
     if completion_candidates.count() > 0 then show_candidates() end
   end

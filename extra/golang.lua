@@ -18,9 +18,15 @@ function extra_golang_init(self)
       local ret = get_gocode_completions(buffer.filename, char_offset, buf:get_text(
         buf:get_start_iter(), buf:get_end_iter(), false))
       if #ret == 0 then -- no candidates, use last provided
-        last_provided.each(function(word)
-          if self.completion_fuzzy_match(word.text, input) then
-            candidates.add(word)
+        last_provided.each(function(text, sources)
+          if self.completion_fuzzy_match(text, input) then
+            for source, desc in pairs(sources) do
+              candidates.add({
+                text = text,
+                source = source,
+                desc = desc,
+              })
+            end
           end
         end)
         do return end
