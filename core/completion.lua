@@ -192,7 +192,7 @@ function core_completion_init(self)
     if current_selected then
       completion_candidates.append(current_selected)
     else
-      completion_candidates.append({text = text})
+      completion_candidates.append({text = text, source = 'input'})
     end
     local word = completion_candidates.shift()
     current_selected = word
