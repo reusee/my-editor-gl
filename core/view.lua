@@ -89,7 +89,7 @@ function core_view_init(self)
     local view = args.view.widget
     local it = view:get_line_at_y(alloc.height - 50 + view:get_vadjustment():get_value())
     buf:place_cursor(it)
-    view:scroll_to_mark(buf:get_insert(), 0, true, 0, 0)
+    view:scroll_to_mark(buf:get_insert(), 0, true, 1, 0)
   end, 'page down')
 
   self.bind_command_key('U', function(args)
@@ -98,7 +98,7 @@ function core_view_init(self)
     local view = args.view.widget
     local it = view:get_line_at_y(view:get_vadjustment():get_value() - alloc.height)
     buf:place_cursor(it)
-    view:scroll_to_mark(buf:get_insert(), 0, true, 0, 0)
+    view:scroll_to_mark(buf:get_insert(), 0, true, 1, 0)
   end, 'page up')
 
   self.bind_command_key('gt', function(args)
@@ -119,6 +119,8 @@ function core_view_init(self)
         if self.view_get_buffer(view) ~= buffer then goto continue end
         if not view.widget.is_focus then goto continue end
         view.widget:scroll_to_mark(buffer.buf:get_insert(), 0, false, 0, 0)
+        local scroll = view.scroll
+        local vadj = scroll:get_vadjustment()
         ::continue::
       end
     end)
@@ -129,28 +131,28 @@ function core_view_init(self)
     function view.save_scroll_state()
       local buffer = self.gview_get_buffer(view.widget)
       local buf = buffer.buf
-      local scroll = view.scroll
+      local gview = view.widget
+      local cursor_rect = gview:get_iter_location(buf:get_iter_at_mark(buf:get_insert()))
+      local left, top = gview:buffer_to_window_coords(Gtk.TextWindowType.WIDGET,
+        cursor_rect.x, cursor_rect.y)
+      local alloc = gview:get_allocation()
       buffer_scroll_state[buffer.filename] = {
-        scroll:get_vadjustment():get_value(),
-        scroll:get_hadjustment():get_value(),
         buf:get_iter_at_mark(buf:get_insert()):get_offset(),
+        left / alloc.width,
+        top / alloc.height,
       }
     end
     function view.restore_scroll_state()
       local buffer = self.gview_get_buffer(view.widget)
-      local scroll = view.scroll
       local buf = buffer.buf
       local state = buffer_scroll_state[buffer.filename]
       if not state then return end
       local it = buf:get_start_iter()
-      it:set_offset(state[3])
+      it:set_offset(state[1])
       buf:place_cursor(it)
-      if state[1] > 0 then
-        scroll:get_vadjustment():set_value(state[1])
-      end
-      if state[2] > 0 then
-        scroll:get_hadjustment():set_value(state[2])
-      end
+      if state[2] > 1 then state[2] = 1 end
+      if state[3] > 1 then state[3] = 1 end --XXX top > alloc.height
+      view.widget:scroll_to_mark(buf:get_insert(), 0, true, state[2], state[3])
     end
     view.on_focus_out(function() -- remember buffer scroll state
       view.save_scroll_state()
