@@ -26,6 +26,8 @@ func init() {
 	fmt.Printf("")
 }
 
+var t0 time.Time
+
 func main() {
 	lua, err := NewLua(filepath.Join(filepath.Dir(os.Args[0]), "main.lua"))
 	if err != nil {
@@ -95,6 +97,14 @@ func main() {
 		"current_time_in_millisecond": func() int64 {
 			t := time.Now().UnixNano() / 1000000
 			return t
+		},
+		"start_timer": func() {
+			t0 = time.Now()
+		},
+		"stop_timer": func() time.Duration {
+			delta := time.Now().Sub(t0)
+			fmt.Printf("%v\n", delta)
+			return delta
 		},
 
 		// file utils
@@ -219,6 +229,7 @@ func main() {
 
 		// golang
 		"get_gocode_completions": get_gocode_completions,
+		"gofmt":                  gofmt,
 	})
 
 	lua.Run()
