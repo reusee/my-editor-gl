@@ -26,7 +26,7 @@ function core_bookmark_init(self)
       local buf = buffer.buf
       local mark = buffer.bookmarks[keyval]
       if mark then buf:place_cursor(buf:get_iter_at_mark(mark)) end
-      args.view.widget:scroll_to_mark(buf:get_insert(), 0, true, 0, 0.5)
+      args.view.widget:scroll_to_mark(buf:get_insert(), 0, true, 1, 0.5)
     end
   end, 'jump to bookmark')
 end
