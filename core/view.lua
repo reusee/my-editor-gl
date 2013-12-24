@@ -150,20 +150,18 @@ function core_view_init(self)
       local it = buf:get_start_iter()
       it:set_offset(state[1])
       buf:place_cursor(it)
-      if state[2] > 1 then state[2] = 1 end
-      if state[3] > 1 then state[3] = 1 end --XXX top > alloc.height
       view.widget:scroll_to_mark(buf:get_insert(), 0, true, state[2], state[3])
     end
-    view.on_focus_out(function() -- remember buffer scroll state
+    view.on_focus_out(function() -- switching view
       view.save_scroll_state()
     end)
-    view.on_focus_in(function() -- restore buffer scroll state
+    view.on_focus_in(function() -- switching view
       view.restore_scroll_state()
     end)
-    view.connect_signal('before-buffer-switch', function(buffer) -- remember buffer scroll state
+    view.connect_signal('before-buffer-switch', function(buffer) -- switching buffer
       view.save_scroll_state()
     end)
-    view.after_buffer_changed(function() -- restore buffer scroll state
+    view.after_buffer_changed(function() -- switching buffer
       view.restore_scroll_state()
     end)
   end)
@@ -184,7 +182,7 @@ View = class{function(self, buf)
   self.proxy_gsignal(self.widget.on_focus_out_event, 'on_focus_out')
 
   local scroll = Gtk.ScrolledWindow()
-  scroll:set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+  scroll:set_policy(Gtk.PolicyType.ALWAYS, Gtk.PolicyType.AUTOMATIC)
   scroll:set_placement(Gtk.CornerType.TOP_RIGHT)
   scroll:set_vexpand(true)
   scroll:set_hexpand(true)

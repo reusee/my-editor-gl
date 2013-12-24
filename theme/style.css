@@ -9,9 +9,10 @@ GtkEntry {
   border: 0;
 }
 .scrollbar {
-  -GtkScrollbar-has-backward-stepper: 0;
-  -GtkScrollbar-has-forward-stepper: 0;
+  -GtkScrollbar-has-backward-stepper: false;
+  -GtkScrollbar-has-forward-stepper: false;
   -GtkRange-slider-width: 2px;
+  -GtkRange-trough-border: 0;
   border-radius: 3px;
   border: 0;
   background-color: #00AA00;
