@@ -38,4 +38,24 @@ function extra_golang_init(self)
     end)
 
   end)
+
+  self.connect_signal('before-saving', function(buffer)
+    if buffer.lang:get_name() ~= 'Go' then return end
+    local buf = buffer.buf
+    local out, err = gofmt(buf:get_text(buf:get_start_iter(), buf:get_end_iter(), false))
+    local view = self.get_current_view()
+    if err ~= '' then -- error occured
+      self.show_message(err)
+      local line, col = string.match(err, '(%d+):(%d+):')
+      local it = buf:get_start_iter()
+      it:set_line(tonumber(line) - 1)
+      it:set_line_index(tonumber(col) - 1)
+      buf:place_cursor(it)
+      view.widget:scroll_to_mark(buf:get_insert(), 0, false, 0, 0)
+    else
+      view.save_scroll_state()
+      buf:set_text(out, -1)
+      view.restore_scroll_state()
+    end
+  end)
 end
