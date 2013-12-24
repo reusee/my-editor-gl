@@ -3,11 +3,11 @@ Vocabulary = class{function(self)
   local words = {}
   local word_set = {}
   function self.add(word)
-    if word_set[word.text] then return end
+    if word_set[word.source .. '|' .. word.text] then return end
     if not word.source then word.source = '' end
     if not word.desc then word.desc = '' end
     table.insert(words, word)
-    word_set[word.text] = true
+    word_set[word.source .. '|' .. word.text] = true
   end
   function self.count() return #words end
   function self.get(i) return words[i] end
@@ -189,11 +189,11 @@ CompletionView = class{function(self)
         { text = 1 },
       }},
     Gtk.TreeViewColumn{
-      {Gtk.CellRendererText{font = '8'},
+      {Gtk.CellRendererText{font = '10'},
         { text = 2 },
       }},
     Gtk.TreeViewColumn{
-      {Gtk.CellRendererText{},
+      {Gtk.CellRendererText{font = '10'},
         { text = 3 },
       }},
     }
