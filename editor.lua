@@ -22,6 +22,8 @@ require 'core.terminal'
 require 'core.folding'
 require 'core.snippet'
 
+require 'extra.golang'
+
 decl('Editor')
 Editor = class{
   signal_init,
@@ -79,6 +81,9 @@ Editor = class{
   core_folding_init,
   core_snippet_init,
 
+  -- extra modules
+  extra_golang_init,
+
   function(self)
 
     -- views
@@ -91,8 +96,6 @@ Editor = class{
     self.style_scheme_manager = GtkSource.StyleSchemeManager.get_default()
     self.style_scheme_manager:append_search_path(joinpath(program_path(), 'theme'))
     self.style_scheme = self.style_scheme_manager:get_scheme(self.default_scheme)
-
-    -- extra modules
 
     -- buffers
     each(function(filename)

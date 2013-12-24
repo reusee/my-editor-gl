@@ -216,6 +216,9 @@ func main() {
 		"gdk_event_put": func(event unsafe.Pointer) {
 			C.gdk_event_put((*C.GdkEvent)(event))
 		},
+
+		// golang
+		"get_gocode_completions": get_gocode_completions,
 	})
 
 	lua.Run()
