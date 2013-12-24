@@ -1,10 +1,53 @@
+decl('Vocabulary')
+Vocabulary = class{function(self)
+  local words = {}
+  local word_set = {}
+  function self.add(word)
+    if word_set[word.text] then return end
+    if not word.source then word.source = '' end
+    if not word.desc then word.desc = '' end
+    table.insert(words, word)
+    word_set[word.text] = true
+  end
+  function self.count() return #words end
+  function self.get(i) return words[i] end
+  function self.each(func)
+    for _, word in ipairs(words) do func(word) end
+  end
+  function self.clear()
+    for _ = 1, #words do table.remove(words) end
+    for k, _ in pairs(word_set) do word_set[k] = nil end
+  end
+end}
+
+local CandidateList = class{function(self)
+  local words = {}
+  function self.each(func)
+    for _, word in ipairs(words) do func(word) end
+  end
+  function self.clear()
+    for _ = 1, #words do table.remove(words) end
+  end
+  function self.append(word)
+    table.insert(words, word)
+  end
+  function self.sort(cmp)
+    table.sort(words, cmp)
+  end
+  function self.count() return #words end
+  function self.shift()
+    return table.remove(words, 1)
+  end
+end}
+
 decl('core_completion_init')
 function core_completion_init(self)
-  local vocabulary = OrderedSet()
+  local vocabulary = Vocabulary()
 
+  -- collect words
   Buffer.mix(function(buffer)
     buffer.connect_signal('found-word', function(word)
-      vocabulary.add(word)
+      vocabulary.add({text = word, source = 'word'})
     end)
     buffer.completion_providers = {}
   end)
@@ -13,26 +56,28 @@ function core_completion_init(self)
   self.widget:add_overlay(completion_view.wrapper)
   self.on_realize(function() completion_view.wrapper:hide() end)
   local completion_replacing = false
-  local completion_candidates = List()
+  local completion_candidates = CandidateList()
 
-  local function fuzzy_match(w, word)
-    if w == word then return false end
-    local i = 1
-    local j = 1
-    while i <= #w and j <= #word do
-      if w:sub(i, i):lower() == word:sub(j, j):lower() then
+  function self.completion_fuzzy_match(text, input)
+    if input == text then return false end
+    local i = 1 -- for text
+    local j = 1 -- for input
+    while i <= #text and j <= #input do
+      if text:sub(i, i):lower() == input:sub(j, j):lower() then
         i = i + 1
         j = j + 1
       else
         i = i + 1
       end
     end
-    return j == #word + 1
+    return j == #input + 1
   end
 
   local function show_candidates()
     completion_view.store:clear()
-    each(function(e) completion_view.store:append{e} end, completion_candidates.get())
+    completion_candidates.each(function(word)
+      completion_view.store:append{word.text, word.source, word.desc}
+    end)
     completion_view.wrapper:show_all()
     completion_view.view:columns_autosize()
     -- set position
@@ -57,7 +102,7 @@ function core_completion_init(self)
   local current_selected = false
   self.define_signal('word-completed')
 
-  local function update_completion(buffer)
+  local function update_candidates(buffer)
     if completion_replacing then return end
     completion_view.wrapper:hide()
     completion_candidates.clear()
@@ -71,7 +116,7 @@ function core_completion_init(self)
       current_selected = false
     end
     if self.operation_mode ~= self.EDIT then return end
-    local candidates = Set()
+    local candidates = Vocabulary()
     -- from vocabulary
     local buf = buffer.buf
     local input = buf:get_text(
@@ -81,8 +126,8 @@ function core_completion_init(self)
     current_selected = false
     if input ~= "" then
       local n = 0
-      for i = #vocabulary.get(), 1, -1 do
-        if fuzzy_match(vocabulary.get(i), input) then
+      for i = vocabulary.count(), 1, -1 do
+        if self.completion_fuzzy_match(vocabulary.get(i).text, input) then
           candidates.add(vocabulary.get(i))
           n = n + 1
           if n > 30 then break end
@@ -93,13 +138,13 @@ function core_completion_init(self)
     each(function(provider) provider(buffer, input, candidates) end,
       buffer.completion_providers)
     -- sort and show
-    each(function(c) completion_candidates.append(c) end, candidates.get())
-    table.sort(completion_candidates.get(), function(a, b) return #a < #b end)
-    if #completion_candidates.get() > 0 then show_candidates() end
+    candidates.each(function(word) completion_candidates.append(word) end)
+    completion_candidates.sort(function(a, b) return #a.text < #b.text end)
+    if completion_candidates.count() > 0 then show_candidates() end
   end
 
   self.bind_edit_key({Gdk.KEY_Tab}, function(args)
-    if #completion_candidates.get() == 0 then return 'propagate' end
+    if completion_candidates.count() == 0 then return 'propagate' end
     local buf = args.buffer.buf
     local start_mark = args.buffer.word_start
     local end_mark = args.buffer.word_end
@@ -107,35 +152,51 @@ function core_completion_init(self)
     completion_replacing = true
     buf:begin_user_action()
     buf:delete(buf:get_iter_at_mark(start_mark), buf:get_iter_at_mark(end_mark))
-    local word = completion_candidates.pop()
+    if current_selected then
+      completion_candidates.append(current_selected)
+    else
+      completion_candidates.append({text = text})
+    end
+    local word = completion_candidates.shift()
     current_selected = word
-    buf:insert(buf:get_iter_at_mark(start_mark), word, -1)
+    buf:insert(buf:get_iter_at_mark(start_mark), word.text, -1)
     buf:end_user_action()
     completion_replacing = false
-    completion_candidates.append(text)
     show_candidates()
   end, 'next completion')
 
   self.connect_signal('buffer-created', function(buffer)
-    buffer.on_changed(function() update_completion(buffer) end)
+    buffer.on_changed(function() update_candidates(buffer) end)
   end)
   self.connect_signal({'entered-command-mode', 'entered-edit-mode'}, function(buffer)
-    update_completion(buffer)
+    update_candidates(buffer)
   end)
+
 end
 
 decl('CompletionView')
 CompletionView = class{function(self)
   self.wrapper = Gtk.Grid{halign = Gtk.Align.START, valign = Gtk.Align.START}
-  self.store = Gtk.ListStore.new{GObject.Type.STRING}
+  self.store = Gtk.ListStore.new{
+    GObject.Type.STRING, -- text
+    GObject.Type.STRING, -- source
+    GObject.Type.STRING, -- desc
+  }
   self.view = Gtk.TreeView{
     model = self.store,
     Gtk.TreeViewColumn{
-      title = 'word',
-      {
-        Gtk.CellRendererText{},
+      {Gtk.CellRendererText{},
         { text = 1 },
-      }}}
+      }},
+    Gtk.TreeViewColumn{
+      {Gtk.CellRendererText{font = '8'},
+        { text = 2 },
+      }},
+    Gtk.TreeViewColumn{
+      {Gtk.CellRendererText{},
+        { text = 3 },
+      }},
+    }
   self.view:set_headers_visible(false)
   self.wrapper:add(self.view)
   self.wrapper:show_all()
