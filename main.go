@@ -15,6 +15,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"runtime/pprof"
 	"time"
 	"unicode/utf8"
 	"unsafe"
@@ -27,6 +28,7 @@ func init() {
 }
 
 var t0 time.Time
+var profileBuffer bytes.Buffer
 
 func main() {
 	lua, err := NewLua(filepath.Join(filepath.Dir(os.Args[0]), "main.lua"))
@@ -225,6 +227,16 @@ func main() {
 		},
 		"gdk_event_put": func(event unsafe.Pointer) {
 			C.gdk_event_put((*C.GdkEvent)(event))
+		},
+
+		// profile
+		"startprofile": func() {
+			profileBuffer.Reset()
+			pprof.StartCPUProfile(&profileBuffer)
+		},
+		"stopprofile": func() {
+			pprof.StopCPUProfile()
+			ioutil.WriteFile("profile", profileBuffer.Bytes(), 0644)
 		},
 
 		// golang

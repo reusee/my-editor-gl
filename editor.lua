@@ -23,6 +23,7 @@ require 'core.folding'
 require 'core.snippet'
 
 require 'extra.golang'
+require 'extra.profile'
 
 decl('Editor')
 Editor = class{
@@ -83,6 +84,7 @@ Editor = class{
 
   -- extra modules
   extra_golang_init,
+  extra_profile_init,
 
   function(self)
 
