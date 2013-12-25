@@ -134,6 +134,7 @@ function core_layout_init(self)
       if self.stacks[i].widget == gstack then
         index = i
         table.remove(self.stacks, i)
+        break
       end
     end
     index = index - 1
