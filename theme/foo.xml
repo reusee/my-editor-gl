@@ -20,6 +20,7 @@
   <style name="def:preprocessor" foreground="green" />
   <style name="def:specials" foreground="cyan" />
   <style name="def:type" foreground="cyan" />
+  <style name="def:comment" foreground="cyan" />
   <style name="def:identifier" foreground="yellow" />
   <style name="selection" foreground="darkerpink" />
 
@@ -31,7 +32,6 @@
 
   <style name="cursor" foreground="white" />
   <style name="text" foreground="fg" background="bg" />
-  <style name="def:comment" foreground="grey" />
   <style name="def:shebang" foreground="grey" />
   <style name="bracket-match" foreground="em" />
   <style name="def:error" foreground="em" />
