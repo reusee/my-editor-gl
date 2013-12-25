@@ -15,6 +15,20 @@ function core_layout_init(self)
     end
   end}
 
+  View.mix(function(view)
+    local cursor_position = -1
+    function view.save_cursor_position()
+      local buf = view.buffer.buf
+      cursor_position = buf:get_iter_at_mark(buf:get_insert()):get_offset()
+    end
+    function view.restore_cursor_position()
+      local buf = view.buffer.buf
+      local it = buf:get_start_iter()
+      it:set_offset(cursor_position)
+      buf:place_cursor(it)
+    end
+  end)
+
   -- split
   local function split_view(view, orientation)
     local wrapper = view.wrapper
@@ -40,7 +54,7 @@ function core_layout_init(self)
     new_grid:show_all()
     grid:attach(new_grid, left, top, 1, 1)
 
-    --TODO save cursor position
+    view.save_cursor_position()
     new_view.widget:grab_focus()
   end
 
@@ -60,7 +74,7 @@ function core_layout_init(self)
     local new_stack = ViewStack()
     new_stack.widget:add_named(new_view.wrapper, new_view.buffer.filename)
     grid:add(new_stack.widget)
-    --TODO save cursor position
+    view.save_cursor_position()
     new_view.widget:grab_focus()
   end, 'sibling split current view')
 
@@ -74,7 +88,7 @@ function core_layout_init(self)
       if x >= left and x <= right and y >= top and y <= bottom then
         local view = self.view_from_wrapper(stack.widget:get_visible_child())
         view.widget:grab_focus()
-        --TODO restore cursor position
+        view.restore_cursor_position()
         break
       end
     end
@@ -84,7 +98,7 @@ function core_layout_init(self)
     local alloc = args.view.widget:get_allocation()
     local win = args.view.widget:get_window(Gtk.TextWindowType.WIDGET)
     local _, x, y = win:get_origin()
-    --TODO save cursor position
+    args.view.save_cursor_position()
     switch_to_view_at_pos(x + alloc.width / 3, y + 30 + alloc.height)
   end, 'switch to south view')
 
@@ -92,7 +106,7 @@ function core_layout_init(self)
     local alloc = args.view.widget:get_allocation()
     local win = args.view.widget:get_window(Gtk.TextWindowType.WIDGET)
     local _, x, y = win:get_origin()
-    --TODO save cursor position
+    args.view.save_cursor_position()
     switch_to_view_at_pos(x + alloc.width / 3, y - 30)
   end, 'switch to north view')
 
@@ -100,7 +114,7 @@ function core_layout_init(self)
     local alloc = args.view.widget:get_allocation()
     local win = args.view.widget:get_window(Gtk.TextWindowType.WIDGET)
     local _, x, y = win:get_origin()
-    --TODO save cursor position
+    args.view.save_cursor_position()
     switch_to_view_at_pos(x - 30, y + alloc.height / 3)
   end, 'switch to west view')
 
@@ -108,7 +122,7 @@ function core_layout_init(self)
     local alloc = args.view.widget:get_allocation()
     local win = args.view.widget:get_window(Gtk.TextWindowType.WIDGET)
     local _, x, y = win:get_origin()
-    --TODO save cursor position
+    args.view.save_cursor_position()
     switch_to_view_at_pos(x + 20 + alloc.width, y + alloc.height / 3)
   end, 'switch to east view')
 
@@ -143,7 +157,7 @@ function core_layout_init(self)
     gstack:get_parent():remove(gstack)
     local next_view = self.view_from_wrapper(next_stack.widget:get_visible_child())
     next_view.widget:grab_focus()
-    --TODO restore cursor position
+    next_view.restore_cursor_position()
   end, 'close view stack')
 
 end
