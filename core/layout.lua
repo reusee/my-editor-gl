@@ -1,9 +1,20 @@
+decl('ViewStack')
+ViewStack = class{function(self)
+  self.widget = Gtk.Overlay()
+  self.widget:add(Gtk.Button())
+  self.widget:set_vexpand(true)
+  self.widget:set_hexpand(true)
+  function self.add(view)
+    self.widget:add_overlay(view.wrapper)
+  end
+end}
+
 decl('core_layout_init')
 function core_layout_init(self)
   local function split_view(view, orientation)
     local wrapper = view.wrapper
     local grid = wrapper:get_parent()
-    local new_view = self.create_view(view.widget:get_buffer())
+    local new_view = self.create_view(view.buffer)
 
     local left = GObject.Value(GObject.Type.INT)
     grid:child_get_property(wrapper, 'left-attach', left)
@@ -34,7 +45,7 @@ function core_layout_init(self)
   self.bind_command_key(',s', function(args)
     local view = args.view
     local grid = view.wrapper:get_parent()
-    local new_view = self.create_view(view.widget:get_buffer())
+    local new_view = self.create_view(view.buffer)
     local wrapper = new_view.wrapper
     wrapper:show_all()
     grid:add(wrapper)
