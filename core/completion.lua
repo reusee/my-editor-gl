@@ -102,15 +102,15 @@ function core_completion_init(self)
     completion_view.wrapper:show_all()
     completion_view.view:columns_autosize()
     -- set position
-    local view = self.get_current_view().widget
-    local buf = self.gview_get_buffer(view).buf
-    local iter_rect = view:get_iter_location(buf:get_iter_at_mark(buf:get_insert()))
-    local x, y = view:buffer_to_window_coords(Gtk.TextWindowType.WIDGET, iter_rect.x, iter_rect.y)
+    local gview = self.get_current_view().widget
+    local buf = self.gview_get_buffer(gview).buf
+    local iter_rect = gview:get_iter_location(buf:get_iter_at_mark(buf:get_insert()))
+    local x, y = gview:buffer_to_window_coords(Gtk.TextWindowType.WIDGET, iter_rect.x, iter_rect.y)
     y = y + iter_rect.height + 1
     x = x + 8
     local win_rect = self.widget:get_allocation()
     local _, editor_x, editor_y = self.widget:get_window():get_origin()
-    local _, view_x, view_y = view:get_window(Gtk.TextWindowType.WIDGET):get_origin()
+    local _, view_x, view_y = gview:get_window(Gtk.TextWindowType.WIDGET):get_origin()
     x = x + view_x - editor_x
     y = y + view_y - editor_y
     if y + 100 > win_rect.height then y = y - 100 end
