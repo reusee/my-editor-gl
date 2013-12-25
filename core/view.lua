@@ -1,7 +1,6 @@
 decl('core_view_init')
 function core_view_init(self)
   self.views = {}
-  self._views_map = {}
 
   self.define_signal('view-created')
   self.connect_signal('view-created', function(view)
@@ -23,18 +22,26 @@ function core_view_init(self)
     end
   end)
 
+  local view_gview_map = {}
+  local view_wrapper_map = {}
+
   function self.create_view(buffer)
     local view = View(buffer)
     view.widget:set_indent_width(self.default_indent_width)
     view.widget:modify_font(self.default_font)
     table.insert(self.views, view)
     self.emit_signal('view-created', view)
-    self._views_map[view.widget] = view
+    view_gview_map[view.widget] = view
+    view_wrapper_map[view.wrapper] = view
     return view
   end
 
-  function self.gview_to_View(gview)
-    return self._views_map[gview]
+  function self.view_from_gview(gview)
+    return view_gview_map[gview]
+  end
+
+  function self.view_from_wrapper(wrapper)
+    return view_wrapper_map[wrapper]
   end
 
   function self.gview_get_buffer(gview)
@@ -54,15 +61,25 @@ function core_view_init(self)
 
   -- buffer switching
 
-  View.mix(function(view)
-    view.define_signal('before-buffer-switch')
-    function view.switch_to_buffer(buffer)
-      view.emit_signal('before-buffer-switch', self.view_get_buffer(view))
-      view.widget:set_buffer(buffer.buf)
-      -- after switch
-      view.widget:set_indent_width(buffer.indent_width)
+  function self.switch_to_buffer(buffer, gstack)
+    local exists = false
+    local name = GObject.Value(GObject.Type.STRING)
+    for _, child in ipairs(gstack:get_children()) do
+      gstack:child_get_property(child, 'name', name)
+      if name.value == buffer.filename then
+        exists = true
+        break
+      end
     end
-  end)
+    if not exists then -- create view
+      local view = self.create_view(buffer)
+      gstack:add_named(view.wrapper, buffer.filename)
+    end
+    gstack:set_visible_child_name(buffer.filename)
+    local wrapper = gstack:get_visible_child()
+    local view = self.view_from_wrapper(wrapper)
+    view.widget:grab_focus()
+  end
 
   self.bind_command_key('>', function(args)
     local index = index_of(args.buffer, self.buffers)
@@ -70,7 +87,7 @@ function core_view_init(self)
     if index > #self.buffers then
       index = 1
     end
-    args.view.switch_to_buffer(self.buffers[index])
+    self.switch_to_buffer(self.buffers[index], args.view.wrapper:get_parent())
   end, 'switch to next buffer')
 
   self.bind_command_key('<', function(args)
@@ -79,7 +96,7 @@ function core_view_init(self)
     if index < 1 then
       index = #self.buffers
     end
-    args.view.switch_to_buffer(self.buffers[index])
+    self.switch_to_buffer(self.buffers[index], args.view.wrapper:get_parent())
   end, 'switch to previous buffer')
 
   -- scroll
@@ -192,9 +209,6 @@ function core_view_init(self)
       end
     end
 
-    view.connect_signal('before-buffer-switch', function(buffer) -- switching buffer
-      view.lock_buffer_scroll()
-    end)
   end)
 
 end
@@ -226,6 +240,7 @@ View = class{function(self, buffer)
   overlay:set_vexpand(true)
   overlay:set_hexpand(true)
   overlay:add(scroll)
+  overlay:show_all()
 
   self.wrapper = overlay
   self.overlay = overlay

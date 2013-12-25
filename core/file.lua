@@ -20,9 +20,13 @@ function core_file_init(self)
     if not buffer then
       buffer = self.create_buffer(filename)
     end
-    -- switch to buffer
+    -- create view
     if buffer then
-      file_chooser.last_view.switch_to_buffer(buffer)
+      local stack = file_chooser.last_view.wrapper:get_parent()
+      local view = self.create_view(buffer)
+      stack:add_named(view.wrapper, buffer.filename)
+      stack:set_visible_child(view.wrapper)
+      view.widget:grab_focus()
     end
   end)
 
@@ -75,8 +79,8 @@ function core_file_init(self)
 
   -- close buffer
   self.bind_command_key(',q', function(args)
-    local buf = args.buffer.buf
     local buffer = args.buffer
+    local buf = buffer.buf
     if buf:get_modified() then
       self.show_message('cannot close modified buffer')
       return
@@ -93,9 +97,19 @@ function core_file_init(self)
     table.remove(self.buffers, index)
     index = index + 1
     if index > #self.buffers then index = 1 end
-    for _, view in ipairs(self.views) do
-      if view.widget:get_buffer() == buf then
-        view.switch_to_buffer(self.buffers[index])
+    local next_buffer = self.buffers[index]
+    local i = 1
+    while true do
+      if i > #self.views then break end
+      local view = self.views[i]
+      if view.buffer == buffer then -- delete
+        table.remove(self.views, i)
+        local wrapper = view.wrapper
+        local gstack = wrapper:get_parent()
+        gstack:remove(wrapper)
+        self.switch_to_buffer(next_buffer, gstack)
+      else
+        i = i + 1
       end
     end
     self.show_message('close buffer of ' .. buffer.filename)

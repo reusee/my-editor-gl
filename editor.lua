@@ -109,7 +109,7 @@ Editor = class{
     -- create views
     for _, buffer in ipairs(self.buffers) do
       local view = self.create_view(buffer)
-      stack.add(view)
+      stack.widget:add_named(view.wrapper, view.buffer.filename)
     end
 
   end,

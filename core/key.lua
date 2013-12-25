@@ -62,7 +62,7 @@ function core_key_init(self)
     end
     -- buffer and view
     local buffer = self.gview_get_buffer(view)
-    local view = self.gview_to_View(view)
+    local view = self.view_from_gview(view)
     -- cancel command
     if val == Gdk.KEY_Escape then
       self.enter_command_mode(buffer)

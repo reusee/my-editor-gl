@@ -1,33 +1,42 @@
 decl('ViewStack')
-ViewStack = class{function(self)
-  self.widget = Gtk.Overlay()
-  self.widget:add(Gtk.Button())
-  self.widget:set_vexpand(true)
-  self.widget:set_hexpand(true)
-  function self.add(view)
-    self.widget:add_overlay(view.wrapper)
-  end
-end}
-
 decl('core_layout_init')
 function core_layout_init(self)
+  self.stacks = {}
+  ViewStack = class{function(stack)
+    stack.widget = Gtk.Stack()
+    stack.widget:set_vexpand(true)
+    stack.widget:set_hexpand(true)
+    stack.widget:show_all()
+    stack.widget:set_transition_type(Gtk.StackTransitionType.CROSSFADE)
+    stack.widget:set_transition_duration(100)
+    table.insert(self.stacks, stack)
+    function stack.add(view)
+      stack.widget:add_named(view.wrapper, view.buffer.filename)
+    end
+  end}
+
+  -- split
   local function split_view(view, orientation)
     local wrapper = view.wrapper
-    local grid = wrapper:get_parent()
+    local gstack = wrapper:get_parent()
+    local grid = gstack:get_parent()
     local new_view = self.create_view(view.buffer)
 
     local left = GObject.Value(GObject.Type.INT)
-    grid:child_get_property(wrapper, 'left-attach', left)
+    grid:child_get_property(gstack, 'left-attach', left)
     left = left.value
     local top = GObject.Value(GObject.Type.INT)
-    grid:child_get_property(wrapper, 'top-attach', top)
+    grid:child_get_property(gstack, 'top-attach', top)
     top = top.value
 
-    grid:remove(wrapper)
+    local new_stack = ViewStack()
+    new_stack.widget:add_named(new_view.wrapper, new_view.buffer.filename)
+
+    grid:remove(gstack)
     local new_grid = Gtk.Grid()
     new_grid:set_orientation(orientation)
-    new_grid:add(wrapper)
-    new_grid:add(new_view.wrapper)
+    new_grid:add(gstack)
+    new_grid:add(new_stack.widget)
     new_grid:show_all()
     grid:attach(new_grid, left, top, 1, 1)
 
@@ -42,25 +51,28 @@ function core_layout_init(self)
     split_view(args.view, Gtk.Orientation.HORIZONTAL)
   end, 'horizontal split current view')
 
+  -- sibling split
   self.bind_command_key(',s', function(args)
     local view = args.view
-    local grid = view.wrapper:get_parent()
+    local grid = view.wrapper:get_parent():get_parent()
     local new_view = self.create_view(view.buffer)
     local wrapper = new_view.wrapper
-    wrapper:show_all()
-    grid:add(wrapper)
+    local new_stack = ViewStack()
+    new_stack.widget:add_named(new_view.wrapper, new_view.buffer.filename)
+    grid:add(new_stack.widget)
     view.lock_buffer_scroll()
     new_view.widget:grab_focus()
   end, 'sibling split current view')
 
   local function switch_to_view_at_pos(x, y)
-    for _, view in ipairs(self.views) do
-      local alloc = view.widget:get_allocation()
-      local win = view.widget:get_window(Gtk.TextWindowType.WIDGET)
+    for _, stack in ipairs(self.stacks) do
+      local alloc = stack.widget:get_allocation()
+      local win = stack.widget:get_window(Gtk.TextWindowType.WIDGET)
       local _, left, top = win:get_origin()
       local right = left + alloc.width
       local bottom = top + alloc.height
       if x >= left and x <= right and y >= top and y <= bottom then
+        local view = self.view_from_wrapper(stack.widget:get_visible_child())
         view.widget:grab_focus()
         view.unlock_buffer_scroll()
         break
@@ -101,18 +113,36 @@ function core_layout_init(self)
   end, 'switch to east view')
 
   self.bind_command_key(',z', function(args)
-    if #self.views == 1 then return end -- dont close last view
-    local wrapper = args.view.wrapper
-    local index = index_of(args.view, self.views)
-    table.remove(self.views, index)
+    if #self.stacks == 1 then return end -- dont close last stack
+    local gstack = args.view.wrapper:get_parent()
+    -- remove views from self.views
+    for _, wrapper in ipairs(gstack:get_children()) do
+      local view = self.view_from_wrapper(wrapper)
+      local i = 1
+      while true do
+        if i > #self.views then break end
+        if self.views[i] == view then -- delete
+          table.remove(self.views, i)
+        else
+          i = i + 1
+        end
+      end
+    end
+    -- remoe stack from self.stacks
+    local index = 1
+    for i = 1, #self.stacks do
+      if self.stacks[i].widget == gstack then
+        index = i
+        table.remove(self.stacks, i)
+      end
+    end
     index = index - 1
     if index < 1 then index = 1 end
-    local next_view = self.views[index]
-    args.view.widget:freeze_notify()
-    wrapper:get_parent():remove(wrapper)
-    args.view.lock_buffer_scroll()
+    local next_stack = self.stacks[index]
+    gstack:get_parent():remove(gstack)
+    local next_view = self.view_from_wrapper(next_stack.widget:get_visible_child())
     next_view.widget:grab_focus()
     next_view.unlock_buffer_scroll()
-  end, 'close current view')
+  end, 'close view stack')
 
 end
