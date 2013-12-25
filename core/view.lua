@@ -59,6 +59,7 @@ function core_view_init(self)
     function view.switch_to_buffer(buffer)
       view.emit_signal('before-buffer-switch', self.view_get_buffer(view))
       view.widget:set_buffer(buffer.buf)
+      -- after switch
       view.widget:set_indent_width(buffer.indent_width)
     end
   end)
