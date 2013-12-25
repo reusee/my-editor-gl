@@ -88,17 +88,6 @@ Editor = class{
 
   function(self)
 
-    -- views
-    self.views_grid = Gtk.Grid()
-    self.views_grid:set_row_homogeneous(true)
-    self.views_grid:set_column_homogeneous(true)
-    self.root_grid:attach(self.views_grid, 0, 0, 1, 1)
-
-    -- font and style
-    self.style_scheme_manager = GtkSource.StyleSchemeManager.get_default()
-    self.style_scheme_manager:append_search_path(joinpath(program_path(), 'theme'))
-    self.style_scheme = self.style_scheme_manager:get_scheme(self.default_scheme)
-
     -- buffers
     each(function(filename)
       self.create_buffer(filename)
@@ -107,9 +96,21 @@ Editor = class{
       self.create_buffer()
     end
 
-    -- first view
-    local view = self.create_view(self.buffers[1].buf)
-    self.views_grid:add(view.wrapper)
+    -- root view grid
+    self.views_grid = Gtk.Grid()
+    self.views_grid:set_row_homogeneous(true)
+    self.views_grid:set_column_homogeneous(true)
+    self.root_grid:attach(self.views_grid, 0, 0, 1, 1)
+
+    -- first stack
+    local stack = ViewStack()
+    self.views_grid:add(stack.widget)
+
+    -- create views
+    for _, buffer in ipairs(self.buffers) do
+      local view = self.create_view(buffer)
+      stack.add(view)
+    end
 
   end,
 }

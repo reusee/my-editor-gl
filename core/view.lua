@@ -23,8 +23,8 @@ function core_view_init(self)
     end
   end)
 
-  function self.create_view(buf)
-    local view = View(buf)
+  function self.create_view(buffer)
+    local view = View(buffer)
     view.widget:set_indent_width(self.default_indent_width)
     view.widget:modify_font(self.default_font)
     table.insert(self.views, view)
@@ -200,7 +200,9 @@ function core_view_init(self)
 end
 
 decl('View')
-View = class{function(self, buf)
+View = class{function(self, buffer)
+  self.buffer = buffer
+  local buf = buffer.buf
   if buf == nil then
     error('cannot create view without buffer')
   end
