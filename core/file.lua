@@ -20,11 +20,20 @@ function core_file_init(self)
     if not buffer then
       buffer = self.create_buffer(filename)
     end
-    -- create view
     if buffer then
       local stack = file_chooser.last_view.wrapper:get_parent()
-      local view = self.create_view(buffer)
+      -- create or switch to view
+      local view
+      for _, wrapper in ipairs(stack:get_children()) do
+        view = self.view_from_wrapper(wrapper)
+        if view.buffer == buffer then -- switch
+          goto forelse
+        end
+      end
+      -- create
+      view = self.create_view(buffer)
       stack:add_named(view.wrapper, buffer.filename)
+      ::forelse::
       stack:set_visible_child(view.wrapper)
       view.widget:grab_focus()
     end
