@@ -174,12 +174,6 @@ function core_view_init(self)
       end
     end
 
-    view.on_focus_out(function() -- switching view
-      view.lock_buffer_scroll()
-    end)
-    view.on_focus_in(function() -- switching view
-      view.unlock_buffer_scroll()
-    end)
     view.connect_signal('before-buffer-switch', function(buffer) -- switching buffer
       view.lock_buffer_scroll()
     end)

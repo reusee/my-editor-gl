@@ -55,7 +55,6 @@ function core_search_init(self)
   end, 'search backward')
 
   local function next_search_result(view, backward)
-    if backward == nil then backward = false end
     local buffer = self.view_get_buffer(view)
     local buf = buffer.buf
     local it = buf:get_iter_at_mark(buf:get_insert())

@@ -20,6 +20,7 @@ function core_layout_init(self)
     new_grid:show_all()
     grid:attach(new_grid, left, top, 1, 1)
 
+    view.lock_buffer_scroll()
     new_view.widget:grab_focus()
   end
 
@@ -37,6 +38,7 @@ function core_layout_init(self)
     local wrapper = new_view.wrapper
     wrapper:show_all()
     grid:add(wrapper)
+    view.lock_buffer_scroll()
     new_view.widget:grab_focus()
   end, 'sibling split current view')
 
@@ -49,6 +51,7 @@ function core_layout_init(self)
       local bottom = top + alloc.height
       if x >= left and x <= right and y >= top and y <= bottom then
         view.widget:grab_focus()
+        view.unlock_buffer_scroll()
         break
       end
     end
@@ -58,6 +61,7 @@ function core_layout_init(self)
     local alloc = args.view.widget:get_allocation()
     local win = args.view.widget:get_window(Gtk.TextWindowType.WIDGET)
     local _, x, y = win:get_origin()
+    args.view.lock_buffer_scroll()
     switch_to_view_at_pos(x + alloc.width / 3, y + 30 + alloc.height)
   end, 'switch to south view')
 
@@ -65,6 +69,7 @@ function core_layout_init(self)
     local alloc = args.view.widget:get_allocation()
     local win = args.view.widget:get_window(Gtk.TextWindowType.WIDGET)
     local _, x, y = win:get_origin()
+    args.view.lock_buffer_scroll()
     switch_to_view_at_pos(x + alloc.width / 3, y - 30)
   end, 'switch to north view')
 
@@ -72,6 +77,7 @@ function core_layout_init(self)
     local alloc = args.view.widget:get_allocation()
     local win = args.view.widget:get_window(Gtk.TextWindowType.WIDGET)
     local _, x, y = win:get_origin()
+    args.view.lock_buffer_scroll()
     switch_to_view_at_pos(x - 30, y + alloc.height / 3)
   end, 'switch to west view')
 
@@ -79,6 +85,7 @@ function core_layout_init(self)
     local alloc = args.view.widget:get_allocation()
     local win = args.view.widget:get_window(Gtk.TextWindowType.WIDGET)
     local _, x, y = win:get_origin()
+    args.view.lock_buffer_scroll()
     switch_to_view_at_pos(x + 20 + alloc.width, y + alloc.height / 3)
   end, 'switch to east view')
 
@@ -92,7 +99,9 @@ function core_layout_init(self)
     local next_view = self.views[index]
     args.view.widget:freeze_notify()
     wrapper:get_parent():remove(wrapper)
+    args.view.lock_buffer_scroll()
     next_view.widget:grab_focus()
+    next_view.unlock_buffer_scroll()
   end, 'close current view')
 
 end
