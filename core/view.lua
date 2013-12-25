@@ -131,80 +131,10 @@ function core_view_init(self)
       for _, view in ipairs(self.views) do
         if view.buffer ~= buffer then goto continue end
         if not view.widget.is_focus then goto continue end
-        view.clear_buffer_scroll_state() -- unlock without restore
         view.widget:scroll_to_mark(buffer.buf:get_insert(), 0, false, 0, 0)
         ::continue::
       end
     end)
-  end)
-
-  -- lock scrolling
-  View.mix(function(view)
-    local buffer_scroll_state = {}
-
-    local function lock_vadjustment(adj) -- maintain vadjustment value
-      local gview = view.widget
-      local buffer = self.gview_get_buffer(gview)
-      local state = buffer_scroll_state[buffer]
-      if state and adj:get_value() ~= state[2] and state[2] > 0 then
-        adj:set_value(state[2])
-      end
-    end
-    view.widget:get_vadjustment().on_changed:connect(function(adj)
-      lock_vadjustment(adj)
-    end)
-    view.widget:get_vadjustment().on_value_changed:connect(function(adj)
-      lock_vadjustment(adj)
-    end, nil, true)
-    local function lock_hadjustment(adj) -- maintain hadjustment value
-      local gview = view.widget
-      local buffer = self.gview_get_buffer(gview)
-      local state = buffer_scroll_state[buffer]
-      if state and adj:get_value() ~= state[3] and state[3] > 0 then
-        adj:set_value(state[3])
-      end
-    end
-    view.widget:get_hadjustment().on_changed:connect(function(adj)
-      lock_hadjustment(adj)
-    end)
-    view.widget:get_hadjustment().on_value_changed:connect(function(adj)
-      lock_hadjustment(adj)
-    end, nil, true)
-
-    function view.lock_buffer_scroll()
-      local buffer = self.gview_get_buffer(view.widget)
-      local buf = buffer.buf
-      local gview = view.widget
-      buffer_scroll_state[buffer] = {
-        buf:get_iter_at_mark(buf:get_insert()):get_offset(),
-        gview:get_vadjustment():get_value(),
-        gview:get_hadjustment():get_value(),
-      }
-    end
-    function view.clear_buffer_scroll_state() -- unlock without restore
-      local buffer = self.gview_get_buffer(view.widget)
-      buffer_scroll_state[buffer] = nil
-    end
-    function view.unlock_buffer_scroll() -- unlock then restore
-      local buffer = self.gview_get_buffer(view.widget)
-      local state = buffer_scroll_state[buffer]
-      if not state then return end
-      buffer_scroll_state[buffer] = nil
-      local gview = view.widget
-      local buf = buffer.buf
-      local it = buf:get_start_iter()
-      it:set_offset(state[1])
-      buf:place_cursor(it)
-      if state[2] > 0 then
-        view.scroll:get_vadjustment():set_value(state[2])
-        view.scroll:get_vadjustment():value_changed()
-      end
-      if state[3] > 0 then
-        view.scroll:get_hadjustment():set_value(state[3])
-        view.scroll:get_hadjustment():value_changed()
-      end
-    end
-
   end)
 
 end
