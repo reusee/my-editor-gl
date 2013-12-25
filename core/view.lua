@@ -111,58 +111,80 @@ function core_view_init(self)
     args.view.widget:scroll_to_mark(args.buffer.buf:get_insert(), 0, true, 1, 0.5)
   end, 'scroll cursor to middle of screen')
 
-  -- auto scroll
-
+  -- auto scroll when moving cursor
   Buffer.mix(function(buffer)
-    buffer.on_cursor_position(function() -- auto scroll to insert cursor
+    buffer.on_cursor_position(function()
       for _, view in ipairs(self.views) do
         if self.view_get_buffer(view) ~= buffer then goto continue end
         if not view.widget.is_focus then goto continue end
         view.widget:scroll_to_mark(buffer.buf:get_insert(), 0, false, 0, 0)
-        local scroll = view.scroll
-        local vadj = scroll:get_vadjustment()
         ::continue::
       end
     end)
   end)
 
+  -- lock scrolling
   View.mix(function(view)
     local buffer_scroll_state = {}
-    function view.save_scroll_state()
+
+    view.widget:get_vadjustment().on_value_changed:connect(function(adj)
+      local gview = view.widget
+      local buffer = self.gview_get_buffer(gview)
+      local state = buffer_scroll_state[buffer]
+      if state and adj:get_value() ~= state[2] and state[2] > 0 then
+        adj:set_value(state[2])
+      end
+    end, nil, true)
+    view.widget:get_hadjustment().on_value_changed:connect(function(adj)
+      local gview = view.widget
+      local buffer = self.gview_get_buffer(gview)
+      local state = buffer_scroll_state[buffer]
+      if state and adj:get_value() ~= state[3] and state[3] > 0 then
+        adj:set_value(state[3])
+      end
+    end, nil, true)
+
+    function view.lock_buffer_scroll()
       local buffer = self.gview_get_buffer(view.widget)
       local buf = buffer.buf
       local gview = view.widget
-      local cursor_rect = gview:get_iter_location(buf:get_iter_at_mark(buf:get_insert()))
-      local left, top = gview:buffer_to_window_coords(Gtk.TextWindowType.WIDGET,
-        cursor_rect.x, cursor_rect.y)
-      local alloc = gview:get_allocation()
-      buffer_scroll_state[buffer.filename] = {
+      buffer_scroll_state[buffer] = {
         buf:get_iter_at_mark(buf:get_insert()):get_offset(),
-        left / alloc.width,
-        top / alloc.height,
+        gview:get_vadjustment():get_value(),
+        gview:get_hadjustment():get_value(),
       }
     end
-    function view.restore_scroll_state()
+    function view.unlock_buffer_scroll()
       local buffer = self.gview_get_buffer(view.widget)
-      local buf = buffer.buf
-      local state = buffer_scroll_state[buffer.filename]
+      local state = buffer_scroll_state[buffer]
       if not state then return end
+      buffer_scroll_state[buffer] = nil
+      local gview = view.widget
+      local buf = buffer.buf
       local it = buf:get_start_iter()
       it:set_offset(state[1])
       buf:place_cursor(it)
-      view.widget:scroll_to_mark(buf:get_insert(), 0, true, state[2], state[3])
+      if state[2] > 0 then
+        view.scroll:get_vadjustment():set_value(state[2])
+        view.scroll:get_vadjustment():value_changed()
+      end
+      if state[3] > 0 then
+        view.scroll:get_hadjustment():set_value(state[3])
+        view.scroll:get_hadjustment():value_changed()
+      end
     end
+
     view.on_focus_out(function() -- switching view
-      view.save_scroll_state()
+      view.lock_buffer_scroll()
     end)
     view.on_focus_in(function() -- switching view
-      view.restore_scroll_state()
+      view.unlock_buffer_scroll()
     end)
     view.connect_signal('before-buffer-switch', function(buffer) -- switching buffer
-      view.save_scroll_state()
+      view.lock_buffer_scroll()
     end)
     view.after_buffer_changed(function() -- switching buffer
-      view.restore_scroll_state()
+      view.unlock_buffer_scroll()
     end)
   end)
 

@@ -53,9 +53,9 @@ function extra_golang_init(self)
       buf:place_cursor(it)
       view.widget:scroll_to_mark(buf:get_insert(), 0, false, 0, 0)
     else
-      view.save_scroll_state()
+      buf:begin_user_action()
       buf:set_text(out, -1)
-      view.restore_scroll_state()
+      buf:end_user_action()
     end
   end)
 end

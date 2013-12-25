@@ -55,7 +55,9 @@ function core_file_init(self)
     local tmp_filename = filename .. '.' .. tostring(current_time_in_millisecond())
     local backup_filename = quote_filename(filename) .. '.' .. tostring(current_time_in_millisecond())
     backup_filename = joinpath(file_backup_dir, backup_filename)
+    args.view.lock_buffer_scroll()
     self.emit_signal('before-saving', args.buffer)
+    args.view.unlock_buffer_scroll()
     -- save tmp file
     if createwithmode(tmp_filename, filemode(filename)) then return end
     local f = io.open(tmp_filename, 'w')
