@@ -8,6 +8,7 @@
 	<color name="pink" value="#FF9CD1" />
 	<color name="yellow" value="#E8BC8E" />
 	<color name="green" value="#FFFFA1" />
+  <color name="darkerpink" value="#FF3366" />
 
   <style name="def:boolean" foreground="purple" />
   <style name="def:number" foreground="purple" />
@@ -20,6 +21,7 @@
   <style name="def:specials" foreground="cyan" />
   <style name="def:type" foreground="cyan" />
   <style name="def:identifier" foreground="yellow" />
+  <style name="selection" foreground="darkerpink" />
 
   <color name="fg" value="#F2FFF1" />
   <color name="bg" value="#27281E" />
@@ -30,6 +32,9 @@
   <style name="cursor" foreground="white" />
   <style name="text" foreground="fg" background="bg" />
   <style name="def:comment" foreground="grey" />
+  <style name="def:shebang" foreground="grey" />
   <style name="bracket-match" foreground="em" />
+  <style name="def:error" foreground="em" />
+  <style name="def:note" foreground="em" />
 
 </style-scheme>
