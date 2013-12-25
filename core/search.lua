@@ -32,7 +32,7 @@ function core_search_init(self)
   self.on_realize(function() search_entry.widget:hide() end)
 
   search_entry.connect_signal('update', function(view)
-    local buffer = self.view_get_buffer(view)
+    local buffer = view.buffer
     local buf = buffer.buf
     buffer.update_search_result()
     local it = buf:get_iter_at_mark(buf:get_insert())
@@ -55,7 +55,7 @@ function core_search_init(self)
   end, 'search backward')
 
   local function next_search_result(view, backward)
-    local buffer = self.view_get_buffer(view)
+    local buffer = view.buffer
     local buf = buffer.buf
     local it = buf:get_iter_at_mark(buf:get_insert())
     local func = function(tag) return it:forward_to_tag_toggle(tag) end
@@ -112,7 +112,7 @@ SearchEntry = class{
     local history_index = 1
 
     local function update()
-      self.editor.view_get_buffer(view).search_pattern = self.widget:get_text()
+      view.buffer.search_pattern = self.widget:get_text()
       self.emit_signal('update', view)
     end
 
@@ -123,7 +123,7 @@ SearchEntry = class{
       if event.keyval == Gdk.KEY_Escape or event.keyval == Gdk.KEY_Return then
         if event.keyval == Gdk.KEY_Escape then -- cancel
           view.widget:scroll_to_mark(
-            self.editor.view_get_buffer(view).buf:get_insert(),
+            view.buffer.buf:get_insert(),
             0, true, 1, 0.5)
         else -- Enter
           update()
@@ -144,7 +144,7 @@ SearchEntry = class{
 
     function self.run(v, backward)
       if backward == nil then backward = false end
-      local buffer = self.editor.view_get_buffer(v)
+      local buffer = v.buffer
       local buf = buffer.buf
       if buf:get_has_selection() then -- search inside selection
         local start, stop = buf:get_selection_bounds()

@@ -140,7 +140,7 @@ function core_key_init(self)
   end
 
   function self.insert_delay_chars(view)
-    local buffer = self.view_get_buffer(view)
+    local buffer = view.buffer
     local buf = buffer.buf
     buf:begin_user_action()
     buf:insert(buf:get_iter_at_mark(buf:get_insert()),

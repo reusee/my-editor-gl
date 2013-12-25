@@ -59,10 +59,10 @@ function core_status_init(self)
   end
   View.mix(function(view)
     view.on_buffer_changed(function()
-      update_buffer_list(self.view_get_buffer(view))
+      update_buffer_list(view.buffer)
     end)
     view.on_grab_focus(function()
-      update_buffer_list(self.view_get_buffer(view))
+      update_buffer_list(view.buffer)
     end)
   end)
 

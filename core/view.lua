@@ -49,10 +49,6 @@ function core_view_init(self)
     return self.gbuffer_to_Buffer(gbuffer)
   end
 
-  function self.view_get_buffer(view)
-    return self.gbuffer_to_Buffer(view.widget:get_buffer())
-  end
-
   function self.get_current_view()
     for _, view in ipairs(self.views) do
       if view.widget.is_focus then return view end
@@ -133,7 +129,7 @@ function core_view_init(self)
   Buffer.mix(function(buffer)
     buffer.on_cursor_position(function()
       for _, view in ipairs(self.views) do
-        if self.view_get_buffer(view) ~= buffer then goto continue end
+        if view.buffer ~= buffer then goto continue end
         if not view.widget.is_focus then goto continue end
         view.clear_buffer_scroll_state() -- unlock without restore
         view.widget:scroll_to_mark(buffer.buf:get_insert(), 0, false, 0, 0)

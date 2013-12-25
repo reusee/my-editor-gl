@@ -131,7 +131,7 @@ FileChooser = class{
     self.entry:set_hexpand(true)
     self.wrapper:add(self.entry)
     self.entry.on_notify:connect(function()
-      local buffer_filename = editor.view_get_buffer(self.last_view).filename
+      local buffer_filename = self.last_view.buffer.filename
       self.update_list(abspath(dirname(buffer_filename)))
     end, 'text')
 
