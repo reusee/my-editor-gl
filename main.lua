@@ -25,6 +25,7 @@ require 'base.signal'
 require 'base.object'
 require 'base.container'
 require 'base.callback'
+require 'base.trace'
 
 require 'editor'
 
