@@ -5,6 +5,7 @@ import "C"
 
 import (
 	"./core"
+	"./extra"
 	"bytes"
 	"encoding/xml"
 	"fmt"
@@ -244,13 +245,10 @@ func main() {
 			pprof.StopCPUProfile()
 			ioutil.WriteFile("profile", profileBuffer.Bytes(), 0644)
 		},
-
-		// golang
-		"get_gocode_completions": get_gocode_completions,
-		"gofmt":                  gofmt,
 	})
 
 	lua.RegisterFunctions(core.Registry)
+	lua.RegisterFunctions(extra.Registry)
 
 	lua.Run()
 }
