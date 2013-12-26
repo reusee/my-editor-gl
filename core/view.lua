@@ -147,6 +147,7 @@ View = class{function(self, buffer)
     error('cannot create view without buffer')
   end
   self.widget = GtkSource.View.new_with_buffer(buf)
+  self.native = self.widget._native
   self.proxy_gsignal(self.widget.on_draw, 'on_draw')
   self.proxy_gsignal(self.widget.on_notify, 'on_buffer_changed', 'buffer')
   self.proxy_gsignal(self.widget.on_notify, 'after_buffer_changed', 'buffer', true)

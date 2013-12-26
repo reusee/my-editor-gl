@@ -46,6 +46,7 @@ Buffer = class{
   signal_init,
   function(self, filename)
     self.buf = GtkSource.Buffer()
+    self.native = self.buf._native
     if filename then
       filename = abspath(filename)
       -- load contents
