@@ -11,7 +11,7 @@ function core_search_init(self)
       if pattern == '' then return end
       local buf = self.buf
       buf:remove_tag(self.search_result_tag, buf:get_start_iter(), buf:get_end_iter())
-      local content = buf:get_slice(
+      local content = buf:get_text(
         buf:get_iter_at_mark(self.search_range_start), buf:get_iter_at_mark(self.search_range_end), false)
       local offset = buf:get_iter_at_mark(self.search_range_start):get_offset()
       local indexes = regexindex(pattern, content)
