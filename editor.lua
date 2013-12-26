@@ -24,6 +24,7 @@ require 'core.snippet'
 
 require 'extra.golang'
 require 'extra.profile'
+require 'extra.webkit'
 
 decl('Editor')
 Editor = class{
@@ -85,6 +86,7 @@ Editor = class{
   -- extra modules
   extra_golang_init,
   extra_profile_init,
+  extra_webkit_init,
 
   function(self)
 
