@@ -18,12 +18,17 @@ void setup_message_handler(lua_State*);
 import "C"
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"reflect"
 	"runtime"
 	"unsafe"
 )
+
+func init() {
+	fmt.Printf("")
+}
 
 type Result struct {
 	tag   string
@@ -123,45 +128,16 @@ func Invoke(p unsafe.Pointer) int {
 		log.Fatalf("arguments not match: %v %v %v",
 			callback.fun, int(argc), numIn)
 	}
+	//fmt.Printf("%s\n", callback.name)
 	// arguments
 	var args []reflect.Value
+	isVariadic := funcType.IsVariadic()
+	var paramType reflect.Type
 	for i := C.int(1); i <= argc; i++ {
-		if C.lua_type(state, i) == C.LUA_TBOOLEAN {
-			args = append(args, reflect.ValueOf(C.lua_toboolean(state, i) == C.int(1)))
-		} else if C.lua_type(state, i) == C.LUA_TNUMBER {
-			paramType := funcType.In(int(i - 1))
-			value := reflect.New(paramType).Elem()
-			switch paramType.Kind() {
-			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-				value.SetInt(int64(C.lua_tointeger(state, i)))
-			case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-				value.SetUint(uint64(C.lua_tointeger(state, i)))
-			default:
-				value.SetFloat(float64(C.lua_tonumber(state, i)))
-			}
-			args = append(args, value)
-		} else if C.lua_type(state, i) == C.LUA_TSTRING {
-			if funcType.IsVariadic() { // variadic string slice
-				args = append(args, reflect.ValueOf(C.GoString(C.lua_tolstring(state, i, nil))))
-			} else { // string or bytes
-				paramType := funcType.In(int(i - 1))
-				value := reflect.New(paramType).Elem()
-				switch paramType.Kind() {
-				case reflect.String:
-					value.SetString(C.GoString(C.lua_tolstring(state, i, nil)))
-				case reflect.Slice:
-					cstr := C.lua_tolstring(state, i, nil)
-					value.SetBytes(C.GoBytes(unsafe.Pointer(cstr), C.int(C.strlen(cstr))))
-				default:
-					log.Fatalf("invalid string argument")
-				}
-				args = append(args, value)
-			}
-		} else if C.lua_type(state, i) == C.LUA_TLIGHTUSERDATA {
-			args = append(args, reflect.ValueOf(C.lua_topointer(state, i)))
-		} else {
-			log.Fatalf("invalid argument type: %v %d", callback.fun, int(i))
+		if !isVariadic {
+			paramType = funcType.In(int(i - 1))
 		}
+		args = append(args, toGoValue(state, i, paramType, isVariadic))
 	}
 	// return values
 	funcValue := reflect.ValueOf(callback.fun)
@@ -170,6 +146,60 @@ func Invoke(p unsafe.Pointer) int {
 		pushGoValue(state, v)
 	}
 	return len(returnValues)
+}
+
+func toGoValue(state *C.lua_State, i C.int, paramType reflect.Type, isVariadic bool) (ret reflect.Value) {
+	luaType := C.lua_type(state, i)
+	if luaType == C.LUA_TBOOLEAN {
+		ret = reflect.ValueOf(C.lua_toboolean(state, i) == C.int(1))
+	} else if luaType == C.LUA_TNUMBER {
+		value := reflect.New(paramType).Elem()
+		switch paramType.Kind() {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			value.SetInt(int64(C.lua_tointeger(state, i)))
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			value.SetUint(uint64(C.lua_tointeger(state, i)))
+		default:
+			value.SetFloat(float64(C.lua_tonumber(state, i)))
+		}
+		ret = value
+	} else if luaType == C.LUA_TSTRING {
+		if isVariadic { // variadic string slice
+			ret = reflect.ValueOf(C.GoString(C.lua_tolstring(state, i, nil)))
+		} else { // string or bytes
+			value := reflect.New(paramType).Elem()
+			switch paramType.Kind() {
+			case reflect.String:
+				value.SetString(C.GoString(C.lua_tolstring(state, i, nil)))
+			case reflect.Slice:
+				cstr := C.lua_tolstring(state, i, nil)
+				value.SetBytes(C.GoBytes(unsafe.Pointer(cstr), C.int(C.strlen(cstr))))
+			default:
+				log.Fatalf("invalid string argument")
+			}
+			ret = value
+		}
+	} else if luaType == C.LUA_TLIGHTUSERDATA {
+		ret = reflect.ValueOf(C.lua_topointer(state, i))
+	} else if luaType == C.LUA_TTABLE {
+		length := C.int(C.lua_objlen(state, i))
+		if length == C.int(0) {
+			log.Fatalf("cannot pass zero-length table")
+		}
+		C.lua_rawgeti(state, i, 1) // get elem
+		elemType := paramType.Elem()
+		elem := toGoValue(state, -1, elemType, isVariadic)
+		value := reflect.MakeSlice(reflect.SliceOf(elem.Type()), int(length), int(length))
+		value.Index(0).Set(elem)
+		for key := C.int(2); key <= length; key++ {
+			C.lua_rawgeti(state, i, key)
+			value.Index(int(key - 1)).Set(toGoValue(state, -1, elemType, isVariadic))
+		}
+		ret = value
+	} else {
+		log.Fatalf("invalid argument type")
+	}
+	return
 }
 
 func pushGoValue(state *C.lua_State, value reflect.Value) {
