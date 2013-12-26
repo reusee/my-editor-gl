@@ -1,58 +1,12 @@
 decl('core_transform_init')
 function core_transform_init(self)
-  Buffer.mix(function(buffer)
-    buffer.current_transform = false
-    buffer.last_transform = false
-    buffer.define_signal('reset-relative-indicators')
-    buffer.define_signal('set-relative-indicators')
-    buffer.connect_signal('reset-relative-indicators', function()
-      local view = self.get_current_view()
-      for _, i in ipairs(view.relative_indicators) do
-        i:hide()
-      end
-    end)
-    local buf = buffer.buf
-    buffer.connect_signal('set-relative-indicators', function(offsets)
-      local it = buf:get_start_iter()
-      local view = self.get_current_view()
-      for i, offset in ipairs(offsets) do
-        it:set_offset(offset)
-        local rect = view.widget:get_iter_location(it)
-        local x, y = view.widget:buffer_to_window_coords(Gtk.TextWindowType.WIDGET,
-          rect.x, rect.y)
-        local indicator = view.relative_indicators[i]
-        if x >= 0 and y >= 0 then
-          indicator:set_margin_left(x)
-          indicator:set_margin_top(y)
-          indicator:show()
-        end
-      end
-    end)
-  end)
-
-  View.mix(function(view)
-    view.relative_indicators = {}
-    for i = 1, 50 do
-      local label = Gtk.Label{
-        use_markup = true,
-        label = '<span font="8" foreground="red" background="black">' .. i .. '</span>',
-        valign = Gtk.Align.START,
-        halign = Gtk.Align.START,
-      }
-      view.overlay:add_overlay(label)
-      view.relative_indicators[i] = label
-      view.widget.on_realize:connect(function() label:hide() end)
-    end
+  Buffer.mix(function(self)
+    self.current_transform = false
+    self.last_transform = false
   end)
 
   self.bind_command_key(';', function(args)
-      for i = 1, args.n do
-        if i ~= args.n then
-          args.buffer.last_transform.apply(args.buffer, true)
-        else
-          args.buffer.last_transform.apply(args.buffer)
-        end
-      end
+    args.buffer.last_transform.apply(args.buffer)
     end, 'redo last transform')
 
   -- cursor moves
@@ -285,7 +239,7 @@ Transform = class{function(self, start_func, end_func, target)
   self.end_args = end_func
   self.target = target
 
-  function self.apply(buffer, skip_indicator_update)
+  function self.apply(buffer)
     buffer.current_transform = self
     local targets = {buffer.cursor}
     if self.target == 'all' then
@@ -310,27 +264,7 @@ Transform = class{function(self, start_func, end_func, target)
         end
         buf:move_mark(sel.start, start_iter)
         buf:move_mark(sel.stop, stop_iter)
-        -- generate relative points when moving cursor
-        if skip_indicator_update then goto continue end
-        buffer.emit_signal('reset-relative-indicators')
-        if target == 'cursor' then
-          local offset
-          local last_offset = start_iter:get_offset()
-          local offsets = {}
-          for i = 1, 50 do
-            self.start_func(start_iter, buffer, unpack(self.start_args))
-            offset = start_iter:get_offset()
-            if offset ~= last_offset then
-              table.insert(offsets, offset)
-              last_offset = offset
-            else
-              break
-            end
-          end
-          buffer.emit_signal('set-relative-indicators', offsets)
-        end
       end
-      ::continue::
     end
     if buffer.delayed_selection_operation then
       buf:begin_user_action()
