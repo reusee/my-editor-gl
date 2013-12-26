@@ -4,6 +4,7 @@ package main
 import "C"
 
 import (
+	"./core"
 	"bytes"
 	"encoding/xml"
 	"fmt"
@@ -248,6 +249,8 @@ func main() {
 		"get_gocode_completions": get_gocode_completions,
 		"gofmt":                  gofmt,
 	})
+
+	lua.RegisterFunctions(core.Registry)
 
 	lua.Run()
 }
