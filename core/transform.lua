@@ -12,26 +12,19 @@ function core_transform_init(self)
       end
     end)
     local buf = buffer.buf
+    local view
     buffer.connect_signal('set-relative-indicators', function(offsets)
-      local it = buf:get_start_iter()
-      local view = self.get_current_view()
-      for i, offset in ipairs(offsets) do
-        it:set_offset(offset)
-        local rect = view.widget:get_iter_location(it)
-        local x, y = view.widget:buffer_to_window_coords(Gtk.TextWindowType.WIDGET,
-          rect.x, rect.y)
-        local indicator = view.relative_indicators[i]
-        if x >= 0 and y >= 0 then
-          indicator:set_margin_left(x)
-          indicator:set_margin_top(y)
-          indicator:show()
-        end
+      view = self.get_current_view()
+      if #offsets > 0 then
+        set_relative_indicators(buffer.native, view.native,
+          offsets, view.relative_indicator_natives)
       end
     end)
   end)
 
   View.mix(function(view)
     view.relative_indicators = {}
+    view.relative_indicator_natives = {}
     for i = 1, 50 do
       local label = Gtk.Label{
         use_markup = true,
@@ -41,6 +34,7 @@ function core_transform_init(self)
       }
       view.overlay:add_overlay(label)
       view.relative_indicators[i] = label
+      view.relative_indicator_natives[i] = label._native
       view.widget.on_realize:connect(function() label:hide() end)
     end
   end)
