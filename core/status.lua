@@ -9,33 +9,40 @@ function core_status_init(self)
       local buf = buffer.buf
       local cursor_rect = gview:get_iter_location(buf:get_iter_at_mark(buf:get_insert()))
 
+      local set_source_rgb = cr.set_source_rgb
+      local set_line_width = cr.set_line_width
+      local move_to = cr.move_to
+      local line_to = cr.line_to
+      local stroke = cr.stroke
+
       -- column
-      if buf:get_modified() then
-        cr:set_source_rgb(0.49, 0.63, 1)
+      if buf:get_modified() then -- modified
+        set_source_rgb(cr, 0.49, 0.63, 1)
       else -- normal
-        cr:set_source_rgb(0.5, 1, 0.46)
+        set_source_rgb(cr, 0.5, 1, 0.46)
       end
       if self.operation_mode == self.COMMAND then
-        cr:set_line_width(1)
+        set_line_width(cr, 1)
       else
-        cr:set_line_width(2)
+        set_line_width(cr, 2)
       end
       local x, y = gview:buffer_to_window_coords(Gtk.TextWindowType.WIDGET,
         cursor_rect.x, cursor_rect.y)
-      cr:move_to(x, 0)
-      cr:line_to(x, rect.height)
-      cr:stroke()
+      move_to(cr, x, 0)
+      line_to(cr, x, rect.height)
+      stroke(cr)
 
       -- row
-      cr:set_line_width(1)
-      if #buffer.selections > 0 then
-        cr:set_source_rgb(0.49, 0.63, 1)
+      set_line_width(cr, 1)
+      if #buffer.selections > 0 then -- has selection
+        set_source_rgb(cr, 0.49, 0.63, 1)
       else -- normal
-        cr:set_source_rgb(0.5, 1, 0.46)
+        set_source_rgb(cr, 0.5, 1, 0.46)
       end
-      cr:move_to(0, y + cursor_rect.height)
-      cr:line_to(rect.width, y + cursor_rect.height)
-      cr:stroke()
+      move_to(cr, 0, y + cursor_rect.height)
+      line_to(cr, rect.width, y + cursor_rect.height)
+      stroke(cr)
+
     end)
   end)
 
