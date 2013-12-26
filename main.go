@@ -108,9 +108,10 @@ func main() {
 			fmt.Printf("%v\n", delta)
 			return delta
 		},
-		"tick_timer": func() {
-			fmt.Printf("%v\n", time.Now().Sub(t0))
+		"tick_timer": func() (ret string) {
+			ret = fmt.Sprintf("%v", time.Now().Sub(t0))
 			t0 = time.Now()
+			return
 		},
 
 		// file utils

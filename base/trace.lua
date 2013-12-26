@@ -17,3 +17,12 @@ decl('stop_trace')
 function stop_trace()
   debug.sethook(nil)
 end
+
+decl('trace_tick')
+function trace_tick(quiet)
+  local t = tick_timer()
+  if not quiet then
+    local info = debug.getinfo(2)
+    print(t, info.source, info.currentline)
+  end
+end
