@@ -1,11 +1,11 @@
 package.path = program_path() .. '/?.lua;' .. package.path
 
-local STP = require 'lib.StackTracePlus'
-debug.traceback = STP.stacktrace
+--local STP = require 'lib.StackTracePlus'
+--debug.traceback = STP.stacktrace
 
 require 'lib.fun' ()
 
-local lgi = require 'lgi'
+lgi = require 'lgi'
 Gtk = lgi.require('Gtk', '3.0')
 GtkSource = lgi.require('GtkSource', '3.0')
 GLib = lgi.require('GLib', '2.0')
