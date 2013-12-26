@@ -2,12 +2,13 @@ decl('core_status_init')
 function core_status_init(self)
   -- current line and column
   View.mix(function(view)
+    local buffer = view.buffer
+    local buf = buffer.buf
+    local insert_mark = buf:get_insert()
     view.on_draw(function(gview, cr)
       if not gview.is_focus then return end
       local rect = gview:get_allocation()
-      local buffer = self.gview_get_buffer(gview)
-      local buf = buffer.buf
-      local cursor_rect = gview:get_iter_location(buf:get_iter_at_mark(buf:get_insert()))
+      local cursor_rect = gview:get_iter_location(buf:get_iter_at_mark(insert_mark))
 
       local set_source_rgb = cr.set_source_rgb
       local set_line_width = cr.set_line_width
