@@ -27,7 +27,7 @@ func init() {
 	fmt.Printf("")
 }
 
-var t0 time.Time
+var t0 = time.Now()
 var profileBuffer bytes.Buffer
 
 func main() {
@@ -107,6 +107,10 @@ func main() {
 			delta := time.Now().Sub(t0)
 			fmt.Printf("%v\n", delta)
 			return delta
+		},
+		"tick_timer": func() {
+			fmt.Printf("%v\n", time.Now().Sub(t0))
+			t0 = time.Now()
 		},
 
 		// file utils
