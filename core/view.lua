@@ -174,7 +174,11 @@ View = class{function(self, buffer)
 
   self.widget:set_auto_indent(true)
   self.widget:set_indent_on_tab(true)
-  self.widget:set_insert_spaces_instead_of_tabs(true)
+  if buffer.indent_char == ' ' then
+    self.widget:set_insert_spaces_instead_of_tabs(true)
+  elseif buffer.indent_char == '\t' then
+    self.widget:set_insert_spaces_instead_of_tabs(false)
+  end
   self.widget:set_smart_home_end(GtkSource.SmartHomeEndType.BEFORE)
   self.widget:set_show_line_marks(false)
   self.widget:set_show_line_numbers(true)

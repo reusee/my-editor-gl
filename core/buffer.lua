@@ -66,6 +66,7 @@ Buffer = class{
     if not self.filename then self.filename = '' end
     self.preferred_line_offset = 0
     self.indent_width = -1 -- will be set to default_indent_width
+    self.indent_char = ' '
 
     self.lang = false
     self.lang_name = ''

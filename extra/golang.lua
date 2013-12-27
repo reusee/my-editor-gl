@@ -37,6 +37,10 @@ function extra_golang_init(self)
       end
     end)
 
+    -- indent setup
+    buffer.indent_width = 1
+    buffer.indent_char = '\t'
+
   end)
 
   self.connect_signal('before-saving', function(buffer)

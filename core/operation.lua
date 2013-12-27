@@ -144,8 +144,9 @@ function core_operation_init(self)
 
   self.bind_command_key(',>', function(args)
     local buf = args.buffer.buf
+    local buffer = args.buffer
     local gview = args.view.widget
-    local indent_string = (' '):rep(gview:get_indent_width() * args.n)
+    local indent_string = buffer.indent_char:rep(buffer.indent_width * args.n)
     if not buf:get_has_selection() then -- select current line
       local it = buf:get_iter_at_mark(buf:get_insert())
       if not it:starts_line() then it:set_line_offset(0) end
@@ -160,7 +161,8 @@ function core_operation_init(self)
   self.bind_command_key(',<', function(args)
     local buf = args.buffer.buf
     local gview = args.view.widget
-    local dedent_level = gview:get_indent_width() * args.n
+    local buffer = args.buffer
+    local dedent_level = buffer.indent_width * args.n
     if not buf:get_has_selection() then -- select current line
       local it = buf:get_iter_at_mark(buf:get_insert())
       if not it:starts_line() then it:set_line_offset(0) end
