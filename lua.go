@@ -189,27 +189,24 @@ func toGoValue(state *C.lua_State, i C.int, paramType reflect.Type, isVariadic b
 	} else if luaType == C.LUA_TTABLE {
 		switch paramType.Kind() {
 		case reflect.Slice: // slice
-			length := C.int(C.lua_objlen(state, i))
-			if length == C.int(0) {
-				log.Fatalf("cannot pass zero-length table")
-			}
-			elemType := paramType.Elem()
-			value := reflect.MakeSlice(paramType, int(length), int(length))
-			for key := C.int(1); key <= length; key++ {
-				C.lua_rawgeti(state, i, key)
-				value.Index(int(key - 1)).Set(toGoValue(state, -1, elemType, isVariadic))
-			}
-			ret = value
-		case reflect.Map: // map
-			value := reflect.MakeMap(paramType)
+			ret = reflect.MakeSlice(paramType, 0, 0)
 			C.lua_pushnil(state)
+			elemType := paramType.Elem()
 			for C.lua_next(state, i) != 0 {
-				k := toGoValue(state, -2, paramType.Key(), isVariadic)
-				v := toGoValue(state, -1, paramType.Elem(), isVariadic)
-				value.SetMapIndex(k, v)
+				ret = reflect.Append(ret, toGoValue(state, -1, elemType, isVariadic))
 				C.lua_settop(state, -2)
 			}
-			ret = value
+		case reflect.Map: // map
+			ret = reflect.MakeMap(paramType)
+			C.lua_pushnil(state)
+			keyType := paramType.Key()
+			elemType := paramType.Elem()
+			for C.lua_next(state, i) != 0 {
+				ret.SetMapIndex(
+					toGoValue(state, -2, keyType, isVariadic),
+					toGoValue(state, -1, elemType, isVariadic))
+				C.lua_settop(state, -2)
+			}
 		default:
 			log.Fatalf("cannot assign lua table to %v", paramType)
 		}
