@@ -27,12 +27,13 @@
   <color name="fg" value="#F2FFF1" />
   <color name="bg" value="#27281E" />
   <color name="white" value="#FFFFFF" />
-  <color name="grey" value="#75715E" />
+  <color name="gray" value="#999977" />
   <color name="em" value="#FF009B" />
 
   <style name="cursor" foreground="white" />
   <style name="text" foreground="fg" background="bg" />
-  <style name="def:shebang" foreground="grey" />
+  <style name="def:shebang" foreground="gray" />
+  <style name="line-numbers" foreground="gray" />
   <style name="bracket-match" foreground="em" />
   <style name="def:error" foreground="em" />
   <style name="def:note" foreground="em" />
