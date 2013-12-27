@@ -74,6 +74,7 @@ function core_transform_init(self)
     {self.iter_jump_to_string, args.n, tochar(args.keyval), true},
     {'iter'}, 'cursor', true).apply(args.buffer)
     end end, 'specified backward char jump')
+  self.alias_command_key('F', 'mf')
   self.bind_command_key('s', function(args) return function(args1) return function(args2)
     Transform({self.iter_jump_to_string, args.n, tochar(args1.keyval) .. tochar(args2.keyval)},
     {'iter'}, 'cursor', true).apply(args.buffer)
@@ -82,6 +83,7 @@ function core_transform_init(self)
     Transform({self.iter_jump_to_string, args.n, tochar(args1.keyval) .. tochar(args2.keyval), true},
     {'iter'}, 'cursor', true).apply(args.buffer)
     end end end, 'specified backward two-chars jump')
+  self.alias_command_key('S', 'ms')
   self.bind_command_key('gg', function(args) Transform(
     {self.iter_jump_to_line_n, args.n},
     {'iter'}, 'cursor').apply(args.buffer)
@@ -94,6 +96,7 @@ function core_transform_init(self)
     {self.iter_jump_to_line_start_or_nonspace_char, args.n},
     {'iter'}, 'cursor').apply(args.buffer)
     end, 'jump to line start or first non-space char')
+  self.alias_command_key('R', 'mr')
   self.bind_command_key('r', function(args) Transform(
     {self.iter_jump_to_line_end, 0},
     {'iter'}, 'cursor').apply(args.buffer)
