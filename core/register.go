@@ -5,6 +5,9 @@ var Registry = map[string]interface{}{
 	"on_word_completed": on_word_completed,
 	"word_rank":         word_rank,
 
+	// selection
+	"draw_selections": draw_selections,
+
 	// status
 	"setup_relative_line_number": setup_relative_line_number,
 

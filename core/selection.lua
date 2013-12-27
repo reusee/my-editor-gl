@@ -7,6 +7,8 @@ function core_selection_init(self)
     sel.start = start
     sel.stop = stop
     sel.buffer = self.gbuffer_to_Buffer(start:get_buffer())
+    sel.start_native = start._native
+    sel.stop_native = start._native
   end}
 
   Buffer.mix(function(buffer)
@@ -162,49 +164,18 @@ function core_selection_init(self)
 
   View.mix(function(view)
     -- draw selections
+    local view_native = view.native
+    local buffer_native = view.buffer.native
+    local mark_pairs
     view.on_draw(function(gview, cr)
       if not gview.is_focus then return end
-      local buffer = self.gview_get_buffer(gview)
-      local buf = buffer.buf
-      local alloc = gview:get_allocation()
-      local set_source_rgb = cr.set_source_rgb
-      local move_to = cr.move_to
-      local set_line_width = cr.set_line_width
-      local line_to = cr.line_to
-      local stroke = cr.stroke
-      local x, y, rect
-      for _, selection in ipairs(buffer.selections) do
-        rect = gview:get_iter_location(
-          buf:get_iter_at_mark(selection.start))
-        x, y = gview:buffer_to_window_coords(Gtk.TextWindowType.WIDGET,
-          rect.x, rect.y)
-        if x > alloc.width or y > alloc.height or x < 0 or y < 0 then
-          goto continue
-        end
-        set_source_rgb(cr, 1, 0, 0)
-        move_to(cr, x, y)
-        set_line_width(cr, 2)
-        line_to(cr, x + 6, y)
-        stroke(cr)
-        move_to(cr, x, y)
-        set_line_width(cr, 1)
-        line_to(cr, x, y + rect.height)
-        stroke(cr)
-        set_source_rgb(cr, 0, 1, 0)
-        rect = gview:get_iter_location(
-          buf:get_iter_at_mark(selection.stop))
-        x, y = gview:buffer_to_window_coords(Gtk.TextWindowType.WIDGET,
-          rect.x, rect.y)
-        move_to(cr, x, y)
-        set_line_width(cr, 1)
-        line_to(cr, x, y + rect.height)
-        stroke(cr)
-        move_to(cr, x, y + rect.height)
-        set_line_width(cr, 2)
-        line_to(cr, x - 6, y + rect.height)
-        stroke(cr)
-        ::continue::
+      mark_pairs = {}
+      for _, sel in ipairs(view.buffer.selections) do
+        rawset(mark_pairs, #mark_pairs + 1, sel.start_native)
+        rawset(mark_pairs, #mark_pairs + 1, sel.stop_native)
       end
+      if #mark_pairs == 0 then return end
+      draw_selections(view_native, buffer_native, cr._native, mark_pairs)
     end)
   end)
 end
