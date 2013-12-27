@@ -26,7 +26,7 @@ function core_transform_init(self)
     for i = 1, 50 do
       local label = Gtk.Label{
         use_markup = true,
-        label = '<span font="8" foreground="red" background="black">' .. i .. '</span>',
+        label = '<span font="8" foreground="lightgreen" background="black">' .. i .. '</span>',
         valign = Gtk.Align.START,
         halign = Gtk.Align.START,
       }
