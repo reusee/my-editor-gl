@@ -45,6 +45,9 @@ function core_status_init(self)
       stroke(cr)
 
     end)
+
+    -- relative line number
+    setup_relative_line_number(view.native)
   end)
 
   -- buffer list
