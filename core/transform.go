@@ -21,6 +21,7 @@ func set_relative_indicators(bufp unsafe.Pointer, viewp unsafe.Pointer, offsets 
 		C.gtk_text_view_get_iter_location(view, &it, &location)
 		C.gtk_text_view_buffer_to_window_coords(view, C.GTK_TEXT_WINDOW_WIDGET, C.gint(location.x), C.gint(location.y), &left, &top)
 		indicator = (*C.GtkWidget)(indicators[i])
+		top += 8
 		if left >= C.gint(0) && top >= C.gint(0) {
 			C.gtk_widget_set_margin_left(indicator, left)
 			C.gtk_widget_set_margin_top(indicator, top)
