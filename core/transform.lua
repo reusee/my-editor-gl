@@ -301,25 +301,23 @@ Transform = class{function(self, start_func, end_func, target, show_relative_ind
         end
         buf:move_mark(sel.start, start_iter)
         buf:move_mark(sel.stop, stop_iter)
-        -- generate relative points when moving cursor
-        if not self.show_relative_indicators then goto continue end
+        -- update relative points
         buffer.emit_signal('reset-relative-indicators')
-        if target == 'cursor' then
-          local offset
-          local last_offset = start_iter:get_offset()
-          local offsets = {}
-          for i = 1, 50 do
-            self.start_func(start_iter, buffer, unpack(self.start_args))
-            offset = start_iter:get_offset()
-            if offset ~= last_offset then
-              table.insert(offsets, offset)
-              last_offset = offset
-            else
-              break
-            end
+        if not self.show_relative_indicators then goto continue end
+        local offset
+        local last_offset = start_iter:get_offset()
+        local offsets = {}
+        for i = 1, 50 do
+          self.start_func(start_iter, buffer, unpack(self.start_args))
+          offset = start_iter:get_offset()
+          if offset ~= last_offset then
+            table.insert(offsets, offset)
+            last_offset = offset
+          else
+            break
           end
-          buffer.emit_signal('set-relative-indicators', offsets)
         end
+        buffer.emit_signal('set-relative-indicators', offsets)
       end
       ::continue::
     end
