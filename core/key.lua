@@ -39,6 +39,14 @@ function core_key_init(self)
     buffer.key_handler = buffer.command_key_handler
   end)
 
+  local propagate_keys = {
+    [Gdk.KEY_Shift_L] = true,
+    [Gdk.KEY_Shift_R] = true,
+    [Gdk.KEY_Alt_L] = true,
+    [Gdk.KEY_Alt_R] = true,
+    [Gdk.KEY_Control_L] = true,
+    [Gdk.KEY_Control_R] = true,
+  }
   function self.handle_key(view, ev_or_keyval)
     -- get keyval
     local val
@@ -53,13 +61,7 @@ function core_key_init(self)
       val = ev_or_keyval
     end
     -- skip some keys
-    if Set{
-      Gdk.KEY_Shift_L, Gdk.KEY_Shift_R,
-      Gdk.KEY_Alt_L, Gdk.KEY_Alt_R,
-      Gdk.KEY_Control_L, Gdk.KEY_Control_R,
-      }.contains(val) then
-      return false
-    end
+    if rawget(propagate_keys, val) then return false end
     -- buffer and view
     local buffer = self.gview_get_buffer(view)
     local view = self.view_from_gview(view)
