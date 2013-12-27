@@ -1,12 +1,12 @@
 package main
 
 /*
-#include "luajit/src/lua.h"
-#include "luajit/src/lualib.h"
-#include "luajit/src/lauxlib.h"
+#include "lua.h"
+#include "lualib.h"
+#include "lauxlib.h"
 #include <stdlib.h>
 #include <string.h>
-#cgo LDFLAGS: luajit/src/libluajit.a -lm -ldl
+#cgo pkg-config: lua
 
 #include <gtk/gtk.h>
 #cgo pkg-config: gtk+-3.0
@@ -59,10 +59,11 @@ func NewLua(filename string) (*Lua, error) {
 			C.gtk_main_iteration()
 			select {
 			case res := <-lua.Results:
-				C.lua_getfield(lua.State, C.LUA_GLOBALSINDEX, luaCallback)
+				C.lua_rawgeti(lua.State, C.LUA_REGISTRYINDEX, C.LUA_RIDX_GLOBALS)
+				C.lua_getfield(lua.State, -1, luaCallback)
 				pushGoValue(lua.State, reflect.ValueOf(res.tag))
 				pushGoValue(lua.State, reflect.ValueOf(res.value))
-				C.lua_call(lua.State, 2, 0)
+				C.lua_callk(lua.State, 2, 0, 0, nil)
 			default:
 			}
 		}
@@ -86,7 +87,7 @@ func (self *Lua) Run() {
 		log.Fatalf("%s", C.GoString(C.lua_tolstring(self.State, -1, nil)))
 	}
 	// run
-	ret := C.lua_pcall(self.State, 0, 0, C.lua_gettop(self.State)-C.int(1))
+	ret := C.lua_pcallk(self.State, 0, 0, C.lua_gettop(self.State)-C.int(1), 0, nil)
 	if ret != C.int(0) {
 		log.Fatalf("%s\n", C.GoString(C.lua_tolstring(self.State, -1, nil)))
 	}
@@ -128,7 +129,7 @@ func Invoke(p unsafe.Pointer) int {
 		log.Fatalf("arguments not match: %v %v %v",
 			callback.fun, int(argc), numIn)
 	}
-	//fmt.Printf("%s\n", callback.name)
+	fmt.Printf("invoke %s\n", callback.name)
 	// arguments
 	var args []reflect.Value
 	isVariadic := funcType.IsVariadic()
@@ -158,11 +159,11 @@ func toGoValue(state *C.lua_State, i C.int, paramType reflect.Type, isVariadic b
 		value := reflect.New(paramType).Elem()
 		switch paramType.Kind() {
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			value.SetInt(int64(C.lua_tointeger(state, i)))
+			value.SetInt(int64(C.lua_tointegerx(state, i, nil)))
 		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			value.SetUint(uint64(C.lua_tointeger(state, i)))
+			value.SetUint(uint64(C.lua_tointegerx(state, i, nil)))
 		default:
-			value.SetFloat(float64(C.lua_tonumber(state, i)))
+			value.SetFloat(float64(C.lua_tonumberx(state, i, nil)))
 		}
 		ret = value
 		// string or slice

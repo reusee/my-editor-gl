@@ -1,7 +1,7 @@
 package main
 
 /*
-#include "luajit/src/lua.h"
+#include "lua.h"
 
 int invoke_go_func(lua_State* state) {
   void* p = lua_touserdata(state, lua_upvalueindex(1));
@@ -15,11 +15,12 @@ void register_function(lua_State* state, const char* name, void* func) {
 }
 
 int traceback(lua_State* L) {
-  lua_getfield(L, LUA_GLOBALSINDEX, "debug");
+	lua_rawgeti(L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS);
+  lua_getfield(L, -1, "debug");
   lua_getfield(L, -1, "traceback");
   lua_pushvalue(L, 1);
   lua_pushinteger(L, 2);
-  lua_call(L, 2, 1);
+  lua_callk(L, 2, 1, 0, NULL);
   return 1;
 }
 
