@@ -1,6 +1,10 @@
 package core
 
 var Registry = map[string]interface{}{
+	// completion
+	"on_word_completed": on_word_completed,
+	"word_rank":         word_rank,
+
 	// status
 	"setup_relative_line_number": setup_relative_line_number,
 

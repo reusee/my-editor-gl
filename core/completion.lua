@@ -121,23 +121,26 @@ function core_completion_init(self)
 
   local current_input = false
   local current_selected = false
-  self.define_signal('word-completed')
 
   local function update_candidates(buffer)
     if completion_replacing then return end
     completion_view.wrapper:hide()
     completion_candidates.clear()
     if current_selected then
-      self.emit_signal('word-completed', {
-        input = current_input,
-        word = current_selected,
+      on_word_completed({
+        file_name = buffer.filename,
         file_type = buffer.lang_name,
+        input = current_input,
+        word_text = current_selected.text,
+        word_source = current_selected.source,
+        word_desc = current_selected.desc,
       })
       current_input = false
       current_selected = false
     end
     if self.operation_mode ~= self.EDIT then return end
     local candidates = Vocabulary()
+
     -- from vocabulary
     local buf = buffer.buf
     local input = buf:get_text(
@@ -156,9 +159,11 @@ function core_completion_init(self)
         end
       end
     end
+
     -- extra providers
     each(function(provider) provider(buffer, input, candidates) end,
       buffer.completion_providers)
+
     -- sort and show
     candidates.each(function(text, sources)
       local s = ''
@@ -175,8 +180,9 @@ function core_completion_init(self)
         desc = d
       })
     end)
-
-    completion_candidates.sort(function(a, b) return #a.text < #b.text end)
+    completion_candidates.sort(function(a, b)
+      return word_rank(a.text, a.source) < word_rank(b.text, b.source)
+    end)
     if completion_candidates.count() > 0 then show_candidates() end
   end
 
