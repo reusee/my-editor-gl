@@ -129,7 +129,7 @@ func Invoke(p unsafe.Pointer) int {
 		log.Fatalf("arguments not match: %v %v %v",
 			callback.fun, int(argc), numIn)
 	}
-	fmt.Printf("invoke %s\n", callback.name)
+	//fmt.Printf("invoke %s\n", callback.name)
 	// arguments
 	var args []reflect.Value
 	isVariadic := funcType.IsVariadic()

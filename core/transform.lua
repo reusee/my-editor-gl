@@ -41,7 +41,11 @@ function core_transform_init(self)
 
   self.bind_command_key(';', function(args)
       for i = 1, args.n do
-        args.buffer.last_transform.apply(args.buffer)
+        if i ~= args.n then
+          args.buffer.last_transform.apply(args.buffer, true)
+        else
+          args.buffer.last_transform.apply(args.buffer)
+        end
       end
     end, 'redo last transform')
 
@@ -276,7 +280,7 @@ Transform = class{function(self, start_func, end_func, target, show_relative_ind
   self.target = target
   self.show_relative_indicators = show_relative_indicators
 
-  function self.apply(buffer)
+  function self.apply(buffer, skip_indicator_update)
     buffer.current_transform = self
     local targets = {buffer.cursor}
     if self.target == 'all' then
@@ -302,6 +306,7 @@ Transform = class{function(self, start_func, end_func, target, show_relative_ind
         buf:move_mark(sel.start, start_iter)
         buf:move_mark(sel.stop, stop_iter)
         -- update relative points
+        if skip_indicator_update then goto continue end
         buffer.emit_signal('reset-relative-indicators')
         if not self.show_relative_indicators then goto continue end
         local offset
