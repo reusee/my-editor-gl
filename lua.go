@@ -150,8 +150,10 @@ func Invoke(p unsafe.Pointer) int {
 
 func toGoValue(state *C.lua_State, i C.int, paramType reflect.Type, isVariadic bool) (ret reflect.Value) {
 	luaType := C.lua_type(state, i)
+	// boolean
 	if luaType == C.LUA_TBOOLEAN {
 		ret = reflect.ValueOf(C.lua_toboolean(state, i) == C.int(1))
+		// int, uint or float
 	} else if luaType == C.LUA_TNUMBER {
 		value := reflect.New(paramType).Elem()
 		switch paramType.Kind() {
@@ -163,6 +165,7 @@ func toGoValue(state *C.lua_State, i C.int, paramType reflect.Type, isVariadic b
 			value.SetFloat(float64(C.lua_tonumber(state, i)))
 		}
 		ret = value
+		// string or slice
 	} else if luaType == C.LUA_TSTRING {
 		if isVariadic { // variadic string slice
 			ret = reflect.ValueOf(C.GoString(C.lua_tolstring(state, i, nil)))
@@ -179,23 +182,37 @@ func toGoValue(state *C.lua_State, i C.int, paramType reflect.Type, isVariadic b
 			}
 			ret = value
 		}
+		// pointer
 	} else if luaType == C.LUA_TLIGHTUSERDATA {
 		ret = reflect.ValueOf(C.lua_topointer(state, i))
+		// slice or map
 	} else if luaType == C.LUA_TTABLE {
-		length := C.int(C.lua_objlen(state, i))
-		if length == C.int(0) {
-			log.Fatalf("cannot pass zero-length table")
+		switch paramType.Kind() {
+		case reflect.Slice: // slice
+			length := C.int(C.lua_objlen(state, i))
+			if length == C.int(0) {
+				log.Fatalf("cannot pass zero-length table")
+			}
+			elemType := paramType.Elem()
+			value := reflect.MakeSlice(paramType, int(length), int(length))
+			for key := C.int(1); key <= length; key++ {
+				C.lua_rawgeti(state, i, key)
+				value.Index(int(key - 1)).Set(toGoValue(state, -1, elemType, isVariadic))
+			}
+			ret = value
+		case reflect.Map: // map
+			value := reflect.MakeMap(paramType)
+			C.lua_pushnil(state)
+			for C.lua_next(state, i) != 0 {
+				k := toGoValue(state, -2, paramType.Key(), isVariadic)
+				v := toGoValue(state, -1, paramType.Elem(), isVariadic)
+				value.SetMapIndex(k, v)
+				C.lua_settop(state, -2)
+			}
+			ret = value
+		default:
+			log.Fatalf("cannot assign lua table to %v", paramType)
 		}
-		C.lua_rawgeti(state, i, 1) // get elem
-		elemType := paramType.Elem()
-		elem := toGoValue(state, -1, elemType, isVariadic)
-		value := reflect.MakeSlice(reflect.SliceOf(elem.Type()), int(length), int(length))
-		value.Index(0).Set(elem)
-		for key := C.int(2); key <= length; key++ {
-			C.lua_rawgeti(state, i, key)
-			value.Index(int(key - 1)).Set(toGoValue(state, -1, elemType, isVariadic))
-		}
-		ret = value
 	} else {
 		log.Fatalf("invalid argument type")
 	}
