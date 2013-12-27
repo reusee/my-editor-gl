@@ -3,6 +3,7 @@ function core_transform_init(self)
   Buffer.mix(function(buffer)
     buffer.current_transform = false
     buffer.last_transform = false
+    -- relative indicators
     buffer.define_signal('reset-relative-indicators')
     buffer.define_signal('set-relative-indicators')
     buffer.connect_signal('reset-relative-indicators', function()
@@ -21,6 +22,7 @@ function core_transform_init(self)
   end)
 
   View.mix(function(view)
+    -- relative indicators
     view.relative_indicators = {}
     view.relative_indicator_natives = {}
     for i = 1, 50 do
@@ -39,11 +41,7 @@ function core_transform_init(self)
 
   self.bind_command_key(';', function(args)
       for i = 1, args.n do
-        if i ~= args.n then
-          args.buffer.last_transform.apply(args.buffer, true)
-        else
-          args.buffer.last_transform.apply(args.buffer)
-        end
+        args.buffer.last_transform.apply(args.buffer)
       end
     end, 'redo last transform')
 
@@ -66,19 +64,19 @@ function core_transform_init(self)
     end, 'relative backward char jump')
   self.bind_command_key('f', function() return function(args) Transform(
     {self.iter_jump_to_string, args.n, tochar(args.keyval)},
-    {'iter'}, 'cursor').apply(args.buffer)
+    {'iter'}, 'cursor', true).apply(args.buffer)
     end end, 'specified forward char jump')
   self.bind_command_key('mf', function() return function(args) Transform(
     {self.iter_jump_to_string, args.n, tochar(args.keyval), true},
-    {'iter'}, 'cursor').apply(args.buffer)
+    {'iter'}, 'cursor', true).apply(args.buffer)
     end end, 'specified backward char jump')
   self.bind_command_key('s', function(args) return function(args1) return function(args2)
     Transform({self.iter_jump_to_string, args.n, tochar(args1.keyval) .. tochar(args2.keyval)},
-    {'iter'}, 'cursor').apply(args.buffer)
+    {'iter'}, 'cursor', true).apply(args.buffer)
     end end end, 'specified forward two-chars jump')
   self.bind_command_key('ms', function(args) return function(args1) return function(args2)
     Transform({self.iter_jump_to_string, args.n, tochar(args1.keyval) .. tochar(args2.keyval), true},
-    {'iter'}, 'cursor').apply(args.buffer)
+    {'iter'}, 'cursor', true).apply(args.buffer)
     end end end, 'specified backward two-chars jump')
   self.bind_command_key('gg', function(args) Transform(
     {self.iter_jump_to_line_n, args.n},
@@ -98,11 +96,11 @@ function core_transform_init(self)
     end, 'jump to line end')
   self.bind_command_key('[', function(args) Transform(
     {self.iter_jump_to_empty_line, args.n, true},
-    {'iter'}, 'cursor').apply(args.buffer)
+    {'iter'}, 'cursor', true).apply(args.buffer)
     end, 'jump to previous empty line')
   self.bind_command_key(']', function(args) Transform(
     {self.iter_jump_to_empty_line, args.n},
-    {'iter'}, 'cursor').apply(args.buffer)
+    {'iter'}, 'cursor', true).apply(args.buffer)
     end, 'jump to next empty line')
   self.bind_command_key('%', function(args) Transform(
     {self.iter_jump_to_matching_bracket},
@@ -268,7 +266,7 @@ function core_transform_init(self)
 end
 
 decl('Transform')
-Transform = class{function(self, start_func, end_func, target)
+Transform = class{function(self, start_func, end_func, target, show_relative_indicators)
   self.start_func = start_func[1]
   table.remove(start_func, 1)
   self.start_args = start_func
@@ -276,8 +274,9 @@ Transform = class{function(self, start_func, end_func, target)
   table.remove(end_func, 1)
   self.end_args = end_func
   self.target = target
+  self.show_relative_indicators = show_relative_indicators
 
-  function self.apply(buffer, skip_indicator_update)
+  function self.apply(buffer)
     buffer.current_transform = self
     local targets = {buffer.cursor}
     if self.target == 'all' then
@@ -303,7 +302,7 @@ Transform = class{function(self, start_func, end_func, target)
         buf:move_mark(sel.start, start_iter)
         buf:move_mark(sel.stop, stop_iter)
         -- generate relative points when moving cursor
-        if skip_indicator_update then goto continue end
+        if not self.show_relative_indicators then goto continue end
         buffer.emit_signal('reset-relative-indicators')
         if target == 'cursor' then
           local offset
