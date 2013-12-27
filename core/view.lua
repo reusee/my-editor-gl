@@ -51,7 +51,7 @@ function core_view_init(self)
 
   function self.get_current_view()
     for _, view in ipairs(self.views) do
-      if view.widget.is_focus then return view end
+      if view_is_focus(view.native) then return view end
     end
   end
 
