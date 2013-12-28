@@ -43,7 +43,7 @@ function extra_golang_init(self)
 
   end)
 
-  self.connect_signal('before-saving', function(buffer)
+  local function format(buffer)
     if buffer.lang_name ~= 'Go' then return end
     local buf = buffer.buf
     local out, err = gofmt(buf:get_text(buf:get_start_iter(), buf:get_end_iter(), false))
@@ -61,5 +61,13 @@ function extra_golang_init(self)
       buf:set_text(out, -1)
       buf:end_user_action()
     end
+  end
+
+  --self.connect_signal('before-saving', function(buffer)
+  --  format(buffer)
+  --end)
+
+  self.bind_command_key(',,f', function(args)
+    format(args.buffer)
   end)
 end
