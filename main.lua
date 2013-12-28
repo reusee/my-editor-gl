@@ -58,4 +58,5 @@ MainWindow.embed('widget')
 local win = MainWindow()
 win.widget:show_all()
 
-main_loop()
+--main_loop()
+Gtk.main()
