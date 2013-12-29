@@ -282,17 +282,6 @@ function core_key_init(self)
     self.enter_command_mode(args.buffer)
   end, 'enter command mode')
 
-  -- mode indicator
-  self.edit_mode_indicator = self.create_overlay_label(
-    Gtk.Align.END, Gtk.Align.CENTER)
-  self.edit_mode_indicator:set_markup('<span font="24" foreground="lightgreen">EDITING</span>')
-  self.connect_signal('entered-edit-mode', function()
-    self.edit_mode_indicator:show()
-  end)
-  self.connect_signal('entered-command-mode', function()
-    self.edit_mode_indicator:hide()
-  end)
-
   -- command prefix indicator
   self.command_prefix_indicator = self.create_overlay_label(
     Gtk.Align.END, Gtk.Align.END)
