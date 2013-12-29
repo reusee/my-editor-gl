@@ -1,10 +1,128 @@
 package core
 
-import ()
+import (
+	"strings"
+	"time"
+)
 
-func on_word_completed(info map[string]string) {
+type Vocabulary struct {
+	Words map[string]*Word
 }
 
-func word_rank(text, source string) int {
-	return len(text)
+func NewVocabulary() *Vocabulary {
+	vocab := &Vocabulary{
+		Words: make(map[string]*Word),
+	}
+	return vocab
+}
+
+type Word struct {
+	Text                string
+	TotalFrequency      int
+	FrequencyByInput    map[string]int
+	FrequencyByFiletype map[string]int
+	FrequencyByFilename map[string]int
+	LatestSelected      time.Time
+}
+
+func NewWord(text string) *Word {
+	word := &Word{
+		Text:                text,
+		FrequencyByInput:    make(map[string]int),
+		FrequencyByFiletype: make(map[string]int),
+		FrequencyByFilename: make(map[string]int),
+	}
+	return word
+}
+
+var GlobalVocabulary = NewVocabulary()
+
+func on_found_word(text string) {
+	GlobalVocabulary.Add(text)
+}
+
+func (self *Vocabulary) Add(text string) {
+	if _, has := self.Words[text]; has {
+		return
+	}
+	self.Words[text] = NewWord(text)
+}
+
+func get_candidates(input string) [][]string {
+	texts := make(map[string]bool)
+	providers := make(map[string][]string)
+	descriptions := make(map[string][]string)
+
+	// from GlobalVocabulary
+	for _, word := range GlobalVocabulary.Words {
+		if fuzzyMatch(word.Text, input) {
+			texts[word.Text] = true
+		}
+	}
+
+	//TODO extra providers
+	_ = providers
+
+	// sort
+	max_results := 8
+	result := make([][]string, 0, max_results)
+	for text, _ := range texts {
+		pos := 0
+		for _, target := range result { // compare
+			if compare(GlobalVocabulary.Words[text], GlobalVocabulary.Words[target[0]], providers) { // win
+				break
+			} else {
+				pos++
+			}
+		}
+		if pos >= max_results {
+			continue
+		} else if pos == len(result) {
+			result = append(result, []string{text, strings.Join(descriptions[text], "\n")})
+		} else {
+			if len(result) < max_results {
+				result = append(result, nil)
+			}
+			for i := len(result) - 1; i >= pos + 1; i-- {
+				result[i] = result[i - 1]
+			}
+			result[pos] = []string{text, strings.Join(descriptions[text], "\n")}
+		}
+	}
+
+	return result
+}
+
+func compare(left, right *Word, providers map[string][]string) bool {
+	//TODO improve algorithm
+	return left.LatestSelected.After(right.LatestSelected)
+}
+
+func fuzzyMatch(text, input string) bool {
+	if input == text {
+		return false
+	}
+	var i, j int
+	ltext := len(text)
+	linput := len(input)
+	text = strings.ToLower(text)
+	input = strings.ToLower(input)
+	for i < ltext && j < linput {
+		if text[i] == input[j] {
+			i++
+			j++
+		} else {
+			i++
+		}
+	}
+	return j == linput
+}
+
+func on_word_completed(info map[string]string) {
+	word := GlobalVocabulary.Words[info["text"]]
+	word.TotalFrequency++
+	word.FrequencyByInput[info["input"]]++
+	word.FrequencyByFiletype[info["file_type"]]++
+	word.FrequencyByFilename[info["file_name"]]++
+	word.LatestSelected = time.Now()
 }

@@ -4,6 +4,7 @@ function extra_golang_init(self)
   self.connect_signal('language-detected', function(buffer)
     if buffer.lang_name ~= 'Go' then return end
 
+    --[[
     -- gocode completion provider
     local last_provided = Vocabulary()
     table.insert(buffer.completion_providers, function(buffer, input, candidates)
@@ -36,6 +37,7 @@ function extra_golang_init(self)
         last_provided.add(word)
       end
     end)
+    --]]
 
     -- indent setup
     buffer.indent_width = 1
