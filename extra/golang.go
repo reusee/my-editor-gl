@@ -1,6 +1,12 @@
 package extra
 
+//#include <gtk/gtk.h>
+//#include <string.h>
+//#cgo pkg-config: gtk+-3.0
+import "C"
+
 import (
+	"../core"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -9,12 +15,26 @@ import (
 	"os/exec"
 	"strconv"
 	"unicode/utf8"
+	"unsafe"
 )
 
 var gocodePath = "/home/reus/gopath/bin/gocode"
 
-func get_gocode_completions(filename string, char_offset int, text []byte) [][]string {
-	// get byte offset
+func golang_setup_completion(providersp unsafe.Pointer) {
+	providers := (*core.Providers)(providersp)
+	providers.Providers["Go"] = provide
+}
+
+func provide(input string, info map[string]interface{}) [][]string {
+	buffer := (*C.GtkTextBuffer)(info["buffer"].(unsafe.Pointer))
+	filename := info["filename"].(string)
+	char_offset := info["char_offset"].(int)
+	var start_iter, end_iter C.GtkTextIter
+	C.gtk_text_buffer_get_start_iter(buffer, &start_iter)
+	C.gtk_text_buffer_get_end_iter(buffer, &end_iter)
+	cText := C.gtk_text_buffer_get_text(buffer, &start_iter, &end_iter, C.gtk_false())
+	text := C.GoBytes(unsafe.Pointer(cText), C.int(C.strlen((*C.char)(cText))))
+
 	byte_offset := 0
 	cur_char_offset := 0
 	var size int
@@ -23,6 +43,7 @@ func get_gocode_completions(filename string, char_offset int, text []byte) [][]s
 		byte_offset += size
 		cur_char_offset += 1
 	}
+
 	cmd := exec.Command(gocodePath, "-f=json", "autocomplete", filename, strconv.Itoa(byte_offset))
 	cmd.Stdin = bytes.NewReader(text)
 	var out bytes.Buffer
@@ -40,10 +61,12 @@ func get_gocode_completions(filename string, char_offset int, text []byte) [][]s
 	if len(i2) == 0 {
 		return nil
 	}
+
 	var ret [][]string
 	var entry map[string]interface{}
 	for _, entryI := range i2[1].([]interface{}) {
 		entry = entryI.(map[string]interface{})
+		fmt.Printf("===> %s\n", entry["name"].(string))
 		ret = append(ret, []string{
 			entry["name"].(string),
 			entry["class"].(string) + " " + entry["type"].(string),
