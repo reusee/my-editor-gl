@@ -52,11 +52,13 @@ func get_candidates(input string) [][]string {
 	texts := make(map[string]bool)
 	providers := make(map[string][]string)
 	descriptions := make(map[string][]string)
+	distances := make(map[string]int)
 
 	// from GlobalVocabulary
 	for _, word := range GlobalVocabulary.Words {
-		if fuzzyMatch(word.Text, input) {
+		if match, distance := fuzzyMatch(word.Text, input); match {
 			texts[word.Text] = true
+			distances[word.Text] = distance
 		}
 	}
 
@@ -69,7 +71,7 @@ func get_candidates(input string) [][]string {
 	for text, _ := range texts {
 		pos := 0
 		for _, target := range result { // compare
-			if compare(GlobalVocabulary.Words[text], GlobalVocabulary.Words[target[0]], providers) { // win
+			if compare(input, GlobalVocabulary.Words[text], GlobalVocabulary.Words[target[0]], distances[text], distances[target[0]], providers) { // win
 				break
 			} else {
 				pos++
@@ -93,14 +95,17 @@ func get_candidates(input string) [][]string {
 	return result
 }
 
-func compare(left, right *Word, providers map[string][]string) bool {
-	//TODO improve algorithm
-	return left.LatestSelected.After(right.LatestSelected)
+func compare(input string, left, right *Word, ldistance, rdistance int, providers map[string][]string) bool {
+	if !(left.LatestSelected.Equal(right.LatestSelected)) {
+		return left.LatestSelected.After(right.LatestSelected)
+	}
+	return ldistance <= rdistance
 }
 
-func fuzzyMatch(text, input string) bool {
+func fuzzyMatch(text, input string) (bool, int) {
+	distance := 0
 	if input == text {
-		return false
+		return false, distance
 	}
 	var i, j int
 	ltext := len(text)
@@ -113,9 +118,10 @@ func fuzzyMatch(text, input string) bool {
 			j++
 		} else {
 			i++
+			distance++
 		}
 	}
-	return j == linput
+	return j == linput, distance
 }
 
 func on_word_completed(info map[string]string) {
