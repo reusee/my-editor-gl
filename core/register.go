@@ -6,9 +6,10 @@ import (
 
 var Registry = map[string]interface{}{
 	// completion
-	"on_found_word": on_found_word,
-	"get_candidates": get_candidates,
+	"on_found_word":     on_found_word,
+	"get_candidates":    get_candidates,
 	"on_word_completed": on_word_completed,
+	"new_providers":     new_providers,
 
 	// selection
 	"draw_selections": draw_selections,

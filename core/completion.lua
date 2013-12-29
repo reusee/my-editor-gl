@@ -6,7 +6,7 @@ function core_completion_init(self)
     buffer.connect_signal('found-word', function(text)
       on_found_word(text)
     end)
-    buffer.completion_providers = {}
+    buffer.completion_providers = new_providers()
   end)
 
   local completion_view = CompletionView()
@@ -14,21 +14,6 @@ function core_completion_init(self)
   self.widget:add_overlay(completion_view.wrapper)
   self.on_realize(function() completion_view.wrapper:hide() end)
   local completion_replacing = false
-
-  function self.completion_fuzzy_match(text, input)
-    if input == text then return false end
-    local i = 1 -- for text
-    local j = 1 -- for input
-    while i <= #text and j <= #input do
-      if text:sub(i, i):lower() == input:sub(j, j):lower() then
-        i = i + 1
-        j = j + 1
-      else
-        i = i + 1
-      end
-    end
-    return j == #input + 1
-  end
 
   local function show_candidates()
     completion_view.wrapper:show_all()
@@ -80,8 +65,17 @@ function core_completion_init(self)
     current_selected = false
 
     -- get candidates
-    if input == "" then return end
-    local cs = get_candidates(input)
+    if input == '' then
+      local it = buf:get_iter_at_mark(buf:get_insert())
+      if it:backward_char() then
+        if tochar(it:get_char()) ~= '.' then return end
+      end
+    end
+    local cs = get_candidates(input, buffer.completion_providers, {
+      filename = buffer.filename,
+      char_offset = buf:get_iter_at_mark(buf:get_insert()):get_offset(),
+      buffer = buffer.native,
+      })
     for _, entry in ipairs(cs) do
       store:append({entry[1], entry[2]})
     end

@@ -3,7 +3,21 @@ package core
 import (
 	"strings"
 	"time"
+	"unsafe"
 )
+
+type Providers struct {
+	Providers map[string]ProvideFunc
+}
+
+type ProvideFunc func(input string, info map[string]interface{}) [][]string
+
+func new_providers() *Providers {
+	providers := &Providers{
+		Providers: make(map[string]ProvideFunc),
+	}
+	return providers
+}
 
 type Vocabulary struct {
 	Words map[string]*Word
@@ -48,7 +62,7 @@ func (self *Vocabulary) Add(text string) {
 	self.Words[text] = NewWord(text)
 }
 
-func get_candidates(input string) [][]string {
+func get_candidates(input string, providersp unsafe.Pointer, info map[string]interface{}) [][]string {
 	texts := make(map[string]bool)
 	providers := make(map[string][]string)
 	descriptions := make(map[string][]string)
@@ -62,8 +76,17 @@ func get_candidates(input string) [][]string {
 		}
 	}
 
-	//TODO extra providers
-	_ = providers
+	// extra providers
+	for source, provider := range (*Providers)(providersp).Providers {
+		for _, pair := range provider(input, info) {
+			text := pair[0]
+			GlobalVocabulary.Add(text)
+			texts[text] = true
+			providers[text] = append(providers[text], source)
+			descriptions[text] = append(descriptions[text], "<" + source + "> " + pair[1])
+			distances[text] = 0
+		}
+	}
 
 	// sort
 	max_results := 8
@@ -85,8 +108,8 @@ func get_candidates(input string) [][]string {
 			if len(result) < max_results {
 				result = append(result, nil)
 			}
-			for i := len(result) - 1; i >= pos + 1; i-- {
-				result[i] = result[i - 1]
+			for i := len(result) - 1; i >= pos+1; i-- {
+				result[i] = result[i-1]
 			}
 			result[pos] = []string{text, strings.Join(descriptions[text], "\n")}
 		}
