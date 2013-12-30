@@ -10,7 +10,7 @@ import (
 	"bytes"
 	"encoding/xml"
 	"fmt"
-	"github.com/reusee/lgo"
+	"./lgo"
 	"io/ioutil"
 	"math/rand"
 	"os"
