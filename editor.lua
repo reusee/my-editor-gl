@@ -23,6 +23,7 @@ require 'core.folding'
 require 'core.snippet'
 
 require 'extra.golang'
+require 'extra.lua'
 require 'extra.profile'
 require 'extra.webkit'
 
@@ -87,6 +88,7 @@ Editor = class{
   extra_golang_init,
   extra_profile_init,
   extra_webkit_init,
+  extra_lua_init,
 
   function(self)
 

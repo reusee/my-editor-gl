@@ -32,10 +32,6 @@ function extra_golang_init(self)
     end
   end
 
-  --self.connect_signal('before-saving', function(buffer)
-  --  format(buffer)
-  --end)
-
   self.bind_command_key(',,f', function(args)
     format(args.buffer)
   end)
