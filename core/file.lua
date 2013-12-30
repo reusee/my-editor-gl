@@ -50,7 +50,9 @@ function core_file_init(self)
   end, 'open file chooser')
 
   -- save to file
-  self.define_signal('before-saving')
+  Buffer.mix(function(buffer)
+    buffer.define_signal('before-saving')
+  end)
   local file_backup_dir = joinpath{homedir(), '.my-editor-file-backup'}
   if not fileexists(file_backup_dir) then
     mkdir(self.file_backup_dir)
@@ -69,7 +71,7 @@ function core_file_init(self)
     local backup_filename = quote_filename(filename) .. '.' .. tostring(current_time_in_millisecond())
     backup_filename = joinpath{file_backup_dir, backup_filename}
     --TODO maintain cursor position and scroll state
-    self.emit_signal('before-saving', args.buffer)
+    args.buffer.emit_signal('before-saving')
     -- save tmp file
     if createwithmode(tmp_filename, filemode(filename)) then return end
     local f = io.open(tmp_filename, 'w')
