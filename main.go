@@ -243,5 +243,10 @@ func main() {
 
 	path, _ := filepath.Abs(os.Args[0])
 	lua.RunString(`package.path = '` + filepath.Dir(path) + `' .. '/?.lua;' .. package.path`)
-	lua.RunString(`require 'main'`)
+	go func() {
+		runtime.LockOSThread()
+		lua.RunString(`require 'main'`)
+	}()
+
+	<-(make(chan bool))
 }
