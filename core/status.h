@@ -4,6 +4,7 @@
 void on_query_data(GtkSourceGutterRenderer *renderer, GtkTextIter *start, GtkTextIter *end, GtkSourceGutterRendererState state, gpointer data) {
   GtkTextBuffer *buffer = gtk_text_view_get_buffer(data);
   if (!gtk_widget_is_focus(data)) {
+    gtk_source_gutter_renderer_text_set_text((GtkSourceGutterRendererText*)renderer, "", -1);
     gtk_source_gutter_renderer_set_size(renderer, 0);
     return;
   }
