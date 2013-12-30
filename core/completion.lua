@@ -69,6 +69,8 @@ function core_completion_init(self)
       local it = buf:get_iter_at_mark(buf:get_insert())
       if it:backward_char() then
         if tochar(it:get_char()) ~= '.' then return end
+      else
+        do return end
       end
     end
     local cs = get_candidates(input, buffer.completion_providers, {
