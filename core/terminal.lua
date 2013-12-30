@@ -8,7 +8,7 @@ function core_terminal_init(self)
     local margin = 50
     term:set_margin_top(margin)
     term:set_margin_bottom(margin)
-    term:set_margin_left(margin)
+    term:set_margin_start(margin)
     term:set_margin_right(margin)
     term:set_encoding('UTF-8')
     self.widget:add_overlay(term)

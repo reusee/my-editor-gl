@@ -23,7 +23,7 @@ func set_relative_indicators(bufp unsafe.Pointer, viewp unsafe.Pointer, offsets 
 		indicator = (*C.GtkWidget)(indicators[i])
 		top += 8
 		if left >= C.gint(0) && top >= C.gint(0) {
-			C.gtk_widget_set_margin_left(indicator, left)
+			C.gtk_widget_set_margin_start(indicator, left)
 			C.gtk_widget_set_margin_top(indicator, top)
 			C.gtk_widget_show(indicator)
 		}

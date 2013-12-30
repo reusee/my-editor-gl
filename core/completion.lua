@@ -32,7 +32,7 @@ function core_completion_init(self)
     y = y + view_y - editor_y
     if y + 100 > win_rect.height then y = y - 100 end
     if x + 100 > win_rect.width then x = x - 200 end
-    completion_view.wrapper:set_margin_left(x)
+    completion_view.wrapper:set_margin_start(x)
     completion_view.wrapper:set_margin_top(y)
   end
 
