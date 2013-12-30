@@ -66,7 +66,6 @@ func provide(input string, info map[string]interface{}) [][]string {
 	var entry map[string]interface{}
 	for _, entryI := range i2[1].([]interface{}) {
 		entry = entryI.(map[string]interface{})
-		fmt.Printf("===> %s\n", entry["name"].(string))
 		ret = append(ret, []string{
 			entry["name"].(string),
 			entry["class"].(string) + " " + entry["type"].(string),
