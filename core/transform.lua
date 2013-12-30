@@ -8,7 +8,7 @@ function core_transform_init(self)
     buffer.define_signal('set-relative-indicators')
     buffer.connect_signal('reset-relative-indicators', function()
       local view = self.get_current_view()
-      hide_relative_indicators(view.relative_indicator_natives)
+      reset_relative_indicators(view.relative_indicator_natives)
     end)
     local buf = buffer.buf
     local view

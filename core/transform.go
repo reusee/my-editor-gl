@@ -30,8 +30,9 @@ func set_relative_indicators(bufp unsafe.Pointer, viewp unsafe.Pointer, offsets 
 	}
 }
 
-func hide_relative_indicators(indicators []unsafe.Pointer) {
+func reset_relative_indicators(indicators []unsafe.Pointer) {
 	for _, indicator := range indicators {
-		C.gtk_widget_hide((*C.GtkWidget)(indicator))
+		C.gtk_widget_set_margin_start((*C.GtkWidget)(indicator), C.gint(0))
+		C.gtk_widget_set_margin_top((*C.GtkWidget)(indicator), C.gint(0))
 	}
 }
