@@ -12,10 +12,13 @@ type Providers struct {
 
 type ProvideFunc func(input string, info map[string]interface{}) [][]string
 
+var provider_holder = make([]*Providers, 0)
+
 func new_providers() *Providers {
 	providers := &Providers{
 		Providers: make(map[string]ProvideFunc),
 	}
+	provider_holder = append(provider_holder, providers) // to avoid gc
 	return providers
 }
 
@@ -83,7 +86,7 @@ func get_candidates(input string, providersp unsafe.Pointer, info map[string]int
 			GlobalVocabulary.Add(text)
 			texts[text] = true
 			providers[text] = append(providers[text], source)
-			descriptions[text] = append(descriptions[text], "<" + source + "> " + pair[1])
+			descriptions[text] = append(descriptions[text], "<"+source+"> "+pair[1])
 			distances[text] = 0
 		}
 	}
@@ -91,7 +94,7 @@ func get_candidates(input string, providersp unsafe.Pointer, info map[string]int
 	// sort
 	max_results := 8
 	result := make([][]string, 0, max_results)
-	for text, _ := range texts {
+	for text := range texts {
 		pos := 0
 		for _, target := range result { // compare
 			if compare(input, GlobalVocabulary.Words[text], GlobalVocabulary.Words[target[0]], distances[text], distances[target[0]], providers) { // win

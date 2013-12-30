@@ -1,5 +1,3 @@
-package.path = program_path() .. '/?.lua;' .. package.path
-
 --local STP = require 'lib.StackTracePlus'
 --debug.traceback = STP.stacktrace
 
@@ -38,7 +36,7 @@ MainWindow = class{function(self)
 
   -- css
   local css_provider = Gtk.CssProvider()
-  css_provider:load_from_data(io.open(joinpath(program_path(), 'theme', 'style.css'), 'r'):read('*a'))
+  css_provider:load_from_data(io.open(joinpath{program_path(), 'theme', 'style.css'}, 'r'):read('*a'))
   Gtk.StyleContext.add_provider_for_screen(
     Gdk.Screen.get_default(),
     css_provider,

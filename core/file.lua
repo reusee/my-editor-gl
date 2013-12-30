@@ -51,7 +51,7 @@ function core_file_init(self)
 
   -- save to file
   self.define_signal('before-saving')
-  local file_backup_dir = joinpath(homedir(), '.my-editor-file-backup')
+  local file_backup_dir = joinpath{homedir(), '.my-editor-file-backup'}
   if not fileexists(file_backup_dir) then
     mkdir(self.file_backup_dir)
   end
@@ -67,7 +67,7 @@ function core_file_init(self)
     if filename == '' then return end
     local tmp_filename = filename .. '.' .. tostring(current_time_in_millisecond())
     local backup_filename = quote_filename(filename) .. '.' .. tostring(current_time_in_millisecond())
-    backup_filename = joinpath(file_backup_dir, backup_filename)
+    backup_filename = joinpath{file_backup_dir, backup_filename}
     --TODO maintain cursor position and scroll state
     self.emit_signal('before-saving', args.buffer)
     -- save tmp file
@@ -218,14 +218,14 @@ FileChooser = class{
          head = current_dir
       end
       if head:sub(1, 1) ~= pathsep() then -- relative path
-        head = joinpath(current_dir, head)
+        head = joinpath{current_dir, head}
       end
       self.store:clear()
       local candidates = {}
       local files = listdir(head)
       for _, f in ipairs(files) do
         if fuzzy_match(tail, f) then
-          table.insert(candidates, joinpath(head, f))
+          table.insert(candidates, joinpath{head, f})
           if #candidates > 30 then break end
         end
       end

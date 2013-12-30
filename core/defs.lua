@@ -6,7 +6,7 @@ function core_defs_init(self)
   -- font and style
   self.default_scheme = 'foo'
   self.style_scheme_manager = GtkSource.StyleSchemeManager.get_default()
-  self.style_scheme_manager:append_search_path(joinpath(program_path(), 'theme'))
+  self.style_scheme_manager:append_search_path(joinpath{program_path(), 'theme'})
   self.style_scheme = self.style_scheme_manager:get_scheme(self.default_scheme)
 
   self.BRACKETS = {

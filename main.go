@@ -1,6 +1,7 @@
 package main
 
 //#include <gdk/gdk.h>
+//#cgo pkg-config: gtk+-3.0
 import "C"
 
 import (
@@ -9,8 +10,8 @@ import (
 	"bytes"
 	"encoding/xml"
 	"fmt"
+	"github.com/reusee/lgo"
 	"io/ioutil"
-	"log"
 	"math/rand"
 	"os"
 	"os/user"
@@ -33,22 +34,9 @@ var t0 = time.Now()
 var profileBuffer bytes.Buffer
 
 func main() {
-	lua, err := NewLua(filepath.Join(filepath.Dir(os.Args[0]), "main.lua"))
-	if err != nil {
-		log.Fatal(err)
-	}
+	lua := lgo.NewLua()
 
 	lua.RegisterFunctions(map[string]interface{}{
-		// test
-		"foobar": func() {
-			go func() {
-				for i := 0; i < 10; i++ {
-					time.Sleep(time.Millisecond * 200)
-					lua.Results <- &Result{"foobar", "FOOBAR"}
-				}
-			}()
-		},
-
 		// argv
 		"argv": func() []string {
 			return os.Args[1:]
@@ -72,7 +60,7 @@ func main() {
 		"splitpath": func(p string) (string, string) {
 			return filepath.Split(p)
 		},
-		"joinpath": func(ps ...string) string {
+		"joinpath": func(ps []string) string {
 			res := ""
 			for _, part := range ps {
 				res = filepath.Join(res, part)
@@ -228,12 +216,15 @@ func main() {
 			return utf8.Valid(input)
 		},
 
-		// gdk
+		// gdk & gtk
 		"gdk_event_copy": func(event unsafe.Pointer) *C.GdkEvent {
 			return C.gdk_event_copy((*C.GdkEvent)(event))
 		},
 		"gdk_event_put": func(event unsafe.Pointer) {
 			C.gdk_event_put((*C.GdkEvent)(event))
+		},
+		"main_quit": func() {
+			os.Exit(0)
 		},
 
 		// profile
@@ -250,5 +241,7 @@ func main() {
 	lua.RegisterFunctions(core.Registry)
 	lua.RegisterFunctions(extra.Registry)
 
-	lua.Run()
+	path, _ := filepath.Abs(os.Args[0])
+	lua.RunString(`package.path = '` + filepath.Dir(path) + `' .. '/?.lua;' .. package.path`)
+	lua.RunString(`require 'main'`)
 }
