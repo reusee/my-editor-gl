@@ -43,7 +43,6 @@ function core_key_init(self)
     [Gdk.KEY_Shift_L] = true,
     [Gdk.KEY_Shift_R] = true,
     [Gdk.KEY_Alt_L] = true,
-    [Gdk.KEY_Alt_R] = true,
     [Gdk.KEY_Control_L] = true,
     [Gdk.KEY_Control_R] = true,
   }

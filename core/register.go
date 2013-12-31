@@ -14,6 +14,9 @@ var Registry = map[string]interface{}{
 	// selection
 	"draw_selections": draw_selections,
 
+	// snippet
+	"split_snippet_line": split_snippet_line,
+
 	// status
 	"setup_relative_line_number": setup_relative_line_number,
 
