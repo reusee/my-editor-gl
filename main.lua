@@ -1,6 +1,3 @@
---local STP = require 'lib.StackTracePlus'
---debug.traceback = STP.stacktrace
-
 require 'lib.fun' ()
 
 lgi = require 'lgi'
