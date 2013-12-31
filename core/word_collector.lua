@@ -29,6 +29,9 @@ function core_word_collector_init(self)
       end
       return end_iter, word_ended
     end
+
+    local last_word_tag = Gtk.TextTag{name = 'last-word', underline = 1}
+    self.buf.tag_table:add(last_word_tag)
   end)
 
   self.connect_signal('buffer-created', function(buffer)
@@ -44,6 +47,8 @@ function core_word_collector_init(self)
       if word_ended or start_iter:compare(end_iter) == 0 then -- reset start and end
         if start_iter:compare(end_iter) < 0 then
           buffer.emit_signal('found-word', buf:get_text(start_iter, end_iter, false))
+          buf:remove_tag_by_name('last-word', buf:get_start_iter(), buf:get_end_iter())
+          buf:apply_tag_by_name('last-word', start_iter, end_iter)
         end
         buf:move_mark(buffer.word_start, cursor_iter)
         buf:move_mark(buffer.word_end, cursor_iter)
@@ -74,6 +79,8 @@ function core_word_collector_init(self)
     end_iter, _ = buffer.word_end_iter_extend(end_iter, buf:get_end_iter())
     if start_iter:compare(end_iter) < 0 then
       buffer.emit_signal('found-word', buf:get_text(start_iter, end_iter, false))
+      buf:remove_tag_by_name('last-word', buf:get_start_iter(), buf:get_end_iter())
+      buf:apply_tag_by_name('last-word', start_iter, end_iter)
     end
   end)
 end
