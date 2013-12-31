@@ -2,7 +2,7 @@ decl('core_word_collector_init')
 function core_word_collector_init(self)
   Buffer.mix(function(self)
     self.word_start = self.buf:create_mark(nil, self.buf:get_start_iter(), true)
-    self.word_end = self.buf:create_mark(nil, self.buf:get_end_iter(), true)
+    self.word_end = self.buf:create_mark(nil, self.buf:get_start_iter(), true)
     self.define_signal('found-word')
 
     function self.word_start_iter_extend(start_iter)
