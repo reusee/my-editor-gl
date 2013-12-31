@@ -39,7 +39,7 @@ function core_completion_init(self)
   local current_input = false
   local current_selected = false
 
-  local function update_candidates(buffer)
+  function self.update_candidates(buffer)
     if completion_replacing then return end
     completion_view.wrapper:hide()
     store:clear()
@@ -110,10 +110,10 @@ function core_completion_init(self)
   end, 'next completion')
 
   self.connect_signal('buffer-created', function(buffer)
-    buffer.on_changed(function() update_candidates(buffer) end)
+    buffer.on_changed(function() self.update_candidates(buffer) end)
   end)
   self.connect_signal({'entered-command-mode', 'entered-edit-mode'}, function(buffer)
-    update_candidates(buffer)
+    self.update_candidates(buffer)
   end)
 
 end
