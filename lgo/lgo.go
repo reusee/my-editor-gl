@@ -18,7 +18,6 @@ import "C"
 import (
 	"fmt"
 	"reflect"
-	"time"
 	"unsafe"
 )
 
@@ -70,7 +69,6 @@ func (self *Lua) RegisterFunctions(funcs map[string]interface{}) {
 
 //export Invoke
 func Invoke(p unsafe.Pointer) int {
-	t0 := time.Now()
 	function := (*Function)(p)
 	lua := function.lua
 	funcType := reflect.TypeOf(function.fun)
@@ -91,10 +89,6 @@ func Invoke(p unsafe.Pointer) int {
 	}
 	for _, v := range returnValues {
 		pushGoValue(lua, v)
-	}
-	used := time.Now().Sub(t0)
-	if used > time.Millisecond*1 {
-		fmt.Printf("%v %s slow\n", time.Now().Sub(t0), function.name)
 	}
 	return len(returnValues)
 }
