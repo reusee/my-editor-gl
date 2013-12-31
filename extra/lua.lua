@@ -30,6 +30,8 @@ function extra_lua_init(self)
     new_snippet('pa/', 'lua_pairs', {'for $1, $2 in pairs($3) do', '$>$4', '$<end$5'})
     new_snippet('ip/', 'lua_ipairs', {'for $1, $2 in ipairs($3) do', '$>$4', '$<end$5'})
     new_snippet('w/', 'lua_while', {'while $1 do', '$>$2', '$<end$3'})
+    new_snippet('s/', 'lua_self', {'self.$1'})
+    new_snippet('a/', 'lua_assign', {'$1 = $2'})
 
   end)
 end
