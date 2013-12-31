@@ -26,6 +26,7 @@ require 'extra.golang'
 require 'extra.lua'
 require 'extra.profile'
 require 'extra.webkit'
+require 'extra.common_snippets'
 
 decl('Editor')
 Editor = class{
@@ -89,6 +90,7 @@ Editor = class{
   extra_profile_init,
   extra_webkit_init,
   extra_lua_init,
+  extra_common_snippets_init,
 
   function(self)
 
