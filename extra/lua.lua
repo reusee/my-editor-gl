@@ -23,7 +23,7 @@ function extra_lua_init(self)
     end
 
     new_snippet('r/', 'lua_require', {"require '$1'$2"})
-    new_snippet('f/', 'lua_function', {'function $1($2)', '$>$3', '$<end$4'})
+    new_snippet('f/', 'lua_function', {'function$1($2)', '$>$3', '$<end$4'})
     new_snippet('if/', 'lua_if', {'if $1 then', '$>$2', '$<end$3'})
     new_snippet('d/', 'lua_local', {'local $1'})
     new_snippet('fo/', 'lua_for', {'for $1 = $2, $3 do', '$>$4', '$<end$5'})
