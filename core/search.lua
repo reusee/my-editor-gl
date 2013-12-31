@@ -53,6 +53,10 @@ function core_search_init(self)
   self.bind_command_key('?', function(args)
     search_entry.run(args.view, true)
   end, 'search backward')
+  self.bind_command_key('.z', function(args)
+    local buf = args.buffer.buf
+    buf:remove_tag(args.buffer.search_result_tag, buf:get_start_iter(), buf:get_end_iter())
+  end, 'clear search result')
 
   local function next_search_result(view, backward)
     local buffer = view.buffer
@@ -146,6 +150,8 @@ SearchEntry = class{
       if backward == nil then backward = false end
       local buffer = v.buffer
       local buf = buffer.buf
+      view = v
+      self.widget:set_text(buffer.search_pattern)
       if buf:get_has_selection() then -- search inside selection
         local start, stop = buf:get_selection_bounds()
         buf:move_mark(buffer.search_range_start, start)
@@ -155,7 +161,6 @@ SearchEntry = class{
         buf:move_mark(buffer.search_range_start, buf:get_start_iter())
         buf:move_mark(buffer.search_range_end, buf:get_end_iter())
       end
-      view = v
       is_backward = backward
       history_index = 1
       self.widget:show_all()
