@@ -98,8 +98,11 @@ function core_selection_init(self)
       end
     end
 
+    local selections = buffer.selections
     function buffer.clear_selections()
-      buffer.selections = {}
+      for i = 1, #selections do
+        selections[i] = nil
+      end
       local buf = buffer.buf
       buf:place_cursor(buf:get_iter_at_mark(buf:get_insert()))
     end
