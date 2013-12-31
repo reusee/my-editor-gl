@@ -14,6 +14,7 @@ function core_word_collector_init(self)
           break
         end
       end
+      return start_iter
     end
 
     function self.word_end_iter_extend(end_iter, limit_iter)
@@ -37,7 +38,7 @@ function core_word_collector_init(self)
       local start_iter = buf:get_iter_at_mark(buffer.word_start)
       local end_iter = buf:get_iter_at_mark(buffer.word_end)
       local cursor_iter = buf:get_iter_at_mark(buf:get_insert())
-      buffer.word_start_iter_extend(start_iter)
+      start_iter = buffer.word_start_iter_extend(start_iter)
       local word_ended
       end_iter, word_ended = buffer.word_end_iter_extend(end_iter, cursor_iter)
       if word_ended or start_iter:compare(end_iter) == 0 then -- reset start and end
@@ -62,7 +63,7 @@ function core_word_collector_init(self)
     local buf = buffer.buf
     local start_iter = buf:get_iter_at_mark(buf:get_insert())
     local end_iter = start_iter:copy()
-    buffer.word_start_iter_extend(start_iter)
+    start_iter = buffer.word_start_iter_extend(start_iter)
     buf:move_mark(buffer.word_start, start_iter)
     buf:move_mark(buffer.word_end, end_iter)
   end)
