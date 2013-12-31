@@ -54,9 +54,11 @@ function core_snippet_init(self)
     end
 
     -- insert snippet
-    local point_marks = {}
-    local point_order = {}
+    local point_stack = {}
+    buffer.point_stack = point_stack
     function buffer.insert_snippet(name)
+      local point_marks = {}
+      local point_order = {}
       local orig_mark = buf:create_mark(nil, buf:get_iter_at_mark(buf:get_insert()), true)
       -- get indent_str
       local it = buf:get_iter_at_mark(buf:get_insert())
@@ -94,6 +96,7 @@ function core_snippet_init(self)
         end
       end
       buf:end_user_action()
+      point_stack[#point_stack + 1] = {point_marks, point_order}
       -- first insert point
       if #point_order > 0 then
         buf:place_cursor(buf:get_iter_at_mark(orig_mark))
@@ -104,7 +107,9 @@ function core_snippet_init(self)
 
     -- next insert point
     function buffer.snippet_next_insert_point()
-      if #point_order == 0 then return end
+      if #point_stack == 0 then return end
+      local point_marks = point_stack[#point_stack][1]
+      local point_order = point_stack[#point_stack][2]
       buffer.clear_selections()
       local marks = point_marks[point_order[1]]
       for i = 1, #marks do
@@ -118,11 +123,33 @@ function core_snippet_init(self)
       end
       point_marks[point_order[1]] = nil
       table.remove(point_order, 1)
+      if #point_order == 0 then
+        point_stack[#point_stack] = nil
+      end
     end
   end)
 
   -- next insert point
   self.bind_edit_key({Gdk.KEY_Alt_R}, function(args)
     args.buffer.snippet_next_insert_point()
+  end)
+
+  -- clear point stack
+  self.connect_signal('entered-command-mode', function(buffer)
+    local point_stack = buffer.point_stack
+    local buf = buffer.buf
+    for i = 1, #point_stack do
+      local point_marks = point_stack[i][1]
+      local point_order = point_stack[i][2]
+      for k = 1, #point_order do
+        local key = point_order[k]
+        for mi = 1, #point_marks[key] do
+          buf:delete_mark(point_marks[key][mi])
+          point_marks[key][mi] = nil
+        end
+        point_marks[key] = nil
+      end
+      point_stack[i] = nil
+    end
   end)
 end
