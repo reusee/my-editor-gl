@@ -46,6 +46,9 @@ function core_pattern_init(self)
     local buffer = self.gview_get_buffer(gview)
     local c = tochar(ev.keyval)
     local new_states = {}
+    if #buffer.pattern_states == 0 then
+      buffer.pattern_states[#buffer.pattern_states + 1] = buffer.patterns
+    end
     for _, state in ipairs(buffer.pattern_states) do
       if not state[c] then goto continue end
       state = state[c]
