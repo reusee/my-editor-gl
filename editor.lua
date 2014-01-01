@@ -28,6 +28,7 @@ require 'extra.lua'
 require 'extra.profile'
 require 'extra.webkit'
 require 'extra.common_snippets'
+require 'extra.the_silver_searcher'
 
 decl('Editor')
 Editor = class{
@@ -93,6 +94,7 @@ Editor = class{
   extra_webkit_init,
   extra_lua_init,
   extra_common_snippets_init,
+  extra_the_silver_searcher_init,
 
   function(self)
 
