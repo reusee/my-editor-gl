@@ -18,7 +18,6 @@ decl('_')
 
 require 'base.signal'
 require 'base.object'
-require 'base.callback'
 require 'base.trace'
 
 require 'editor'
