@@ -21,6 +21,7 @@ require 'core.pattern'
 require 'core.terminal'
 require 'core.folding'
 require 'core.snippet'
+require 'core.location'
 
 require 'extra.golang'
 require 'extra.lua'
@@ -84,6 +85,7 @@ Editor = class{
   core_terminal_init,
   core_folding_init,
   core_snippet_init,
+  core_location_init,
 
   -- extra modules
   extra_golang_init,
