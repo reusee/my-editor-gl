@@ -114,10 +114,15 @@ function core_snippet_init(self)
       local marks = point_marks[point_order[1]]
       for i = 1, #marks do
         if i == 1 then
-          buf:place_cursor(buf:get_iter_at_mark(marks[1]))
-          -- update word bounds and completion candidates
+          -- collect word
           local start_iter = buf:get_iter_at_mark(buf:get_insert())
           local end_iter = start_iter:copy()
+          start_iter = buffer.word_start_iter_extend(start_iter)
+          end_iter, _ = buffer.word_end_iter_extend(end_iter, buf:get_end_iter())
+          buffer.emit_signal('found-word', buf:get_text(start_iter, end_iter, false))
+          -- place cursor
+          buf:place_cursor(buf:get_iter_at_mark(marks[1]))
+          -- update word bounds and completion candidates
           start_iter = buffer.word_start_iter_extend(start_iter)
           end_iter, _ = buffer.word_end_iter_extend(end_iter, buf:get_end_iter())
           buf:move_mark(buffer.word_start, start_iter)
