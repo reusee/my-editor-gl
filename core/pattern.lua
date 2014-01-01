@@ -92,4 +92,18 @@ function core_pattern_init(self)
       end
     end
   end)
+
+  function self.pattern_predict_cursor_at_line_start(buffer, state)
+    local buf = buffer.buf
+    local it = buf:get_iter_at_mark(buf:get_insert())
+    for _ = 1, #state.pattern - 1 do
+      it:backward_char()
+    end
+    local start = it:copy()
+    start:set_line_offset(0)
+    while not start:ends_line() and tochar(start:get_char()):isspace() do
+      start:forward_char()
+    end
+    return start:compare(it) == 0
+  end
 end
