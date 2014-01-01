@@ -42,6 +42,7 @@ function core_location_init(self)
       it:set_line(line)
       it:set_line_offset(offset)
       buf:place_cursor(it)
+      view.widget:scroll_to_mark(buf:get_insert(), 0, true, 1, 0.5)
     end
   end}
 
