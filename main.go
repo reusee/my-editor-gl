@@ -44,8 +44,8 @@ func main() {
 
 		// path utils
 		"program_path": func() string {
-			abs, _ := filepath.Abs(os.Args[0])
-			return filepath.Dir(abs)
+			_, path, _, _ := runtime.Caller(0)
+			return filepath.Dir(path)
 		},
 		"abspath": func(p string) string {
 			abs, _ := filepath.Abs(p)
@@ -233,7 +233,7 @@ func main() {
 	lua.RegisterFunctions(core.Registry)
 	lua.RegisterFunctions(extra.Registry)
 
-	path, _ := filepath.Abs(os.Args[0])
+	_, path, _, _ := runtime.Caller(0)
 	lua.RunString(`package.path = '` + filepath.Dir(path) + `' .. '/?.lua;' .. package.path`)
 	go func() {
 		runtime.LockOSThread()
