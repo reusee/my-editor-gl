@@ -8,12 +8,12 @@ import (
 
 var profileBuffer bytes.Buffer
 
-func startprofile() {
+func start_go_profile() {
 	profileBuffer.Reset()
 	pprof.StartCPUProfile(&profileBuffer)
 }
 
-func stopprofile() {
+func stop_go_profile() {
 	pprof.StopCPUProfile()
 	ioutil.WriteFile("profile", profileBuffer.Bytes(), 0644)
 }

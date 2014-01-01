@@ -5,11 +5,11 @@ function extra_profile_init(self)
     if not is_profiling then -- start
       is_profiling = true
       self.show_message('start golang profile')
-      startprofile()
+      start_go_profile()
     else
       is_profiling = false
       self.show_message('stop golang profile')
-      stopprofile()
+      stop_go_profile()
     end
   end, 'toggle golang profile')
 end

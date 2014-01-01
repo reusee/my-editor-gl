@@ -13,8 +13,8 @@ var Registry = map[string]interface{}{
 	"lua_check_parse_error": lua_check_parse_error,
 
 	// profiler
-	"startprofile": startprofile,
-	"stopprofile":  stopprofile,
+	"start_go_profile": start_go_profile,
+	"stop_go_profile":  stop_go_profile,
 
 	// the silver searcher
 	"run_the_silver_searcher": run_the_silver_searcher,
