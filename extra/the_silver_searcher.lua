@@ -86,14 +86,14 @@ function extra_the_silver_searcher_init(self)
   directory_entry:set_hexpand(true)
   dialog:attach(directory_entry, 1, 1, 1, 1)
   directory_entry.on_key_press_event:connect(handle_key)
-  directory_entry.on_grab_focus:connect(handle_focus)
+  directory_entry.on_grab_focus:connect(handle_focus, nil, true)
 
   -- option entry
   dialog:attach(Gtk.Label{label = '<span foreground="orange">opt</span>', use_markup = true}, 0, 2, 1, 1)
   option_entry:set_hexpand(true)
   dialog:attach(option_entry, 1, 2, 1, 1)
   option_entry.on_key_press_event:connect(handle_key)
-  option_entry.on_grab_focus:connect(handle_focus)
+  option_entry.on_grab_focus:connect(handle_focus, nil, true)
 
   -- run
   self.bind_command_key('.s', function(args)
