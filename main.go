@@ -90,14 +90,6 @@ func main() {
 			t := time.Now().UnixNano() / 1000000
 			return t
 		},
-		"start_timer": func() {
-			t0 = time.Now()
-		},
-		"stop_timer": func() time.Duration {
-			delta := time.Now().Sub(t0)
-			fmt.Printf("%v\n", delta)
-			return delta
-		},
 		"tick_timer": func() (ret string) {
 			ret = fmt.Sprintf("%v", time.Now().Sub(t0))
 			t0 = time.Now()
