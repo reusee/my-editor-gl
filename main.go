@@ -18,7 +18,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
-	"runtime/pprof"
 	"time"
 	"unicode/utf8"
 	"unsafe"
@@ -31,7 +30,6 @@ func init() {
 }
 
 var t0 = time.Now()
-var profileBuffer bytes.Buffer
 
 func main() {
 	lua := lgo.NewLua()
@@ -219,15 +217,6 @@ func main() {
 			os.Exit(0)
 		},
 
-		// profile
-		"startprofile": func() {
-			profileBuffer.Reset()
-			pprof.StartCPUProfile(&profileBuffer)
-		},
-		"stopprofile": func() {
-			pprof.StopCPUProfile()
-			ioutil.WriteFile("profile", profileBuffer.Bytes(), 0644)
-		},
 	})
 
 	lua.RegisterFunctions(core.Registry)
