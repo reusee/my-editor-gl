@@ -33,6 +33,7 @@ func get_candidates(input string, providersp unsafe.Pointer, info map[string]int
 		if match, distance := fuzzyMatch(word.Text, input); match {
 			texts[word.Text] = true
 			distances[word.Text] = distance
+			providers[word.Text] = []string{}
 		}
 	}
 
@@ -79,6 +80,9 @@ func get_candidates(input string, providersp unsafe.Pointer, info map[string]int
 }
 
 func compare(input string, left, right *Word, ldistance, rdistance int, providers map[string][]string) bool {
+	if len(providers[left.Text]) > len(providers[right.Text]) {
+		return true
+	}
 	if !(left.LatestSelected.Equal(right.LatestSelected)) {
 		return left.LatestSelected.After(right.LatestSelected)
 	}
