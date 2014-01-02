@@ -95,19 +95,17 @@ function core_file_init(self)
       self.show_message('cannot close modified buffer')
       return
     end
-    if buffer.filename == '' then
-      self.show_message('cannot close unnamed buffer')
-      return
-    end
     if #self.buffers == 1 then
       self.show_message('cannot close last buffer')
       return
     end
+    -- remove buffer from buffers
     local index = index_of(buffer, self.buffers)
     table.remove(self.buffers, index)
     index = index + 1
     if index > #self.buffers then index = 1 end
     local next_buffer = self.buffers[index]
+    -- remove views
     local i = 1
     while true do
       if i > #self.views then break end
