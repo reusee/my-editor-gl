@@ -10,6 +10,7 @@ function core_file_init(self)
     end
     if #self.buffers == 0 or self.start_dir then
       file_chooser.update_list()
+      file_chooser.entry:grab_focus()
     else
       file_chooser.wrapper:hide()
     end
