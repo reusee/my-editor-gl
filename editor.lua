@@ -11,6 +11,7 @@ require 'core.format'
 require 'core.search'
 require 'core.word_collector'
 require 'core.bookmark'
+require 'core.vocabulary'
 require 'core.completion'
 require 'core.iter'
 require 'core.selection'
@@ -76,6 +77,7 @@ Editor = class{
   core_search_init,
   core_word_collector_init,
   core_bookmark_init,
+  core_vocabulary_init,
   core_completion_init,
   core_iter_init,
   core_selection_init,

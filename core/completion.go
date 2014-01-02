@@ -22,49 +22,6 @@ func new_providers() *Providers {
 	return providers
 }
 
-type Vocabulary struct {
-	Words map[string]*Word
-}
-
-func NewVocabulary() *Vocabulary {
-	vocab := &Vocabulary{
-		Words: make(map[string]*Word),
-	}
-	return vocab
-}
-
-type Word struct {
-	Text                string
-	TotalFrequency      int
-	FrequencyByInput    map[string]int
-	FrequencyByFiletype map[string]int
-	FrequencyByFilename map[string]int
-	LatestSelected      time.Time
-}
-
-func NewWord(text string) *Word {
-	word := &Word{
-		Text:                text,
-		FrequencyByInput:    make(map[string]int),
-		FrequencyByFiletype: make(map[string]int),
-		FrequencyByFilename: make(map[string]int),
-	}
-	return word
-}
-
-var GlobalVocabulary = NewVocabulary()
-
-func on_found_word(text string) {
-	GlobalVocabulary.Add(text)
-}
-
-func (self *Vocabulary) Add(text string) {
-	if _, has := self.Words[text]; has {
-		return
-	}
-	self.Words[text] = NewWord(text)
-}
-
 func get_candidates(input string, providersp unsafe.Pointer, info map[string]interface{}) [][]string {
 	texts := make(map[string]bool)
 	providers := make(map[string][]string)

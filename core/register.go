@@ -6,7 +6,6 @@ import (
 
 var Registry = map[string]interface{}{
 	// completion
-	"on_found_word":     on_found_word,
 	"get_candidates":    get_candidates,
 	"on_word_completed": on_word_completed,
 	"new_providers":     new_providers,
@@ -26,6 +25,10 @@ var Registry = map[string]interface{}{
 
 	// view
 	"view_is_focus": view_is_focus,
+
+	// vocabulary
+	"collect_words": collect_words,
+	"compile_regex": compile_regex,
 }
 
 func p(format string, args ...interface{}) {

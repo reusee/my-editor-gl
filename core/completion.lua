@@ -3,9 +3,6 @@ function core_completion_init(self)
 
   -- collect words
   Buffer.mix(function(buffer)
-    buffer.connect_signal('found-word', function(text)
-      on_found_word(text)
-    end)
     buffer.completion_providers = new_providers()
   end)
 
