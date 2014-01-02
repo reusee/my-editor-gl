@@ -10,6 +10,7 @@ import (
 	"./lgo"
 	"bytes"
 	"encoding/xml"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"math/rand"
@@ -24,19 +25,24 @@ import (
 	"unsafe"
 )
 
+var debugFlag = flag.Bool("debug", false, "enable debug")
+
 func init() {
 	runtime.GOMAXPROCS(32)
 	rand.Seed(time.Now().UnixNano())
 	fmt.Printf("")
+	flag.Parse()
 	// log
-	_, path, _, _ := runtime.Caller(0)
-	logFile, err := os.OpenFile(filepath.Join(filepath.Dir(path), "logs", fmt.Sprintf("%d", time.Now().UnixNano())),
-		os.O_WRONLY|os.O_CREATE|os.O_SYNC, 0644)
-	if err != nil {
-		panic("cannot open log file")
+	if !*debugFlag {
+		_, path, _, _ := runtime.Caller(0)
+		logFile, err := os.OpenFile(filepath.Join(filepath.Dir(path), "logs", fmt.Sprintf("%d", time.Now().UnixNano())),
+			os.O_WRONLY|os.O_CREATE|os.O_SYNC, 0644)
+		if err != nil {
+			panic("cannot open log file")
+		}
+		syscall.Dup2(int(logFile.Fd()), 1)
+		syscall.Dup2(int(logFile.Fd()), 2)
 	}
-	syscall.Dup2(int(logFile.Fd()), 1)
-	syscall.Dup2(int(logFile.Fd()), 2)
 }
 
 var t0 = time.Now()
