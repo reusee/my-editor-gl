@@ -20,7 +20,7 @@ function core_file_init(self)
 
   -- cancel
   file_chooser.connect_signal('cancel', function()
-    if current_view then
+    if #self.buffers > 0 then -- do not close file chooser if no buffer can switch to
       file_chooser.wrapper:hide()
       current_view.widget:grab_focus()
     end
@@ -118,10 +118,6 @@ function core_file_init(self)
       self.show_message('cannot close modified buffer')
       return
     end
-    if #self.buffers == 1 then
-      self.show_message('cannot close last buffer')
-      return
-    end
     -- remove buffer from buffers
     local index = index_of(buffer, self.buffers)
     table.remove(self.buffers, index)
@@ -138,12 +134,20 @@ function core_file_init(self)
         local wrapper = view.wrapper
         local gstack = wrapper:get_parent()
         gstack:remove(wrapper)
-        self.switch_to_buffer(next_buffer, gstack)
+        if next_buffer then
+          self.switch_to_buffer(next_buffer, gstack)
+        end
       else
         i = i + 1
       end
     end
     self.show_message('close buffer of ' .. buffer.filename)
+    if not next_buffer then -- last buffer closed
+      file_chooser.wrapper:show_all()
+      file_chooser.update_list()
+      file_chooser.entry:set_text('', -1)
+      file_chooser.entry:grab_focus()
+    end
   end, 'close buffer')
 end
 
