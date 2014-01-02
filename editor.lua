@@ -9,7 +9,6 @@ require 'core.file'
 require 'core.message'
 require 'core.format'
 require 'core.search'
-require 'core.word_collector'
 require 'core.bookmark'
 require 'core.vocabulary'
 require 'core.completion'
@@ -75,7 +74,6 @@ Editor = class{
   core_message_init,
   core_format_init,
   core_search_init,
-  core_word_collector_init,
   core_bookmark_init,
   core_vocabulary_init,
   core_completion_init,

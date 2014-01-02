@@ -4,6 +4,8 @@ function core_completion_init(self)
   -- collect words
   Buffer.mix(function(buffer)
     buffer.completion_providers = new_providers()
+    local buf = buffer.buf
+    buffer.word_start = buf:create_mark(nil, buf:get_start_iter(), true)
   end)
 
   local completion_view = CompletionView()
@@ -55,9 +57,18 @@ function core_completion_init(self)
     if self.operation_mode ~= self.EDIT then return end
 
     local buf = buffer.buf
-    local input = buf:get_text(
-      buf:get_iter_at_mark(buffer.word_start),
-      buf:get_iter_at_mark(buffer.word_end), false)
+    local cursor_iter = buf:get_iter_at_mark(buf:get_insert())
+    local start_iter = cursor_iter:copy()
+    local it = start_iter:copy()
+    while it:backward_char() do
+      if buffer.is_word_char(tochar(it:get_char())) then
+        start_iter:backward_char()
+      else
+        break
+      end
+    end
+    buf:move_mark(buffer.word_start, start_iter)
+    local input = buf:get_text(start_iter, cursor_iter, false)
     current_input = input
     current_selected = false
 
@@ -84,14 +95,14 @@ function core_completion_init(self)
   end
 
   self.bind_edit_key({Gdk.KEY_Tab}, function(args)
+    -- insert tab char if no completion candidate
     if not store:get_iter_first() then return 'propagate' end
     local buf = args.buffer.buf
     local start_mark = args.buffer.word_start
-    local end_mark = args.buffer.word_end
-    local text = buf:get_text(buf:get_iter_at_mark(start_mark), buf:get_iter_at_mark(end_mark), false)
+    local text = buf:get_text(buf:get_iter_at_mark(start_mark), buf:get_iter_at_mark(buf:get_insert()), false)
     completion_replacing = true
     buf:begin_user_action()
-    buf:delete(buf:get_iter_at_mark(start_mark), buf:get_iter_at_mark(end_mark))
+    buf:delete(buf:get_iter_at_mark(start_mark), buf:get_iter_at_mark(buf:get_insert()))
     if current_selected then
       store:append(current_selected)
     else

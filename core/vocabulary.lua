@@ -5,9 +5,7 @@ function core_vocabulary_init(self)
     buffer.compiled_word_regex = compiled_word_regex
 
     buffer.on_changed(function()
-      trace_tick(true)
       collect_words(buffer.native, self.operation_mode == self.EDIT, compiled_word_regex)
-      trace_tick()
     end)
   end)
 
