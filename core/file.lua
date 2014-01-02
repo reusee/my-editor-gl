@@ -2,12 +2,16 @@ decl('core_file_init')
 function core_file_init(self)
   -- file chooser
   local file_chooser = FileChooser(self)
+  file_chooser.current_dir = homedir()
   self.widget:add_overlay(file_chooser.wrapper)
   self.on_realize(function()
-    if #self.buffers > 0 then
-      file_chooser.wrapper:hide()
-    else
+    if self.start_dir then
+      file_chooser.current_dir = self.start_dir
+    end
+    if #self.buffers == 0 or self.start_dir then
       file_chooser.update_list()
+    else
+      file_chooser.wrapper:hide()
     end
   end)
 
@@ -205,7 +209,7 @@ FileChooser = class{
     end)
 
     self.filename = ''
-    self.current_dir = homedir()
+    self.current_dir = false
 
     local select = self.view:get_selection()
     select:set_mode(Gtk.SelectionMode.BROWSE)

@@ -99,8 +99,14 @@ Editor = class{
   function(self)
 
     -- buffers
+    self.start_dir = false
     each(function(filename)
-      self.create_buffer(filename)
+      filename = abspath(filename)
+      if isdir(filename) then -- open directory
+        self.start_dir = filename
+      else
+        self.create_buffer(filename)
+      end
     end, argv())
 
     -- root view grid
