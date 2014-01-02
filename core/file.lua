@@ -3,8 +3,23 @@ function core_file_init(self)
   -- file chooser
   local file_chooser = FileChooser(self)
   self.widget:add_overlay(file_chooser.wrapper)
-  self.on_realize(function() file_chooser.wrapper:hide() end)
+  self.on_realize(function()
+    if #self.buffers > 0 then
+      file_chooser.wrapper:hide()
+    else
+      file_chooser.update_list()
+    end
+  end)
 
+  local current_view = false
+
+  -- cancel
+  file_chooser.connect_signal('cancel', function()
+    if current_view then
+      file_chooser.wrapper:hide()
+      current_view.widget:grab_focus()
+    end
+  end)
   -- open file
   file_chooser.connect_signal('done', function()
     local filename = file_chooser.filename
@@ -21,7 +36,10 @@ function core_file_init(self)
       buffer = self.create_buffer(filename)
     end
     if buffer then
-      local stack = file_chooser.last_view.wrapper:get_parent()
+      local stack = self.first_stack.widget
+      if current_view then
+        stack = current_view.wrapper:get_parent()
+      end
       -- create or switch to view
       local view
       for _, wrapper in ipairs(stack:get_children()) do
@@ -41,9 +59,10 @@ function core_file_init(self)
 
   -- open file chooser
   self.bind_command_key(',b', function(args)
-    file_chooser.last_view = args.view
+    current_view = args.view
     local current_filename = args.buffer.filename
-    file_chooser.update_list(abspath(dirname(current_filename)))
+    file_chooser.current_dir = abspath(dirname(current_filename))
+    file_chooser.update_list()
     file_chooser.wrapper:show_all()
     file_chooser.entry:set_text('', -1)
     file_chooser.entry:grab_focus()
@@ -139,27 +158,23 @@ FileChooser = class{
     self.entry:set_hexpand(true)
     self.wrapper:add(self.entry)
     self.entry.on_notify:connect(function()
-      local buffer_filename = self.last_view.buffer.filename
-      self.update_list(abspath(dirname(buffer_filename)))
+      self.update_list()
     end, 'text')
 
     self.define_signal('done')
-    local function done()
-      self.wrapper:hide()
-      self.last_view.widget:grab_focus()
-      self.emit_signal('done')
-    end
+    self.define_signal('cancel')
     self.entry.on_key_press_event:connect(function(_, event)
       if event.keyval == Gdk.KEY_Escape then
         self.filename = ''
-        done()
+        self.emit_signal('cancel')
       elseif event.keyval == Gdk.KEY_Return then
         if isdir(self.filename) then -- enter subdirectory
           local path = self.filename .. pathsep()
           self.entry:set_text(path)
           self.entry:set_position(-1)
         else
-          done()
+          self.wrapper:hide()
+          self.emit_signal('done')
         end
       end
     end)
@@ -184,12 +199,13 @@ FileChooser = class{
         self.entry:grab_focus()
         self.entry:set_position(-1)
       else
-        done()
+        self.wrapper:hide()
+        self.emit_signal('done')
       end
     end)
 
     self.filename = ''
-    self.last_view = 0
+    self.current_dir = homedir()
 
     local select = self.view:get_selection()
     select:set_mode(Gtk.SelectionMode.BROWSE)
@@ -212,13 +228,13 @@ FileChooser = class{
       return keyI == #key + 1
     end
 
-    function self.update_list(current_dir)
+    function self.update_list()
       local head, tail = splitpath(self.entry:get_text())
       if head == "" then
-         head = current_dir
+         head = self.current_dir
       end
       if head:sub(1, 1) ~= pathsep() then -- relative path
-        head = joinpath{current_dir, head}
+        head = joinpath{self.current_dir, head}
       end
       self.store:clear()
       local candidates = {}

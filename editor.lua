@@ -102,9 +102,6 @@ Editor = class{
     each(function(filename)
       self.create_buffer(filename)
     end, argv())
-    if #self.buffers == 0 then
-      self.create_buffer()
-    end
 
     -- root view grid
     self.views_grid = Gtk.Grid()
@@ -115,6 +112,7 @@ Editor = class{
     -- first stack
     local stack = ViewStack()
     self.views_grid:add(stack.widget)
+    self.first_stack = stack
 
     -- create views
     for _, buffer in ipairs(self.buffers) do
