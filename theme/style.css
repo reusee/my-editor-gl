@@ -1,12 +1,15 @@
 GtkWidget {
   background-color: #27281E;
-  /*background-color: #073642;*/
   color: #F2FFF1;
   font-family: Terminus;
   font-size: 13px;
 }
+:selected {
+  background-color: #303020;
+}
 GtkEntry {
   border: 0;
+  border-bottom: 1px solid #383830;
 }
 .scrollbar {
   -GtkScrollbar-has-backward-stepper: false;
