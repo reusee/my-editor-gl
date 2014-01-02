@@ -7,10 +7,10 @@ import "C"
 import (
 	"./core"
 	"./extra"
+	"./lgo"
 	"bytes"
 	"encoding/xml"
 	"fmt"
-	"./lgo"
 	"io/ioutil"
 	"math/rand"
 	"os"
@@ -18,6 +18,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"syscall"
 	"time"
 	"unicode/utf8"
 	"unsafe"
@@ -27,6 +28,15 @@ func init() {
 	runtime.GOMAXPROCS(32)
 	rand.Seed(time.Now().UnixNano())
 	fmt.Printf("")
+	// log
+	_, path, _, _ := runtime.Caller(0)
+	logFile, err := os.OpenFile(filepath.Join(filepath.Dir(path), "logs", fmt.Sprintf("%d", time.Now().UnixNano())),
+		os.O_WRONLY|os.O_CREATE|os.O_SYNC, 0644)
+	if err != nil {
+		panic("cannot open log file")
+	}
+	syscall.Dup2(int(logFile.Fd()), 1)
+	syscall.Dup2(int(logFile.Fd()), 2)
 }
 
 var t0 = time.Now()
@@ -216,7 +226,6 @@ func main() {
 		"main_quit": func() {
 			os.Exit(0)
 		},
-
 	})
 
 	lua.RegisterFunctions(core.Registry)
