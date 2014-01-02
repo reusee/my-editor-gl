@@ -94,7 +94,6 @@ function core_file_init(self)
     local tmp_filename = filename .. '.' .. tostring(current_time_in_millisecond())
     local backup_filename = quote_filename(filename) .. '.' .. tostring(current_time_in_millisecond())
     backup_filename = joinpath{file_backup_dir, backup_filename}
-    --TODO maintain cursor position and scroll state
     args.buffer.emit_signal('before-saving')
     -- save tmp file
     if createwithmode(tmp_filename, filemode(filename)) then return end
