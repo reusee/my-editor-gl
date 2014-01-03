@@ -59,11 +59,15 @@ function core_status_init(self)
   local function update_buffer_list(current_buffer)
     local markup = {}
     for _, buffer in ipairs(self.buffers) do
+      local modified = ''
+      if buffer.buf:get_modified() then
+        modified = 'underline="double"'
+      end
       if buffer == current_buffer then
-        table.insert(markup, '<span foreground="lightgreen">'
+        table.insert(markup, '<span foreground="lightgreen" ' .. modified .. '>'
           .. basename(buffer.filename) .. '</span>')
       else
-        table.insert(markup, '<span>' .. basename(buffer.filename) .. '</span>')
+        table.insert(markup, '<span ' .. modified .. '>' .. basename(buffer.filename) .. '</span>')
       end
     end
     buffer_list:set_markup(table.concat(markup, '   '))
