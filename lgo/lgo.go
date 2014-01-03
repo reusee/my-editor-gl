@@ -60,6 +60,7 @@ func (self *Lua) RegisterFunction(name string, fun interface{}) {
 		if i == 0 { // top namespace
 			C.lua_getglobal(self.State, cNamespace)
 			if C.lua_type(self.State, -1) == C.LUA_TNIL { // not exists
+				C.lua_settop(self.State, -2)
 				C.lua_createtable(self.State, 0, 0)
 				C.lua_setglobal(self.State, cNamespace)
 				C.lua_getglobal(self.State, cNamespace)
@@ -79,7 +80,7 @@ func (self *Lua) RegisterFunction(name string, fun interface{}) {
 				C.lua_rawget(self.State, -2)
 			}
 			if C.lua_type(self.State, -1) != C.LUA_TTABLE {
-				self.Panic("global %s is not a table", namespace)
+				self.Panic("namespace %s is not a table", namespace)
 			}
 		}
 	}
@@ -97,6 +98,7 @@ func (self *Lua) RegisterFunction(name string, fun interface{}) {
 	}
 	C.register_function(self.State, cName, unsafe.Pointer(function))
 	self.Functions[name] = function
+	C.lua_settop(self.State, -2)
 }
 
 func (self *Lua) RegisterFunctions(funcs map[string]interface{}) {
