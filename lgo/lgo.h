@@ -6,9 +6,10 @@ int invoke_go_func(lua_State* state) {
 }
 
 void register_function(lua_State* state, const char* name, void* func) {
+  lua_pushstring(state, name);
   lua_pushlightuserdata(state, func);
   lua_pushcclosure(state, (lua_CFunction)invoke_go_func, 1);
-  lua_setglobal(state, name);
+  lua_rawset(state, -3);
 }
 
 int traceback(lua_State* L) {

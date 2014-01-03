@@ -18,6 +18,7 @@ import "C"
 import (
 	"fmt"
 	"reflect"
+	"strings"
 	"unsafe"
 )
 
@@ -46,6 +47,43 @@ func NewLua() *Lua {
 }
 
 func (self *Lua) RegisterFunction(name string, fun interface{}) {
+	path := strings.Split(name, ".")
+	name = path[len(path)-1]
+	path = path[0 : len(path)-1]
+	if len(path) == 0 {
+		path = append(path, "_G")
+	}
+	// ensure namespaces
+	for i, namespace := range path {
+		cNamespace := C.CString(namespace)
+		defer C.free(unsafe.Pointer(cNamespace))
+		if i == 0 { // top namespace
+			C.lua_getglobal(self.State, cNamespace)
+			if C.lua_type(self.State, -1) == C.LUA_TNIL { // not exists
+				C.lua_createtable(self.State, 0, 0)
+				C.lua_setglobal(self.State, cNamespace)
+				C.lua_getglobal(self.State, cNamespace)
+			}
+			if C.lua_type(self.State, -1) != C.LUA_TTABLE {
+				self.Panic("global %s is not a table", namespace)
+			}
+		} else { // sub namespace TODO
+			C.lua_pushstring(self.State, cNamespace)
+			C.lua_rawget(self.State, -2)
+			if C.lua_type(self.State, -1) == C.LUA_TNIL {
+				C.lua_settop(self.State, -2)
+				C.lua_pushstring(self.State, cNamespace)
+				C.lua_createtable(self.State, 0, 0)
+				C.lua_rawset(self.State, -3)
+				C.lua_pushstring(self.State, cNamespace)
+				C.lua_rawget(self.State, -2)
+			}
+			if C.lua_type(self.State, -1) != C.LUA_TTABLE {
+				self.Panic("global %s is not a table", namespace)
+			}
+		}
+	}
+	// register function
 	funcType := reflect.TypeOf(fun)
 	if funcType.IsVariadic() {
 		self.Panic("cannot register variadic function: %v", fun)
