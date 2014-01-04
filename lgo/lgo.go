@@ -29,8 +29,10 @@ type Lua struct {
 
 type Function struct {
 	name string
-	fun  interface{}
 	lua  *Lua
+	fun  interface{}
+	funcType reflect.Type
+	funcValue reflect.Value
 }
 
 func NewLua() *Lua {
@@ -68,7 +70,7 @@ func (self *Lua) RegisterFunction(name string, fun interface{}) {
 			if C.lua_type(self.State, -1) != C.LUA_TTABLE {
 				self.Panic("global %s is not a table", namespace)
 			}
-		} else { // sub namespace TODO
+		} else { // sub namespace
 			C.lua_pushstring(self.State, cNamespace)
 			C.lua_rawget(self.State, -2)
 			if C.lua_type(self.State, -1) == C.LUA_TNIL {
@@ -95,6 +97,8 @@ func (self *Lua) RegisterFunction(name string, fun interface{}) {
 		fun:  fun,
 		lua:  self,
 		name: name,
+		funcType: funcType,
+		funcValue: reflect.ValueOf(fun),
 	}
 	C.register_function(self.State, cName, unsafe.Pointer(function))
 	self.Functions[name] = function
@@ -110,25 +114,23 @@ func (self *Lua) RegisterFunctions(funcs map[string]interface{}) {
 //export Invoke
 func Invoke(p unsafe.Pointer) int {
 	function := (*Function)(p)
-	lua := function.lua
-	funcType := reflect.TypeOf(function.fun)
 	// check argument count
-	argc := C.lua_gettop(lua.State)
-	if int(argc) != funcType.NumIn() {
-		lua.Panic("arguments not match: %v", function.fun)
+	argc := C.lua_gettop(function.lua.State)
+	if int(argc) != function.funcType.NumIn() {
+		function.lua.Panic("arguments not match: %v", function.fun)
 	}
 	// arguments
 	var args []reflect.Value
 	for i := C.int(1); i <= argc; i++ {
-		args = append(args, toGoValue(lua, i, funcType.In(int(i-1))))
+		args = append(args, function.lua.toGoValue(i, function.funcType.In(int(i-1))))
 	}
 	// call and returns
-	returnValues := reflect.ValueOf(function.fun).Call(args)
-	if len(returnValues) != funcType.NumOut() {
-		lua.Panic("return values not match: %v", function.fun)
+	returnValues := function.funcValue.Call(args)
+	if len(returnValues) != function.funcType.NumOut() {
+		function.lua.Panic("return values not match: %v", function.fun)
 	}
 	for _, v := range returnValues {
-		pushGoValue(lua, v)
+		function.lua.pushGoValue(v)
 	}
 	return len(returnValues)
 }
@@ -136,7 +138,7 @@ func Invoke(p unsafe.Pointer) int {
 var stringType = reflect.TypeOf("")
 var intType = reflect.TypeOf(int(0))
 
-func toGoValue(lua *Lua, i C.int, paramType reflect.Type) (ret reflect.Value) {
+func (lua *Lua) toGoValue(i C.int, paramType reflect.Type) (ret reflect.Value) {
 	luaType := C.lua_type(lua.State, i)
 	paramKind := paramType.Kind()
 	switch paramKind {
@@ -193,7 +195,7 @@ func toGoValue(lua *Lua, i C.int, paramType reflect.Type) (ret reflect.Value) {
 			C.lua_pushnil(lua.State)
 			elemType := paramType.Elem()
 			for C.lua_next(lua.State, i) != 0 {
-				ret = reflect.Append(ret, toGoValue(lua, -1, elemType))
+				ret = reflect.Append(ret, lua.toGoValue(-1, elemType))
 				C.lua_settop(lua.State, -2)
 			}
 		default:
@@ -214,8 +216,8 @@ func toGoValue(lua *Lua, i C.int, paramType reflect.Type) (ret reflect.Value) {
 		elemType := paramType.Elem()
 		for C.lua_next(lua.State, i) != 0 {
 			ret.SetMapIndex(
-				toGoValue(lua, -2, keyType),
-				toGoValue(lua, -1, elemType))
+				lua.toGoValue(-2, keyType),
+				lua.toGoValue(-1, elemType))
 			C.lua_settop(lua.State, -2)
 		}
 	case reflect.UnsafePointer:
@@ -226,7 +228,7 @@ func toGoValue(lua *Lua, i C.int, paramType reflect.Type) (ret reflect.Value) {
 	return
 }
 
-func pushGoValue(lua *Lua, value reflect.Value) {
+func (lua *Lua) pushGoValue(value reflect.Value) {
 	switch t := value.Type(); t.Kind() {
 	case reflect.Bool:
 		if value.Bool() {
@@ -247,11 +249,11 @@ func pushGoValue(lua *Lua, value reflect.Value) {
 		C.lua_createtable(lua.State, C.int(length), 0)
 		for i := 0; i < length; i++ {
 			C.lua_pushnumber(lua.State, C.lua_Number(i+1))
-			pushGoValue(lua, value.Index(i))
+			lua.pushGoValue(value.Index(i))
 			C.lua_settable(lua.State, -3)
 		}
 	case reflect.Interface:
-		pushGoValue(lua, value.Elem())
+		lua.pushGoValue(value.Elem())
 	case reflect.Ptr:
 		C.lua_pushlightuserdata(lua.State, unsafe.Pointer(value.Pointer()))
 	default:
