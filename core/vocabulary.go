@@ -5,13 +5,16 @@ import "C"
 
 import (
 	"regexp"
+	"sync"
 	"time"
 	"unicode/utf8"
 	"unsafe"
 )
 
 type Vocabulary struct {
+	sync.RWMutex
 	Words map[string]*Word
+	Texts []string
 }
 
 func NewVocabulary() *Vocabulary {
@@ -43,10 +46,13 @@ func NewWord(text string) *Word {
 var GlobalVocabulary = NewVocabulary()
 
 func (self *Vocabulary) Add(text string) {
+	self.Lock()
+	defer self.Unlock()
 	if _, has := self.Words[text]; has {
 		return
 	}
 	self.Words[text] = NewWord(text)
+	self.Texts = append(self.Texts, text)
 }
 
 var compiled_regex_bin []*regexp.Regexp
@@ -100,7 +106,7 @@ func collect_words(bufferp unsafe.Pointer, isEditMode bool, rep unsafe.Pointer) 
 				}
 			}
 			// add to global vocabulary
-			GlobalVocabulary.Add(string(text[byte_offset-(loc[1]-loc[0]):byte_offset]))
+			GlobalVocabulary.Add(string(text[byte_offset-(loc[1]-loc[0]) : byte_offset]))
 		}
 	}()
 }

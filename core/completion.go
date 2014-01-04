@@ -29,7 +29,14 @@ func get_candidates(input string, providersp unsafe.Pointer, info map[string]int
 	distances := make(map[string]int)
 
 	// from GlobalVocabulary
-	for _, word := range GlobalVocabulary.Words {
+	GlobalVocabulary.Lock()
+	l := len(GlobalVocabulary.Texts)
+	GlobalVocabulary.Unlock()
+	var word *Word
+	for i := 0; i < l; i++ {
+		GlobalVocabulary.Lock()
+		word = GlobalVocabulary.Words[GlobalVocabulary.Texts[i]]
+		GlobalVocabulary.Unlock()
 		if match, distance := fuzzyMatch(word.Text, input); match {
 			texts[word.Text] = true
 			distances[word.Text] = distance
@@ -52,10 +59,15 @@ func get_candidates(input string, providersp unsafe.Pointer, info map[string]int
 	// sort
 	max_results := 8
 	result := make([][]string, 0, max_results)
+	var left, right *Word
 	for text := range texts {
 		pos := 0
 		for _, target := range result { // compare
-			if compare(input, GlobalVocabulary.Words[text], GlobalVocabulary.Words[target[0]], distances[text], distances[target[0]], providers) { // win
+			GlobalVocabulary.Lock()
+			left = GlobalVocabulary.Words[text]
+			right = GlobalVocabulary.Words[target[0]]
+			GlobalVocabulary.Unlock()
+			if compare(input, left, right, distances[text], distances[target[0]], providers) { // win
 				break
 			} else {
 				pos++
@@ -112,7 +124,9 @@ func fuzzyMatch(text, input string) (bool, int) {
 }
 
 func on_word_completed(info map[string]string) {
+	GlobalVocabulary.Lock()
 	word := GlobalVocabulary.Words[info["text"]]
+	GlobalVocabulary.Unlock()
 	word.TotalFrequency++
 	word.FrequencyByInput[info["input"]]++
 	word.FrequencyByFiletype[info["file_type"]]++
