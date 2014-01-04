@@ -67,20 +67,20 @@ function core_transform_init(self)
     {'iter'}, 'cursor').apply(args.buffer)
     end, 'relative backward char jump')
   self.bind_command_key('f', function() return function(args) Transform(
-    {self.iter_jump_to_string, args.n, tochar(args.keyval)},
+    {self.iter_jump_to_string, args.n, chr(args.keyval)},
     {'iter'}, 'cursor', true).apply(args.buffer)
     end end, 'specified forward char jump')
   self.bind_command_key('mf', function() return function(args) Transform(
-    {self.iter_jump_to_string, args.n, tochar(args.keyval), true},
+    {self.iter_jump_to_string, args.n, chr(args.keyval), true},
     {'iter'}, 'cursor', true).apply(args.buffer)
     end end, 'specified backward char jump')
   self.alias_command_key('F', 'mf')
   self.bind_command_key('s', function(args) return function(args1) return function(args2)
-    Transform({self.iter_jump_to_string, args.n, tochar(args1.keyval) .. tochar(args2.keyval)},
+    Transform({self.iter_jump_to_string, args.n, chr(args1.keyval) .. chr(args2.keyval)},
     {'iter'}, 'cursor', true).apply(args.buffer)
     end end end, 'specified forward two-chars jump')
   self.bind_command_key('ms', function(args) return function(args1) return function(args2)
-    Transform({self.iter_jump_to_string, args.n, tochar(args1.keyval) .. tochar(args2.keyval), true},
+    Transform({self.iter_jump_to_string, args.n, chr(args1.keyval) .. chr(args2.keyval), true},
     {'iter'}, 'cursor', true).apply(args.buffer)
     end end end, 'specified backward two-chars jump')
   self.alias_command_key('S', 'ms')
@@ -134,19 +134,19 @@ function core_transform_init(self)
     'all').apply(args.buffer) end, 'relative forward cha extend')
   self.bind_command_key('vf', function(args) return function(args2) Transform(
     {false},
-    {self.iter_jump_to_string, args.n, tochar(args2.keyval)},
+    {self.iter_jump_to_string, args.n, chr(args2.keyval)},
     'all').apply(args.buffer) end end, 'relative forward char extend')
   self.alias_command_key('vt', 'vf')
   self.bind_command_key('vmf', function(args) return function(args2) Transform(
-    {self.iter_jump_to_string, args.n, tochar(args2.keyval), true},
+    {self.iter_jump_to_string, args.n, chr(args2.keyval), true},
     {false},
     'all').apply(args.buffer) end end, 'relative backward char extend')
   self.bind_command_key('vs', function(args) return function(args2) return function(args3) Transform(
     {false},
-    {self.iter_jump_to_string, args.n, tochar(args2.keyval) .. tochar(args3.keyval)},
+    {self.iter_jump_to_string, args.n, chr(args2.keyval) .. chr(args3.keyval)},
     'all').apply(args.buffer) end end end, 'specified forward two-chars extend')
   self.bind_command_key('vms', function(args) return function(args2) return function(args3) Transform(
-    {self.iter_jump_to_string, args.n, tochar(args2.keyval) .. tochar(args3.keyval), true},
+    {self.iter_jump_to_string, args.n, chr(args2.keyval) .. chr(args3.keyval), true},
     {false},
     'all').apply(args.buffer) end end end, 'specified backward, two-chars extend')
   self.bind_command_key('vw', function(args) Transform(
@@ -235,7 +235,7 @@ function core_transform_init(self)
     start:backward_char()
     local found = false
     while true do
-      local c = tochar(start:get_char())
+      local c = chr(start:get_char())
       if c == left and balance == 0 then
         found = true
         break
@@ -252,7 +252,7 @@ function core_transform_init(self)
     balance = 0
     found = false
     while true do
-      local c = tochar(stop:get_char())
+      local c = chr(stop:get_char())
       if c == right and balance == 0 then
         found = true
         break

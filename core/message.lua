@@ -11,7 +11,7 @@ function core_message_init(self)
   local message_history = {}
 
   self.bind_command_key(',,,', function()
-    self.show_message('> yes, sir ' .. current_time_in_millisecond())
+    self.show_message('> yes, sir ' .. Time_current_time_in_millisecond())
     foobar()
   end, 'test message')
 
@@ -38,7 +38,7 @@ function core_message_init(self)
   end
 
   function self.show_message(text, timeout)
-    local text = escapemarkup(text)
+    local text = Text_escapemarkup(text)
     table.insert(message_history, text)
     _show_message(text, timeout)
   end

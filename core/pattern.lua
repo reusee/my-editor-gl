@@ -44,7 +44,7 @@ function core_pattern_init(self)
   self.connect_signal('key-pressed', function(gview, ev)
     if self.operation_mode ~= self.EDIT then return end
     local buffer = self.gview_get_buffer(gview)
-    local c = tochar(ev.keyval)
+    local c = chr(ev.keyval)
     local new_states = {}
     if #buffer.pattern_states == 0 then
       buffer.pattern_states[#buffer.pattern_states + 1] = buffer.patterns
@@ -101,7 +101,7 @@ function core_pattern_init(self)
     end
     local start = it:copy()
     start:set_line_offset(0)
-    while not start:ends_line() and tochar(start:get_char()):isspace() do
+    while not start:ends_line() and chr(start:get_char()):isspace() do
       start:forward_char()
     end
     return start:compare(it) == 0

@@ -26,13 +26,13 @@ decl('MainWindow')
 MainWindow = class{function(self)
   self.widget = Gtk.Window{type = Gtk.WindowType.TOPLEVEL}
   self.widget.on_destroy:connect(function()
-    main_quit()
+    Sys_exit()
   end)
   self.widget:set_title('my editor')
 
   -- css
   local css_provider = Gtk.CssProvider()
-  css_provider:load_from_data(io.open(joinpath{program_path(), 'theme', 'style.css'}, 'r'):read('*a'))
+  css_provider:load_from_data(io.open(Path_join{Sys_program_path(), 'theme', 'style.css'}, 'r'):read('*a'))
   Gtk.StyleContext.add_provider_for_screen(
     Gdk.Screen.get_default(),
     css_provider,

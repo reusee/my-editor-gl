@@ -101,13 +101,13 @@ Editor = class{
     -- buffers
     self.start_dir = false
     each(function(filename)
-      filename = abspath(filename)
-      if isdir(filename) then -- open directory
+      filename = Path_abs(filename)
+      if Os_isdir(filename) then -- open directory
         self.start_dir = filename
       else
         self.create_buffer(filename)
       end
-    end, argv())
+    end, Sys_argv())
 
     -- root view grid
     self.views_grid = Gtk.Grid()

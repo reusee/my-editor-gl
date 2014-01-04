@@ -65,7 +65,7 @@ function core_operation_init(self)
       if not start:starts_line() then start:forward_line() end
       while start:compare(stop) < 0 do
         local it = start:copy()
-        while tochar(it:get_char()):isspace() and it:get_line_offset() < dedent_level do
+        while chr(it:get_char()):isspace() and it:get_line_offset() < dedent_level do
           it:forward_char()
         end
         if it:get_line_offset() <= dedent_level then

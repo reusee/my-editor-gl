@@ -61,7 +61,7 @@ function core_completion_init(self)
     local start_iter = cursor_iter:copy()
     local it = start_iter:copy()
     while it:backward_char() do
-      if buffer.is_word_char(tochar(it:get_char())) then
+      if buffer.is_word_char(chr(it:get_char())) then
         start_iter:backward_char()
       else
         break
@@ -76,7 +76,7 @@ function core_completion_init(self)
     if input == '' then
       local it = buf:get_iter_at_mark(buf:get_insert())
       if it:backward_char() then
-        if tochar(it:get_char()) ~= '.' then return end
+        if chr(it:get_char()) ~= '.' then return end
       else
         do return end
       end

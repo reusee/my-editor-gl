@@ -11,7 +11,7 @@ function core_format_init(self)
         local eol = stop:copy()
         while stop:compare(start) == 1 do
           stop:backward_char()
-          if not tochar(stop:get_char()):find('^%s$') then
+          if not chr(stop:get_char()):find('^%s$') then
             stop:forward_char()
             break
           end
@@ -27,7 +27,7 @@ function core_format_init(self)
       local buf = buffer.buf
       local it = buf:get_end_iter()
       if not it:backward_char() then return end
-      if tochar(it:get_char()) ~= '\n' then
+      if chr(it:get_char()) ~= '\n' then
         buf:begin_user_action()
         buf:insert(buf:get_end_iter(), '\n', -1)
         buf:end_user_action()

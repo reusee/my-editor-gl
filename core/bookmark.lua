@@ -14,7 +14,7 @@ function core_bookmark_init(self)
       if index_of(keyval, buffer.bookmarks) then
         buf:delete_mark(buffer.bookmarks[keyval]) end
       buffer.bookmarks[keyval] = mark
-      self.show_message('mark ' .. tochar(keyval))
+      self.show_message('mark ' .. chr(keyval))
     end
   end, 'create bookmark')
 

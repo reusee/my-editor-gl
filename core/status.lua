@@ -65,9 +65,9 @@ function core_status_init(self)
       end
       if buffer == current_buffer then
         table.insert(markup, '<span foreground="lightgreen" ' .. modified .. '>'
-          .. basename(buffer.filename) .. '</span>')
+          .. Path_base(buffer.filename) .. '</span>')
       else
-        table.insert(markup, '<span ' .. modified .. '>' .. basename(buffer.filename) .. '</span>')
+        table.insert(markup, '<span ' .. modified .. '>' .. Path_base(buffer.filename) .. '</span>')
       end
     end
     buffer_list:set_markup(table.concat(markup, '   '))

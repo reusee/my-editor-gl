@@ -98,7 +98,7 @@ function extra_the_silver_searcher_init(self)
   -- run
   self.bind_command_key('.s', function(args)
     last_view = args.view
-    directory_entry:set_text(abspath(dirname(args.buffer.filename)))
+    directory_entry:set_text(Path_abs(Path_dir(args.buffer.filename)))
     dialog:show_all()
     pattern_entry:grab_focus()
   end, 'run the silver searcher')

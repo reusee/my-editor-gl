@@ -62,7 +62,7 @@ function core_edit_init(self)
     local it = buf:get_iter_at_mark(buf:get_insert())
     it:set_line_offset(0)
     local start = it:copy()
-    while not it:ends_line() and tochar(it:get_char()):find('^%s$') do
+    while not it:ends_line() and chr(it:get_char()):find('^%s$') do
       it:forward_char()
     end
     return buf:get_text(start, it, false)
@@ -120,7 +120,7 @@ function core_edit_init(self)
     local buf = args.buffer.buf
     local it = buf:get_iter_at_mark(buf:get_insert())
     it:set_line_offset(0)
-    while not it:ends_line() and tochar(it:get_char()):find('^%s$') do
+    while not it:ends_line() and chr(it:get_char()):find('^%s$') do
       it:forward_char()
     end
     buf:place_cursor(it)
@@ -131,7 +131,7 @@ function core_edit_init(self)
     local buf = args.buffer.buf
     local it = buf:get_iter_at_mark(buf:get_insert())
     it:set_line_offset(0)
-    while not it:ends_line() and tochar(it:get_char()):find('^%s$') do
+    while not it:ends_line() and chr(it:get_char()):find('^%s$') do
       it:forward_char()
     end
     local line_end = it:copy()
@@ -149,7 +149,7 @@ function core_edit_init(self)
     local stop = it:copy()
     local nonspace_deleted = false
     if it:backward_char() then
-      local deleted_char = tochar(it:get_char())
+      local deleted_char = chr(it:get_char())
       if not deleted_char:find('^%s$') then
         nonspace_deleted = true
       end
@@ -160,7 +160,7 @@ function core_edit_init(self)
     if nonspace_deleted then return end
     local i = it:get_line_offset() % args.buffer.indent_width
     while i ~= 0 do
-      if it:backward_char() and tochar(it:get_char()):find('^%s$') then
+      if it:backward_char() and chr(it:get_char()):find('^%s$') then
         buf:begin_user_action()
         buf:delete(it, stop)
         buf:end_user_action()

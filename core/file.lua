@@ -2,7 +2,7 @@ decl('core_file_init')
 function core_file_init(self)
   -- file chooser
   local file_chooser = FileChooser(self)
-  file_chooser.current_dir = homedir()
+  file_chooser.current_dir = Sys_home()
   self.widget:add_overlay(file_chooser.wrapper)
   self.on_realize(function()
     if self.start_dir then
@@ -70,7 +70,7 @@ function core_file_init(self)
   self.bind_command_key(',b', function(args)
     current_view = args.view
     local current_filename = args.buffer.filename
-    file_chooser.current_dir = abspath(dirname(current_filename))
+    file_chooser.current_dir = Path_abs(Path_dir(current_filename))
     file_chooser.update_list()
     file_chooser.wrapper:show_all()
     file_chooser.entry:set_text('', -1)
@@ -81,9 +81,9 @@ function core_file_init(self)
   Buffer.mix(function(buffer)
     buffer.define_signal('before-saving')
   end)
-  local file_backup_dir = joinpath{homedir(), '.my-editor-file-backup'}
-  if not fileexists(file_backup_dir) then
-    mkdir(self.file_backup_dir)
+  local file_backup_dir = Path_join{Sys_home(), '.my-editor-file-backup'}
+  if not Os_exists(file_backup_dir) then
+    Os_mkdir(self.file_backup_dir)
   end
   local function quote_filename(s)
     s = s:gsub('#', '##')
@@ -95,12 +95,12 @@ function core_file_init(self)
     if not buf:get_modified() then return end
     local filename = args.buffer.filename
     if filename == '' then return end
-    local tmp_filename = filename .. '.' .. tostring(current_time_in_millisecond())
-    local backup_filename = quote_filename(filename) .. '.' .. tostring(current_time_in_millisecond())
-    backup_filename = joinpath{file_backup_dir, backup_filename}
+    local tmp_filename = filename .. '.' .. tostring(Time_current_time_in_millisecond())
+    local backup_filename = quote_filename(filename) .. '.' .. tostring(Time_current_time_in_millisecond())
+    backup_filename = Path_join{file_backup_dir, backup_filename}
     args.buffer.emit_signal('before-saving')
     -- save tmp file
-    if createwithmode(tmp_filename, filemode(filename)) then return end
+    if Os_createwithmode(tmp_filename, Os_filemode(filename)) then return end
     local f = io.open(tmp_filename, 'w')
     if not f then return end
     if not f:write(buf:get_text(buf:get_start_iter(), buf:get_end_iter(), false)) then
@@ -108,8 +108,8 @@ function core_file_init(self)
       return
     end
     f:close()
-    if movefile(filename, backup_filename) then return end
-    rename(tmp_filename, filename)
+    if Os_move(filename, backup_filename) then return end
+    Os_rename(tmp_filename, filename)
     buf:set_modified(false)
     self.show_message('buffer saved to ' .. filename)
   end, 'save buffer to file')
@@ -180,8 +180,8 @@ FileChooser = class{
         self.filename = ''
         self.emit_signal('cancel')
       elseif event.keyval == Gdk.KEY_Return then
-        if isdir(self.filename) then -- enter subdirectory
-          local path = self.filename .. pathsep()
+        if Os_isdir(self.filename) then -- enter subdirectory
+          local path = self.filename .. Path_sep()
           self.entry:set_text(path)
           self.entry:set_position(-1)
         else
@@ -205,8 +205,8 @@ FileChooser = class{
     self.view:set_headers_visible(false)
     self.wrapper:add(self.view)
     self.view.on_row_activated:connect(function(_, path, column)
-      if isdir(self.filename) then -- subdirectory
-        local path = self.filename .. pathsep()
+      if Os_isdir(self.filename) then -- subdirectory
+        local path = self.filename .. Path_sep()
         self.entry:set_text(path)
         self.entry:grab_focus()
         self.entry:set_position(-1)
@@ -241,19 +241,19 @@ FileChooser = class{
     end
 
     function self.update_list()
-      local head, tail = splitpath(self.entry:get_text())
+      local head, tail = Path_split(self.entry:get_text())
       if head == "" then
          head = self.current_dir
       end
-      if head:sub(1, 1) ~= pathsep() then -- relative path
-        head = joinpath{self.current_dir, head}
+      if head:sub(1, 1) ~= Path_sep() then -- relative path
+        head = Path_join{self.current_dir, head}
       end
       self.store:clear()
       local candidates = {}
-      local files = listdir(head)
+      local files = Os_list(head)
       for _, f in ipairs(files) do
         if fuzzy_match(tail, f) then
-          table.insert(candidates, joinpath{head, f})
+          table.insert(candidates, Path_join{head, f})
           if #candidates > 30 then break end
         end
       end

@@ -42,7 +42,7 @@ function core_iter_init(self)
 
   function self.iter_jump_to_line_start_or_nonspace_char(it, buffer, n)
     if it:starts_line() then
-      while tochar(it:get_char()):isspace() and not it:ends_line() do
+      while chr(it:get_char()):isspace() and not it:ends_line() do
         it:forward_char()
       end
     else
@@ -52,7 +52,7 @@ function core_iter_init(self)
 
   function self.iter_jump_to_first_nonspace_char(it, buffer, n)
     it:set_line_offset(0)
-    while tochar(it:get_char()):isspace() and not it:ends_line() do
+    while chr(it:get_char()):isspace() and not it:ends_line() do
       it:forward_char()
     end
   end
@@ -85,7 +85,7 @@ function core_iter_init(self)
 
   function self.iter_jump_to_matching_bracket(iter, buffer)
     local it = iter:copy()
-    local start = tochar(it:get_char())
+    local start = chr(it:get_char())
     local is_left = false
     local match = false
     for left, right in pairs(self.BRACKETS) do
@@ -102,7 +102,7 @@ function core_iter_init(self)
     end
     if not match then it:backward_char() end
 
-    start = tochar(it:get_char())
+    start = chr(it:get_char())
     is_left = false
     match = false
     for left, right in pairs(self.BRACKETS) do
@@ -125,7 +125,7 @@ function core_iter_init(self)
     else it:backward_char() end
     local c
     while true do
-      c = tochar(it:get_char())
+      c = chr(it:get_char())
       if c == match and balance == 0 then -- found
         found = true
         break
@@ -147,7 +147,7 @@ function core_iter_init(self)
   function self.iter_jump_to_word_edge(it, buffer, backward)
     if backward then it:backward_char() end
     local at_begin = false
-    while buffer.is_word_char(tochar(it:get_char())) do
+    while buffer.is_word_char(chr(it:get_char())) do
       if backward then
         if not it:backward_char() then
           at_begin = true
@@ -163,7 +163,7 @@ function core_iter_init(self)
   local function iter_get_indent_level(iter)
     local it = iter:copy()
     it:set_line_offset(0)
-    while not it:ends_line() and tochar(it:get_char()):isspace() do
+    while not it:ends_line() and chr(it:get_char()):isspace() do
       it:forward_char()
     end
     return it:get_line_offset()

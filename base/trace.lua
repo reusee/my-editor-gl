@@ -20,7 +20,7 @@ end
 
 decl('trace_tick')
 function trace_tick(quiet)
-  local t = tick_timer()
+  local t = Time_tick()
   if not quiet then
     local info = debug.getinfo(2)
     print(t, info.source, info.currentline)

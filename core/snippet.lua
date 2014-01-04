@@ -64,7 +64,7 @@ function core_snippet_init(self)
       local it = buf:get_iter_at_mark(buf:get_insert())
       it:set_line_offset(0)
       local start = it:copy()
-      while not it:ends_line() and tochar(it:get_char()):isspace() do
+      while not it:ends_line() and chr(it:get_char()):isspace() do
         it:forward_char()
       end
       local indent_str = buf:get_text(start, it, false)

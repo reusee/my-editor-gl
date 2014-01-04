@@ -10,7 +10,7 @@ function core_macro_init(self)
   self.connect_signal('key-pressed', function(gview, ev)
     if not recording_macro then return end
     table.insert(recorded_key_events[#recorded_key_events],
-      gdk_event_copy(ev._native))
+      Gdk_copy_event(ev._native))
   end)
 
   self.connect_signal('key-done', function()
@@ -25,7 +25,7 @@ function core_macro_init(self)
     else -- stop
       return function(args)
         recording_macro = false
-        local key = tochar(args.keyval)
+        local key = chr(args.keyval)
         table.remove(recorded_key_events, #recorded_key_events)
         macros[key] = recorded_key_events
         indicator:hide()
@@ -36,7 +36,7 @@ function core_macro_init(self)
   end, 'toggle macro recording')
 
   self.bind_command_key('mw', function(args) return function(args1)
-    local key = tochar(args1.keyval)
+    local key = chr(args1.keyval)
     local macro = macros[key]
     if not macro then
       self.show_message('no macro defined as ' .. key)
@@ -46,7 +46,7 @@ function core_macro_init(self)
     local gview = args.view.widget
     for _ = 1, args.n do
       each(function(group) each(function(event)
-        gdk_event_put(event)
+        Gdk_put_event(event)
       end, group) end, macro)
     end
   end end, 'replay macro')

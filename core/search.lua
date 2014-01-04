@@ -14,7 +14,7 @@ function core_search_init(self)
       local content = buf:get_text(
         buf:get_iter_at_mark(self.search_range_start), buf:get_iter_at_mark(self.search_range_end), false)
       local offset = buf:get_iter_at_mark(self.search_range_start):get_offset()
-      local indexes = regexindex(pattern, content)
+      local indexes = Regex_index(pattern, content)
       if not indexes then return end
       local start = buf:get_start_iter()
       local stop = start:copy()

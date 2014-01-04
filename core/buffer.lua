@@ -48,13 +48,13 @@ Buffer = class{
     self.buf = GtkSource.Buffer()
     self.native = self.buf._native
     if filename then
-      filename = abspath(filename)
+      filename = Path_abs(filename)
       -- load contents
       local f = io.open(filename, 'r')
       if not f then return 'cannot open file' end
       local content = f:read('*a')
       f:close()
-      if not is_valid_utf8(content) then return 'file is not utf8 encoded' end
+      if not Text_is_valid_utf8(content) then return 'file is not utf8 encoded' end
       self.buf:begin_not_undoable_action()
       self.buf:set_text(content, -1)
       self.buf:end_not_undoable_action()

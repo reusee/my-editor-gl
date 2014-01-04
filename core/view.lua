@@ -10,13 +10,13 @@ function core_view_init(self)
   -- view redraw
   self.define_signal('should-redraw')
   -- redraw current view
-  self.redraw_time = current_time_in_millisecond()
+  self.redraw_time = Time_current_time_in_millisecond()
   self.connect_signal('should-redraw', function()
-    if current_time_in_millisecond() - self.redraw_time < 20 then return end
+    if Time_current_time_in_millisecond() - self.redraw_time < 20 then return end
     for _, view in ipairs(self.views) do
       if view.widget.is_focus then
         view.widget:queue_draw()
-        self.redraw_time = current_time_in_millisecond()
+        self.redraw_time = Time_current_time_in_millisecond()
         return
       end
     end
