@@ -25,6 +25,8 @@ func golang_setup_completion(providersp unsafe.Pointer) {
 	providers.Providers["Go"] = provide
 }
 
+var last_provided [][]string
+
 func provide(input string, info map[string]interface{}) [][]string {
 	buffer := (*C.GtkTextBuffer)(info["buffer"].(unsafe.Pointer))
 	filename := info["filename"].(string)
@@ -59,7 +61,7 @@ func provide(input string, info map[string]interface{}) [][]string {
 	}
 	i2 := i.([]interface{})
 	if len(i2) == 0 {
-		return nil
+		return last_provided
 	}
 
 	var ret [][]string
@@ -71,6 +73,7 @@ func provide(input string, info map[string]interface{}) [][]string {
 			entry["class"].(string) + " " + entry["type"].(string),
 		})
 	}
+	last_provided = ret
 	return ret
 }
 

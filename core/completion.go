@@ -48,6 +48,11 @@ func get_candidates(input string, providersp unsafe.Pointer, info map[string]int
 	for source, provider := range (*Providers)(providersp).Providers {
 		for _, pair := range provider(input, info) {
 			text := pair[0]
+			if input != "" {
+				if match, _ := fuzzyMatch(text, input); !match {
+					continue
+				}
+			}
 			GlobalVocabulary.Add(text)
 			texts[text] = true
 			providers[text] = append(providers[text], source)
