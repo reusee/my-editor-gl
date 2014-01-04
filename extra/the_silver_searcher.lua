@@ -102,4 +102,14 @@ function extra_the_silver_searcher_init(self)
     dialog:show_all()
     pattern_entry:grab_focus()
   end, 'run the silver searcher')
+  self.bind_command_key('.*', function(args)
+    last_view = args.view
+    directory_entry:set_text(Path_abs(Path_dir(args.buffer.filename)))
+    Transform({self.iter_jump_to_word_edge, true}, {self.iter_jump_to_word_edge},
+      'cursor').apply(args.buffer)
+    local buf = args.buffer.buf
+    pattern_entry:set_text(buf:get_text(buf:get_iter_at_mark(buf:get_selection_bound()), buf:get_iter_at_mark(buf:get_insert()), false))
+    dialog:show_all()
+    pattern_entry:grab_focus()
+  end, 'search current word in the silver search')
 end
