@@ -41,9 +41,13 @@ function core_file_init(self)
       buffer = self.create_buffer(filename)
     end
     if buffer then
+      -- ensure stack
       local stack = self.first_stack.widget
       if current_view then
         stack = current_view.wrapper:get_parent()
+      end
+      if not stack then
+        stack = self.first_stack.widget
       end
       -- create or switch to view
       local view
