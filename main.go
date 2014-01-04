@@ -8,6 +8,7 @@ import (
 	"./core"
 	"./extra"
 	"./lgo"
+	"./lib/mimemagic"
 	"bytes"
 	"encoding/xml"
 	"flag"
@@ -19,6 +20,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"strings"
 	"syscall"
 	"time"
 	"unicode/utf8"
@@ -188,6 +190,13 @@ func main() {
 		"Text_is_valid_utf8": func(input []byte) bool {
 			return utf8.Valid(input)
 		},
+		"Text_guess_type": func(text []byte) string {
+			t := mimemagic.Match("", text)
+			if strings.HasPrefix(t, "text/x-") {
+				return strings.Replace(t, "text/x-", "", -1)
+			}
+			return ""
+		},
 
 		// regex
 		"Regex_index": func(pattern string, content []byte) interface{} {
@@ -234,7 +243,6 @@ func main() {
 		"Gdk_put_event": func(event unsafe.Pointer) {
 			C.gdk_event_put((*C.GdkEvent)(event))
 		},
-
 	})
 
 	lua.RegisterFunctions(core.Registry)

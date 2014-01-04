@@ -72,6 +72,12 @@ Buffer = class{
     self.lang_name = ''
     local language_manager = GtkSource.LanguageManager.get_default()
     local lang = language_manager:guess_language(filename, 'plain/text')
+    if not lang then
+      local guess = Text_guess_type(self.buf:get_text(self.buf:get_start_iter(), self.buf:get_end_iter(), false))
+      if guess ~= "" then
+        lang = language_manager:get_language(guess)
+      end
+    end
     if lang then
       self.buf:set_language(lang)
       self.lang = lang
