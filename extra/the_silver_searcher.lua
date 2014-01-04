@@ -37,6 +37,15 @@ function extra_the_silver_searcher_init(self)
     locations[location_index].jump()
     self.show_message(tostring(location_index) .. ' / ' .. tostring(#locations) .. ' location')
   end, 'jump to next ag result')
+  self.bind_command_key('.d', function(args)
+    if #locations == 0 then return end
+    location_index = location_index - 1
+    if location_index < 1 then
+      location_index = #locations
+    end
+    locations[location_index].jump()
+    self.show_message(tostring(location_index) .. ' / ' .. tostring(#locations) .. ' location')
+  end, 'jump to next ag result')
 
   -- dialog
   local dialog = Gtk.Grid{valign = Gtk.Align.CENTER} -- container
