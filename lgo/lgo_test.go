@@ -181,3 +181,13 @@ func TestNamespace(t *testing.T) {
 	})
 	lua.RunString(`bar.foo.baz.quux(42)`)
 }
+
+func TestMethod(t *testing.T) {
+	lua := NewLua()
+	lua.RegisterFunction("method", func(self *Lua) {
+		if self != lua {
+			t.Fail()
+		}
+	})
+	lua.RunString(`method()`)
+}

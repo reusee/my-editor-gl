@@ -28,11 +28,14 @@ type Lua struct {
 }
 
 type Function struct {
-	name string
-	lua  *Lua
-	fun  interface{}
-	funcType reflect.Type
+	name      string
+	lua       *Lua
+	fun       interface{}
+	funcType  reflect.Type
 	funcValue reflect.Value
+	argc      int
+	isMethod  bool
+	receiver  reflect.Value
 }
 
 func NewLua() *Lua {
@@ -91,14 +94,28 @@ func (self *Lua) RegisterFunction(name string, fun interface{}) {
 	if funcType.IsVariadic() {
 		self.Panic("cannot register variadic function: %v", fun)
 	}
+	argc := funcType.NumIn()
+	isMethod := false
+	if argc > 0 {
+		firstArgType := funcType.In(0)
+		if firstArgType == reflect.TypeOf(self) {
+			isMethod = true
+			argc--
+		}
+	}
 	cName := C.CString(name)
 	defer C.free(unsafe.Pointer(cName))
 	function := &Function{
-		fun:  fun,
-		lua:  self,
-		name: name,
-		funcType: funcType,
+		fun:       fun,
+		lua:       self,
+		name:      name,
+		funcType:  funcType,
 		funcValue: reflect.ValueOf(fun),
+		argc:      argc,
+		isMethod:  isMethod,
+	}
+	if isMethod {
+		function.receiver = reflect.ValueOf(self)
 	}
 	C.register_function(self.State, cName, unsafe.Pointer(function))
 	self.Functions[name] = function
@@ -116,11 +133,14 @@ func Invoke(p unsafe.Pointer) int {
 	function := (*Function)(p)
 	// check argument count
 	argc := C.lua_gettop(function.lua.State)
-	if int(argc) != function.funcType.NumIn() {
+	if int(argc) != function.argc {
 		function.lua.Panic("arguments not match: %v", function.fun)
 	}
 	// arguments
 	var args []reflect.Value
+	if function.isMethod {
+		args = append(args, function.receiver)
+	}
 	for i := C.int(1); i <= argc; i++ {
 		args = append(args, function.lua.toGoValue(i, function.funcType.In(int(i-1))))
 	}
