@@ -9,6 +9,7 @@ var Registry = map[string]interface{}{
 	"get_candidates":    get_candidates,
 	"on_word_completed": on_word_completed,
 	"new_providers":     new_providers,
+	"setup_completion":  setup_completion,
 
 	// selection
 	"draw_selections": draw_selections,
@@ -20,7 +21,7 @@ var Registry = map[string]interface{}{
 	"setup_relative_line_number": setup_relative_line_number,
 
 	// transform
-	"set_relative_indicators":  set_relative_indicators,
+	"set_relative_indicators":   set_relative_indicators,
 	"reset_relative_indicators": reset_relative_indicators,
 
 	// view

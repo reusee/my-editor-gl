@@ -1,5 +1,7 @@
+decl('append_candidates')
 decl('core_completion_init')
 function core_completion_init(self)
+  setup_completion()
 
   -- collect words
   Buffer.mix(function(buffer)
@@ -91,6 +93,11 @@ function core_completion_init(self)
     end
 
     -- show
+    if store:get_iter_first() then show_candidates() end
+  end
+
+  append_candidates = function()
+    store:append{'foo', 'async'}
     if store:get_iter_first() then show_candidates() end
   end
 

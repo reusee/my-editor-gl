@@ -1,10 +1,21 @@
 package core
 
+//#include "completion.h"
+//#cgo LDFLAGS: -llua
+import "C"
+
 import (
+	"../lgo"
 	"strings"
 	"time"
 	"unsafe"
 )
+
+func setup_completion(lua *lgo.Lua) {
+	C.setup_completion(lua.State)
+}
+
+// provider
 
 type Providers struct {
 	Providers map[string]ProvideFunc
@@ -21,6 +32,8 @@ func new_providers() *Providers {
 	provider_holder = append(provider_holder, providers) // to avoid gc
 	return providers
 }
+
+// get candidates
 
 func get_candidates(input string, providersp unsafe.Pointer, info map[string]interface{}) [][]string {
 	texts := make(map[string]bool)
@@ -60,6 +73,10 @@ func get_candidates(input string, providersp unsafe.Pointer, info map[string]int
 			distances[text] = 0
 		}
 	}
+	go func() {
+		time.Sleep(time.Millisecond * 300)
+		C.emit()
+	}()
 
 	// sort
 	max_results := 8
@@ -128,13 +145,20 @@ func fuzzyMatch(text, input string) (bool, int) {
 	return j == linput, distance
 }
 
+// word statistics
+
 func on_word_completed(info map[string]string) {
 	GlobalVocabulary.Lock()
-	word := GlobalVocabulary.Words[info["text"]]
-	GlobalVocabulary.Unlock()
+	word, ok := GlobalVocabulary.Words[info["text"]]
+	if !ok {
+		p("%s is not in GlobalVocabulary", info["text"])
+		return
+	}
+	p("%v\n", word)
 	word.TotalFrequency++
 	word.FrequencyByInput[info["input"]]++
 	word.FrequencyByFiletype[info["file_type"]]++
 	word.FrequencyByFilename[info["file_name"]]++
 	word.LatestSelected = time.Now()
+	GlobalVocabulary.Unlock()
 }
