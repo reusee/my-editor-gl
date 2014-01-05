@@ -150,7 +150,7 @@ func Invoke(p unsafe.Pointer) int {
 		function.lua.Panic("return values not match: %v", function.fun)
 	}
 	for _, v := range returnValues {
-		function.lua.pushGoValue(v)
+		function.lua.PushGoValue(v)
 	}
 	return len(returnValues)
 }
@@ -248,7 +248,7 @@ func (lua *Lua) toGoValue(i C.int, paramType reflect.Type) (ret reflect.Value) {
 	return
 }
 
-func (lua *Lua) pushGoValue(value reflect.Value) {
+func (lua *Lua) PushGoValue(value reflect.Value) {
 	switch t := value.Type(); t.Kind() {
 	case reflect.Bool:
 		if value.Bool() {
@@ -269,11 +269,11 @@ func (lua *Lua) pushGoValue(value reflect.Value) {
 		C.lua_createtable(lua.State, C.int(length), 0)
 		for i := 0; i < length; i++ {
 			C.lua_pushnumber(lua.State, C.lua_Number(i+1))
-			lua.pushGoValue(value.Index(i))
+			lua.PushGoValue(value.Index(i))
 			C.lua_settable(lua.State, -3)
 		}
 	case reflect.Interface:
-		lua.pushGoValue(value.Elem())
+		lua.PushGoValue(value.Elem())
 	case reflect.Ptr:
 		C.lua_pushlightuserdata(lua.State, unsafe.Pointer(value.Pointer()))
 	default:
