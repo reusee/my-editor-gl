@@ -117,10 +117,10 @@ func update_candidates(serial int, input string, providersp unsafe.Pointer, info
 
 func updateStore(result [][]string) {
 	var iter C.GtkTreeIter
-	C.gtk_list_store_append(Store, &iter)
 	var value C.GValue
 	C.init_string_value(&value)
 	for _, entry := range result {
+		C.gtk_list_store_append(Store, &iter)
 		C.g_value_set_static_string(&value, cstr(entry[0]))
 		C.gtk_list_store_set_value(Store, &iter, 0, &value)
 		C.g_value_set_static_string(&value, cstr(entry[1]))
