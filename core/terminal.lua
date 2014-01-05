@@ -44,4 +44,12 @@ function core_terminal_init(self)
 
   local fish_term = new_terminal{'/usr/bin/env', 'fish'}
   self.bind_command_key(',e', function(args) fish_term(args.view) end)
+  local term1 = new_terminal{'/usr/bin/env', 'fish'}
+  self.bind_command_key(',1', function(args) term1(args.view) end)
+  local term2 = new_terminal{'/usr/bin/env', 'fish'}
+  self.bind_command_key(',2', function(args) term2(args.view) end)
+  local term3 = new_terminal{'/usr/bin/env', 'fish'}
+  self.bind_command_key(',3', function(args) term3(args.view) end)
+  local term4 = new_terminal{'/usr/bin/env', 'fish'}
+  self.bind_command_key(',4', function(args) term4(args.view) end)
 end
