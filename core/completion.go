@@ -8,7 +8,6 @@ import "C"
 
 import (
 	"github.com/reusee/lgo"
-	"reflect"
 	"strings"
 	"sync"
 	"time"
@@ -22,15 +21,10 @@ type Result struct {
 
 var Lua *lgo.Lua
 var results = make(chan Result, 1024)
-var callbackName = C.CString("async_update_candidates")
 
 var fun = func() {
 	res := <-results
-	C.lua_rawgeti(Lua.State, C.LUA_REGISTRYINDEX, C.LUA_RIDX_GLOBALS)
-	C.lua_getfield(Lua.State, C.int(-1), callbackName)
-	Lua.PushGoValue(reflect.ValueOf(res.serial))
-	Lua.PushGoValue(reflect.ValueOf(res.candidates))
-	C.lua_callk(Lua.State, C.int(2), C.int(0), C.int(0), nil)
+	Lua.CallFunction("async_update_candidates", res.serial, res.candidates)
 }
 
 func setup_completion(lua *lgo.Lua) {
