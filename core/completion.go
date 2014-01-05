@@ -7,7 +7,7 @@ package core
 import "C"
 
 import (
-	"../lgo"
+	"github.com/reusee/lgo"
 	"reflect"
 	"strings"
 	"sync"
