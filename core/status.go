@@ -1,7 +1,6 @@
 package core
 
 //#include "status.h"
-//#cgo pkg-config: gtksourceview-3.0
 import "C"
 
 import (

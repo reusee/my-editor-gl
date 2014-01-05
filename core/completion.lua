@@ -39,6 +39,7 @@ function core_completion_init(self)
 
   local current_input = false
   local current_selected = false
+  local serial = 0
 
   function self.update_candidates(buffer)
     if completion_replacing then return end
@@ -83,7 +84,8 @@ function core_completion_init(self)
         do return end
       end
     end
-    local cs = get_candidates(input, buffer.completion_providers, {
+    serial = serial + 1
+    local cs = get_candidates(serial, input, buffer.completion_providers, {
       filename = buffer.filename,
       char_offset = buf:get_iter_at_mark(buf:get_insert()):get_offset(),
       buffer = buffer.native,
@@ -96,7 +98,10 @@ function core_completion_init(self)
     if store:get_iter_first() then show_candidates() end
   end
 
-  append_candidates = function(candidates)
+  append_candidates = function(s, candidates)
+    if s < serial then
+      return
+    end
     for _, entry in ipairs(candidates) do
       store:append({entry[1], entry[2]})
     end
@@ -106,6 +111,7 @@ function core_completion_init(self)
   self.bind_edit_key({Gdk.KEY_Tab}, function(args)
     -- insert tab char if no completion candidate
     if not store:get_iter_first() then return 'propagate' end
+    serial = serial + 1 -- prevent append
     local buf = args.buffer.buf
     local start_mark = args.buffer.word_start
     local text = buf:get_text(buf:get_iter_at_mark(start_mark), buf:get_iter_at_mark(buf:get_insert()), false)

@@ -1,10 +1,5 @@
 package extra
 
-//#include <gtk/gtk.h>
-//#include <string.h>
-//#cgo pkg-config: gtk+-3.0
-import "C"
-
 import (
 	"../core"
 	"bytes"
@@ -27,16 +22,8 @@ func golang_setup_completion(providersp unsafe.Pointer) {
 
 var last_provided [][]string
 
-func provide(input string, info map[string]interface{}) [][]string {
-	buffer := (*C.GtkTextBuffer)(info["buffer"].(unsafe.Pointer))
-	filename := info["filename"].(string)
+func provide(input string, text []byte, info map[string]interface{}) [][]string {
 	char_offset := info["char_offset"].(int)
-	var start_iter, end_iter C.GtkTextIter
-	C.gtk_text_buffer_get_start_iter(buffer, &start_iter)
-	C.gtk_text_buffer_get_end_iter(buffer, &end_iter)
-	cText := C.gtk_text_buffer_get_text(buffer, &start_iter, &end_iter, C.gtk_false())
-	text := C.GoBytes(unsafe.Pointer(cText), C.int(C.strlen((*C.char)(cText))))
-
 	byte_offset := 0
 	cur_char_offset := 0
 	var size int
@@ -46,6 +33,7 @@ func provide(input string, info map[string]interface{}) [][]string {
 		cur_char_offset += 1
 	}
 
+	filename := info["filename"].(string)
 	cmd := exec.Command(gocodePath, "-f=json", "autocomplete", filename, strconv.Itoa(byte_offset))
 	cmd.Stdin = bytes.NewReader(text)
 	var out bytes.Buffer

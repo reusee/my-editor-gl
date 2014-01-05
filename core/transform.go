@@ -1,7 +1,6 @@
 package core
 
 //#include <gtk/gtk.h>
-//#cgo pkg-config: gtk+-3.0
 import "C"
 
 import (

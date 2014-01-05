@@ -1,5 +1,6 @@
 package core
 
+//#cgo pkg-config: gtksourceview-3.0 gtk+-3.0 lua
 import "C"
 
 import (
