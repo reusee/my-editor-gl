@@ -10,7 +10,7 @@ function core_macro_init(self)
   self.connect_signal('key-pressed', function(gview, ev)
     if not recording_macro then return end
     table.insert(recorded_key_events[#recorded_key_events],
-      Gdk_copy_event(ev._native))
+      copy_event(ev._native))
   end)
 
   self.connect_signal('key-done', function()
@@ -46,7 +46,7 @@ function core_macro_init(self)
     local gview = args.view.widget
     for _ = 1, args.n do
       each(function(group) each(function(event)
-        Gdk_put_event(event)
+        put_event(event)
       end, group) end, macro)
     end
   end end, 'replay macro')

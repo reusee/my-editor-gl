@@ -15,6 +15,10 @@ var Registry = map[string]interface{}{
 	"new_providers":     new_providers,
 	"setup_completion":  setup_completion,
 
+	// macro
+	"copy_event": copy_event,
+	"put_event":  put_event,
+
 	// selection
 	"draw_selections": draw_selections,
 

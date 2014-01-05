@@ -1,9 +1,5 @@
 package main
 
-//#include <gdk/gdk.h>
-//#cgo pkg-config: gtk+-3.0
-import "C"
-
 import (
 	"./core"
 	"./extra"
@@ -24,7 +20,6 @@ import (
 	"syscall"
 	"time"
 	"unicode/utf8"
-	"unsafe"
 )
 
 var debugFlag = flag.Bool("debug", false, "enable debug")
@@ -234,14 +229,6 @@ func main() {
 				ret = words
 			}
 			return
-		},
-
-		// gdk & gtk
-		"Gdk_copy_event": func(event unsafe.Pointer) *C.GdkEvent {
-			return C.gdk_event_copy((*C.GdkEvent)(event))
-		},
-		"Gdk_put_event": func(event unsafe.Pointer) {
-			C.gdk_event_put((*C.GdkEvent)(event))
 		},
 	})
 
