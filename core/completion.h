@@ -6,21 +6,19 @@
 #include <lua.h>
 
 int fd;
-lua_State *L;
 
-gboolean on_event(GIOChannel *source, GIOCondition cond, gpointer data) {
+extern callgofunc(void*);
+
+gboolean on_event(GIOChannel *source, GIOCondition cond, gpointer fun) {
 	uint64_t i;
 	read(fd, &i, sizeof(uint64_t));
-	lua_rawgeti(L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS);
-	lua_getfield(L, -1, "append_candidates");
-	lua_callk(L, 0, 0, 0, NULL);
+	callgofunc((void*)fun);
 }
 
-void setup_completion(lua_State *state) {
-  L = state;
+void setup_completion(void *fun) {
   fd = eventfd(0, EFD_SEMAPHORE);
   GIOChannel *chan = g_io_channel_unix_new(fd);
-  g_io_add_watch(chan, G_IO_IN, on_event, NULL);
+  g_io_add_watch(chan, G_IO_IN, on_event, fun);
 }
 
 int emit() {

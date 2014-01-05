@@ -1,18 +1,33 @@
 package core
 
 //#include "completion.h"
+//#include <lua.h>
 //#cgo LDFLAGS: -llua
 import "C"
 
 import (
 	"../lgo"
+	"reflect"
 	"strings"
 	"time"
 	"unsafe"
 )
 
+var Lua *lgo.Lua
+var results = make(chan [][]string)
+var callbackName = C.CString("append_candidates")
+
+var fun = func() {
+	res := <-results
+	C.lua_rawgeti(Lua.State, C.LUA_REGISTRYINDEX, C.LUA_RIDX_GLOBALS)
+	C.lua_getfield(Lua.State, C.int(-1), callbackName)
+	Lua.PushGoValue(reflect.ValueOf(res))
+	C.lua_callk(Lua.State, C.int(1), C.int(0), C.int(0), nil)
+}
+
 func setup_completion(lua *lgo.Lua) {
-	C.setup_completion(lua.State)
+	Lua = lua
+	C.setup_completion(unsafe.Pointer(&fun))
 }
 
 // provider
@@ -74,8 +89,12 @@ func get_candidates(input string, providersp unsafe.Pointer, info map[string]int
 		}
 	}
 	go func() {
-		time.Sleep(time.Millisecond * 300)
 		C.emit()
+		res := [][]string{
+			{"foo", "from async"},
+			{"bar", "async"},
+		}
+		results <- res
 	}()
 
 	// sort

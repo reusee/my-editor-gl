@@ -1,7 +1,10 @@
 package core
 
+import "C"
+
 import (
 	"fmt"
+	"unsafe"
 )
 
 var Registry = map[string]interface{}{
@@ -34,4 +37,9 @@ var Registry = map[string]interface{}{
 
 func p(format string, args ...interface{}) {
 	fmt.Printf(format, args...)
+}
+
+//export callgofunc
+func callgofunc(p unsafe.Pointer) {
+	(*((*func())(p)))()
 }

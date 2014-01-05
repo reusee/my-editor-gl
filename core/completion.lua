@@ -96,8 +96,10 @@ function core_completion_init(self)
     if store:get_iter_first() then show_candidates() end
   end
 
-  append_candidates = function()
-    store:append{'foo', 'async'}
+  append_candidates = function(candidates)
+    for _, entry in ipairs(candidates) do
+      store:append({entry[1], entry[2]})
+    end
     if store:get_iter_first() then show_candidates() end
   end
 
