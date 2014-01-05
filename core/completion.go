@@ -54,7 +54,7 @@ func new_providers() *Providers {
 
 // get candidates
 
-func get_candidates(serial int, input string, providersp unsafe.Pointer, info map[string]interface{}) {
+func update_candidates(serial int, input string, providersp unsafe.Pointer, info map[string]interface{}) {
 	texts := make(map[string]bool)
 	providers := make(map[string][]string)
 	descriptions := make(map[string][]string)

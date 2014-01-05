@@ -10,7 +10,7 @@ import (
 
 var Registry = map[string]interface{}{
 	// completion
-	"get_candidates":    get_candidates,
+	"update_candidates": update_candidates,
 	"on_word_completed": on_word_completed,
 	"new_providers":     new_providers,
 	"setup_completion":  setup_completion,

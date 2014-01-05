@@ -85,7 +85,7 @@ function core_completion_init(self)
       end
     end
     serial = serial + 1
-    get_candidates(serial, input, buffer.completion_providers, {
+    update_candidates(serial, input, buffer.completion_providers, {
       filename = buffer.filename,
       char_offset = buf:get_iter_at_mark(buf:get_insert()):get_offset(),
       buffer = buffer.native,
