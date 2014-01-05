@@ -99,9 +99,11 @@ function core_completion_init(self)
   end
 
   append_candidates = function(s, candidates)
-    if s < serial then
-      return
-    end
+    if s < serial then return end
+    if completion_replacing then return end
+    completion_view.wrapper:hide()
+    if self.operation_mode ~= self.EDIT then return end
+    store:clear()
     for _, entry in ipairs(candidates) do
       store:append({entry[1], entry[2]})
     end
