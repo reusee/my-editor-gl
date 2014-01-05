@@ -1,8 +1,6 @@
 decl('async_update_candidates')
 decl('core_completion_init')
 function core_completion_init(self)
-  setup_completion()
-
   -- collect words
   Buffer.mix(function(buffer)
     buffer.completion_providers = new_providers()
@@ -15,6 +13,8 @@ function core_completion_init(self)
   self.widget:add_overlay(completion_view.wrapper)
   self.on_realize(function() completion_view.wrapper:hide() end)
   local completion_replacing = false
+
+  setup_completion(store._native)
 
   local function show_candidates()
     completion_view.wrapper:show_all()
@@ -85,14 +85,11 @@ function core_completion_init(self)
       end
     end
     serial = serial + 1
-    local cs = get_candidates(serial, input, buffer.completion_providers, {
+    get_candidates(serial, input, buffer.completion_providers, {
       filename = buffer.filename,
       char_offset = buf:get_iter_at_mark(buf:get_insert()):get_offset(),
       buffer = buffer.native,
       })
-    for i = 1, #cs do
-      store:append(cs[i])
-    end
 
     -- show
     if store:get_iter_first() then show_candidates() end

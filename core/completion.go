@@ -21,14 +21,16 @@ type Result struct {
 
 var Lua *lgo.Lua
 var results = make(chan Result, 1024)
+var Store *C.GtkListStore
 
 var fun = func() {
 	res := <-results
 	Lua.CallFunction("async_update_candidates", res.serial, res.candidates)
 }
 
-func setup_completion(lua *lgo.Lua) {
+func setup_completion(lua *lgo.Lua, store unsafe.Pointer) {
 	Lua = lua
+	Store = (*C.GtkListStore)(store)
 	C.setup_completion(unsafe.Pointer(&fun))
 }
 
@@ -52,7 +54,7 @@ func new_providers() *Providers {
 
 // get candidates
 
-func get_candidates(serial int, input string, providersp unsafe.Pointer, info map[string]interface{}) [][]string {
+func get_candidates(serial int, input string, providersp unsafe.Pointer, info map[string]interface{}) {
 	texts := make(map[string]bool)
 	providers := make(map[string][]string)
 	descriptions := make(map[string][]string)
@@ -109,7 +111,32 @@ func get_candidates(serial int, input string, providersp unsafe.Pointer, info ma
 		}()
 	}
 
-	return result
+	updateStore(result)
+
+}
+
+func updateStore(result [][]string) {
+	var iter C.GtkTreeIter
+	C.gtk_list_store_append(Store, &iter)
+	var value C.GValue
+	C.init_string_value(&value)
+	for _, entry := range result {
+		C.g_value_set_static_string(&value, cstr(entry[0]))
+		C.gtk_list_store_set_value(Store, &iter, 0, &value)
+		C.g_value_set_static_string(&value, cstr(entry[1]))
+		C.gtk_list_store_set_value(Store, &iter, 1, &value)
+	}
+}
+
+var strs = make(map[string]*C.gchar)
+
+func cstr(str string) *C.gchar {
+	if c, ok := strs[str]; ok {
+		return c
+	}
+	c := (*C.gchar)(C.CString(str))
+	strs[str] = c
+	return c
 }
 
 func sort(input string, texts map[string]bool, distances map[string]int, providers, descriptions map[string][]string) [][]string {

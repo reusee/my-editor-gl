@@ -25,3 +25,7 @@ int emit() {
 	uint64_t i = 1;
 	write(fd, (void*)&i, sizeof(uint64_t));
 }
+
+void init_string_value(GValue* value) {
+  g_value_init(value, G_TYPE_STRING);
+}
