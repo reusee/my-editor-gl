@@ -1,4 +1,4 @@
-decl('append_candidates')
+decl('async_update_candidates')
 decl('core_completion_init')
 function core_completion_init(self)
   setup_completion()
@@ -90,22 +90,22 @@ function core_completion_init(self)
       char_offset = buf:get_iter_at_mark(buf:get_insert()):get_offset(),
       buffer = buffer.native,
       })
-    for _, entry in ipairs(cs) do
-      store:append({entry[1], entry[2]})
+    for i = 1, #cs do
+      store:append(cs[i])
     end
 
     -- show
     if store:get_iter_first() then show_candidates() end
   end
 
-  append_candidates = function(s, candidates)
+  async_update_candidates = function(s, candidates)
     if s < serial then return end
     if completion_replacing then return end
     completion_view.wrapper:hide()
     if self.operation_mode ~= self.EDIT then return end
     store:clear()
-    for _, entry in ipairs(candidates) do
-      store:append({entry[1], entry[2]})
+    for i = 1, #candidates do
+      store:append(candidates[i])
     end
     if store:get_iter_first() then show_candidates() end
   end

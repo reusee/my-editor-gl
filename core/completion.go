@@ -22,7 +22,7 @@ type Result struct {
 
 var Lua *lgo.Lua
 var results = make(chan Result, 1024)
-var callbackName = C.CString("append_candidates")
+var callbackName = C.CString("async_update_candidates")
 
 var fun = func() {
 	res := <-results
@@ -89,6 +89,8 @@ func get_candidates(serial int, input string, providersp unsafe.Pointer, info ma
 	cContent := C.gtk_text_buffer_get_text(buffer, &start_iter, &end_iter, C.gtk_false())
 	content := C.GoBytes(unsafe.Pointer(cContent), C.int(C.strlen((*C.char)(cContent))))
 
+	result := sort(input, texts, distances, providers, descriptions)
+
 	// extra providers
 	for source, provider := range (*Providers)(providersp).Providers {
 		go func() {
@@ -113,9 +115,7 @@ func get_candidates(serial int, input string, providersp unsafe.Pointer, info ma
 		}()
 	}
 
-	lock.Lock()
-	defer lock.Unlock()
-	return sort(input, texts, distances, providers, descriptions)
+	return result
 }
 
 func sort(input string, texts map[string]bool, distances map[string]int, providers, descriptions map[string][]string) [][]string {
