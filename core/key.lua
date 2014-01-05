@@ -283,7 +283,7 @@ function core_key_init(self)
 
   -- command prefix indicator
   self.command_prefix_indicator = self.create_overlay_label(
-    Gtk.Align.END, Gtk.Align.END)
+    Gtk.Align.START, Gtk.Align.END)
   self.command_prefix = {}
 
   function self.update_command_prefix_indicator()
