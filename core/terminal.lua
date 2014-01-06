@@ -24,6 +24,9 @@ function core_terminal_init(self)
         nil)
     end
     term.on_child_exited:connect(function() run_shell() end)
+    term.on_selection_changed:connect(function()
+      term:copy_clipboard()
+    end)
     run_shell()
 
     local current_view = false
