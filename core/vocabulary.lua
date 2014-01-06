@@ -12,4 +12,7 @@ function core_vocabulary_init(self)
   self.connect_signal('buffer-created', function(buffer)
     collect_words(buffer.native, false, buffer.compiled_word_regex)
   end)
+  self.connect_signal('entered-command-mode', function(buffer)
+    collect_words(buffer.native, false, buffer.compiled_word_regex)
+  end)
 end
