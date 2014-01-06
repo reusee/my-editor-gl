@@ -10,6 +10,22 @@ function extra_golang_init(self)
     buffer.indent_width = 1
     buffer.indent_char = '\t'
 
+    -- snippets
+    local function new_snippet(trigger, name, snippet, line_start)
+      buffer.add_snippet(name, snippet)
+      local predicts = {function() return true end}
+      if line_start then
+        predicts = {self.starts_line_p}
+      end
+      buffer.add_pattern(trigger, function() buffer.insert_snippet(name) end,
+        true, true, predicts)
+    end
+
+    new_snippet('f/', 'go_func', {'func$1($2) $3{', '$>$4', '$<}$5'})
+    new_snippet('r/', 'go_for_range', {'for $1, $2 := range $3 {', '$>$4', '$<}$5'}, true)
+    new_snippet('n/', 'go_fmt_printf', {'fmt.Printf("$1", $2)$3'}, true)
+    new_snippet('g/', 'go_go_func', {'go func($1) {', '$>$2', '$<}($3)$4'})
+
   end)
 
   local function format(buffer)
@@ -35,4 +51,5 @@ function extra_golang_init(self)
   self.bind_command_key(',,f', function(args)
     format(args.buffer)
   end)
+
 end
