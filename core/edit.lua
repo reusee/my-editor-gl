@@ -68,6 +68,7 @@ function core_edit_init(self)
     return buf:get_text(start, it, false)
   end
 
+  -- new line
   self.bind_command_key('o', function(args)
     local buf = args.buffer.buf
     local indent_str = self._get_current_line_indent_str(buf)
@@ -95,6 +96,7 @@ function core_edit_init(self)
     self.enter_edit_mode(args.buffer)
   end, 'insert new line above')
 
+  -- append
   self.bind_command_key('a', function(args)
     Transform({self.iter_jump_relative_char, 1}, {'iter'}, 'cursor').apply(args.buffer)
     self.enter_edit_mode(args.buffer)
@@ -105,6 +107,7 @@ function core_edit_init(self)
     self.enter_edit_mode(args.buffer)
   end, 'append at line end')
 
+  -- delete
   self.bind_command_key('x', function(args)
     local buf = args.buffer.buf
     local start = buf:get_iter_at_mark(buf:get_insert())
@@ -116,6 +119,7 @@ function core_edit_init(self)
     buf:end_user_action()
   end, 'delete current char')
 
+  -- insert
   self.bind_command_key('I', function(args)
     local buf = args.buffer.buf
     local it = buf:get_iter_at_mark(buf:get_insert())
@@ -127,6 +131,7 @@ function core_edit_init(self)
     self.enter_edit_mode(args.buffer)
   end, 'insert at first non-space char')
 
+  -- change line
   self.bind_command_key('C', function(args)
     local buf = args.buffer.buf
     local it = buf:get_iter_at_mark(buf:get_insert())
@@ -143,6 +148,7 @@ function core_edit_init(self)
     self.enter_edit_mode(args.buffer)
   end, 'change from first non-space char')
 
+  -- backspace
   self.bind_edit_key({Gdk.KEY_BackSpace}, function(args)
     local buf = args.buffer.buf
     local it = buf:get_iter_at_mark(buf:get_insert())
@@ -170,6 +176,32 @@ function core_edit_init(self)
       end
     end
   end, 'backspace with dedent')
+
+  -- change quotation
+  self.bind_command_key('mq', function(args1)
+    return function(args2)
+      local new = chr(args2.keyval)
+      if not self.BRACKETS[new] then return end
+      local buf = args2.buffer.buf
+      local it = buf:get_iter_at_mark(buf:get_insert())
+      local it2 = it:copy()
+      self.iter_jump_to_matching_bracket(it2, args2.buffer)
+      if it:compare(it2) == 0 then return end
+      local m = buf:create_mark(nil, it2, true)
+      buf:begin_user_action()
+      local tmp_it = it:copy()
+      tmp_it:forward_char()
+      buf:delete(it, tmp_it)
+      buf:insert(it, new, -1)
+      it2 = buf:get_iter_at_mark(m)
+      buf:delete_mark(m)
+      tmp_it = it2:copy()
+      tmp_it:forward_char()
+      buf:delete(it2, tmp_it)
+      buf:insert(it2, self.BRACKETS[new], -1)
+      buf:end_user_action()
+    end
+  end, 'change quotation')
 
   -- macros
 
