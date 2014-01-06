@@ -4,15 +4,6 @@ function core_snippet_init(self)
     local buf = buffer.buf
     local selections = buffer.selections
 
-    local function insert_at_selections(text)
-      local sel
-      for i = 1, #selections do
-        sel = selections[i]
-        buf:insert(buf:get_iter_at_mark(sel.stop), text, -1)
-      end
-      buf:insert(buf:get_iter_at_mark(buf:get_insert()), text, -1)
-    end
-
     -- add snippet
     local snippets = {}
     function buffer.add_snippet(name, lines)
@@ -74,8 +65,9 @@ function core_snippet_init(self)
       for i = 1, #snippet do
         local ty = snippet[i][1]
         local content = snippet[i][2]
+        local it = buf:get_iter_at_mark(buf:get_insert())
         if ty == 'literal' then -- literal
-          insert_at_selections(content)
+          buf:insert(it, content, -1)
         elseif ty == 'point' then -- insert pointer
           local mark = buf:create_mark(nil, buf:get_iter_at_mark(buf:get_insert()), true)
           if not point_marks[content] then
@@ -83,14 +75,18 @@ function core_snippet_init(self)
             point_order[#point_order + 1] = content
           end
           point_marks[content][#point_marks[content] + 1] = mark
+          for i = 1, #buffer.selections do
+            local mark = buf:create_mark(nil, buf:get_iter_at_mark(buffer.selections[i].stop), true)
+            point_marks[content][#point_marks[content] + 1] = mark
+          end
         elseif ty == 'newline' then
-          insert_at_selections('\n')
+          buf:insert(it, '\n', -1)
         elseif ty == 'indent' then
           indent_str = indent_str .. string.rep(buffer.indent_char, buffer.indent_width)
-          insert_at_selections(indent_str)
+          buf:insert(it, indent_str, -1)
         elseif ty == 'dedent' then
           indent_str = indent_str:sub(1, -(1 + buffer.indent_width))
-          insert_at_selections(indent_str)
+          buf:insert(it, indent_str, -1)
         else
           error('unknown chunk type ' .. ty)
         end
