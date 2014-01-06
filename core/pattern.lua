@@ -97,7 +97,7 @@ function core_pattern_init(self)
     end
   end)
 
-  function self.pattern_predict_cursor_at_line_start(buffer, state)
+  function self.starts_line_p(buffer, state)
     local buf = buffer.buf
     local it = buf:get_iter_at_mark(buf:get_insert())
     for _ = 1, #state.pattern - 1 do

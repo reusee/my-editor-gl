@@ -20,7 +20,7 @@ function extra_lua_init(self)
       buffer.add_snippet(name, snippet)
       local predicts = {function() return true end}
       if line_start then
-        predicts = {self.pattern_predict_cursor_at_line_start}
+        predicts = {self.starts_line_p}
       end
       buffer.add_pattern(trigger, function() buffer.insert_snippet(name) end,
         true, true, predicts)
