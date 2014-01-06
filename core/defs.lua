@@ -1,7 +1,10 @@
 decl('core_defs_init')
 function core_defs_init(self)
   self.default_indent_width = 2
-  self.default_font = Pango.FontDescription.from_string('Terminus 13')
+  self.fonts = {
+    Pango.FontDescription.from_string('Terminus 11'),
+    Pango.FontDescription.from_string('Dina 11'),
+  }
 
   -- font and style
   self.default_scheme = 'foo'

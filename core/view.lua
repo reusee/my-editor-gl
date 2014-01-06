@@ -28,7 +28,7 @@ function core_view_init(self)
   function self.create_view(buffer)
     local view = View(buffer)
     view.widget:set_indent_width(self.default_indent_width)
-    view.widget:modify_font(self.default_font)
+    view.widget:modify_font(self.fonts[1])
     table.insert(self.views, view)
     self.emit_signal('view-created', view)
     view_gview_map[view.widget] = view
