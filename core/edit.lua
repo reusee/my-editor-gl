@@ -177,31 +177,51 @@ function core_edit_init(self)
     end
   end, 'backspace with dedent')
 
-  -- change quotation
-  self.bind_command_key('mq', function(args1)
-    return function(args2)
-      local new = chr(args2.keyval)
-      if not self.BRACKETS[new] then return end
-      local buf = args2.buffer.buf
-      local it = buf:get_iter_at_mark(buf:get_insert())
-      local it2 = it:copy()
-      self.iter_jump_to_matching_bracket(it2, args2.buffer)
-      if it:compare(it2) == 0 then return end
-      local m = buf:create_mark(nil, it2, true)
-      buf:begin_user_action()
-      local tmp_it = it:copy()
-      tmp_it:forward_char()
-      buf:delete(it, tmp_it)
-      buf:insert(it, new, -1)
-      it2 = buf:get_iter_at_mark(m)
-      buf:delete_mark(m)
-      tmp_it = it2:copy()
-      tmp_it:forward_char()
-      buf:delete(it2, tmp_it)
-      buf:insert(it2, self.BRACKETS[new], -1)
-      buf:end_user_action()
+  -- change or insert quotation
+  local function change_brackets(args)
+    local new = chr(args.keyval)
+    if not self.BRACKETS[new] then return end
+    local buf = args.buffer.buf
+    local it = buf:get_iter_at_mark(buf:get_insert())
+    local it2 = it:copy()
+    self.iter_jump_to_matching_bracket(it2, args.buffer)
+    if it:compare(it2) == 0 then return end
+    local m = buf:create_mark(nil, it2, true)
+    buf:begin_user_action()
+    local tmp_it = it:copy()
+    tmp_it:forward_char()
+    buf:delete(it, tmp_it)
+    buf:insert(it, new, -1)
+    it2 = buf:get_iter_at_mark(m)
+    buf:delete_mark(m)
+    tmp_it = it2:copy()
+    tmp_it:forward_char()
+    buf:delete(it2, tmp_it)
+    buf:insert(it2, self.BRACKETS[new], -1)
+    buf:end_user_action()
+  end
+
+  local function wrap_brackets(args)
+    local left = chr(args.keyval)
+    local right = self.BRACKETS[left]
+    if not right then return end
+    local buf = args.buffer.buf
+    local it = buf:get_iter_at_mark(buf:get_selection_bound())
+    buf:insert(it, left, -1)
+    it = buf:get_iter_at_mark(buf:get_insert())
+    buf:insert(it, right, -1)
+    buf:place_cursor(it)
+  end
+
+  self.bind_command_key('q', function()
+    return function(args)
+      if args.buffer.buf:get_has_selection() then -- insert
+        wrap_brackets(args)
+      else -- change
+        change_brackets(args)
+      end
     end
-  end, 'change quotation')
+  end, 'brackets change or wrap')
 
   -- macros
 
