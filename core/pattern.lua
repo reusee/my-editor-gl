@@ -4,7 +4,7 @@ function core_pattern_init(self)
     buffer.patterns = {}
     buffer.pattern_states = {}
 
-    function buffer.add_pattern(pattern, callback, drop_key_event, clear_matched_text, predict)
+    function buffer.add_pattern(pattern, callback, drop_key_event, clear_matched_text, predicts)
       local path = pattern
       if type(pattern) == 'string' then -- convert to sequence
         path = {}
@@ -29,7 +29,7 @@ function core_pattern_init(self)
       cur[key] = {
         is_handler = true,
         pattern = pattern,
-        predict = predict,
+        predicts = predicts,
         callback = callback,
         drop_key_event = drop_key_event,
         clear_matched_text = clear_matched_text,
@@ -38,7 +38,7 @@ function core_pattern_init(self)
 
     buffer.add_pattern('foobar',
       function() self.show_message('foobar') end,
-      false, false, function() return true end)
+      false, false, {function() return true end})
   end)
 
   self.connect_signal('key-pressed', function(gview, ev)
@@ -57,9 +57,13 @@ function core_pattern_init(self)
         goto continue
       end
       -- pattern matched
-      if state.predict and not state.predict(buffer, state) then -- predict failed
-        buffer.pattern_states = {}
-        return
+      if state.predicts then
+        for i = 1, #state.predicts do
+          if not state.predicts[i](buffer, state) then
+            buffer.pattern_states = {}
+            return
+          end
+        end
       end
       local buf = buffer.buf
       buf:begin_user_action()

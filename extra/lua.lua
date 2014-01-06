@@ -18,12 +18,12 @@ function extra_lua_init(self)
     -- snippets
     local function new_snippet(trigger, name, snippet, line_start)
       buffer.add_snippet(name, snippet)
-      local predict = function() return true end
+      local predicts = {function() return true end}
       if line_start then
-        predict = self.pattern_predict_cursor_at_line_start
+        predicts = {self.pattern_predict_cursor_at_line_start}
       end
       buffer.add_pattern(trigger, function() buffer.insert_snippet(name) end,
-        true, true, predict)
+        true, true, predicts)
     end
 
     new_snippet('r/', 'lua_require', {"require '$1'$2"}, true)
