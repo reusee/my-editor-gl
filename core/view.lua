@@ -137,6 +137,20 @@ function core_view_init(self)
     end)
   end)
 
+  -- auto scroll when editing near end of buffer
+  View.mix(function(view)
+    local vadj = view.widget:get_vadjustment()
+    local buf = view.buffer.buf
+    local gview = view.widget
+    vadj.on_changed:connect(function()
+      local total_line = buf:get_line_count()
+      local current_line = buf:get_iter_at_mark(buf:get_insert()):get_line()
+      if total_line - current_line < 35 then
+        gview:scroll_to_mark(buf:get_insert(), 0, true, 1, 0)
+      end
+    end, nil, true)
+  end)
+
 end
 
 decl('View')
