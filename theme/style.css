@@ -14,7 +14,7 @@ GtkEntry {
 .scrollbar {
   -GtkScrollbar-has-backward-stepper: false;
   -GtkScrollbar-has-forward-stepper: false;
-  -GtkRange-slider-width: 2px;
+  -GtkRange-slider-width: 0;
   -GtkRange-trough-border: 0;
   border-radius: 3px;
   border: 0;
