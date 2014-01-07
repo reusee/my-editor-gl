@@ -48,3 +48,14 @@ func p(format string, args ...interface{}) {
 func callgofunc(p unsafe.Pointer) {
 	(*((*func())(p)))()
 }
+
+var strs = make(map[string]*C.gchar)
+
+func cstr(str string) *C.gchar {
+	if c, ok := strs[str]; ok {
+		return c
+	}
+	c := (*C.gchar)(C.CString(str))
+	strs[str] = c
+	return c
+}
