@@ -189,7 +189,7 @@ func sort(input string, texts map[string]bool, distances map[string]int, provide
 }
 
 func compare(input string, left, right *Word, ldistance, rdistance int, providers map[string][]string) bool {
-	if len(providers[left.Text]) > len(providers[right.Text]) {
+	if lp, rp := providers[left.Text], providers[right.Text]; lp != nil && rp != nil && len(lp) > len(rp) {
 		return true
 	}
 	if !(left.LatestSelected.Equal(right.LatestSelected)) {
