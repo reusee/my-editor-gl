@@ -94,14 +94,10 @@ func update_candidates(serial int, input string, providersp unsafe.Pointer, info
 	var lock sync.Mutex
 
 	// from GlobalVocabulary
-	GlobalVocabulary.Lock()
-	l := len(GlobalVocabulary.Texts)
-	GlobalVocabulary.Unlock()
+	l := GlobalVocabulary.Len()
 	var word *Word
 	for i := 0; i < l; i++ {
-		GlobalVocabulary.Lock()
-		word = GlobalVocabulary.Words[GlobalVocabulary.Texts[i]]
-		GlobalVocabulary.Unlock()
+		word = GlobalVocabulary.GetByIndex(i)
 		if match, distance := fuzzyMatch(word.Text, input); match {
 			texts[word.Text] = true
 			distances[word.Text] = distance
@@ -167,10 +163,8 @@ func sort(input string, texts map[string]bool, distances map[string]int, provide
 	for text := range texts {
 		pos := 0
 		for _, target := range result { // compare
-			GlobalVocabulary.Lock()
-			left = GlobalVocabulary.Words[text]
-			right = GlobalVocabulary.Words[target[0]]
-			GlobalVocabulary.Unlock()
+			left = GlobalVocabulary.Get(text)
+			right = GlobalVocabulary.Get(target[0])
 			if compare(input, left, right, distances[text], distances[target[0]], providers) { // win
 				break
 			} else {
@@ -229,17 +223,12 @@ func fuzzyMatch(text, input string) (bool, int) {
 // word statistics
 
 func on_word_completed(info map[string]string) {
-	GlobalVocabulary.Lock()
-	word, ok := GlobalVocabulary.Words[info["text"]]
-	if !ok {
-		p("%s is not in GlobalVocabulary", info["text"])
-		return
-	}
-	p("word complete %v\n", word)
+	word := GlobalVocabulary.Get(info["text"])
+	word.Lock()
+	defer word.Unlock()
 	word.TotalFrequency++
 	word.FrequencyByInput[info["input"]]++
 	word.FrequencyByFiletype[info["file_type"]]++
 	word.FrequencyByFilename[info["file_name"]]++
 	word.LatestSelected = time.Now()
-	GlobalVocabulary.Unlock()
 }

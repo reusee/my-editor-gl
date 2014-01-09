@@ -11,6 +11,8 @@ import (
 	"unsafe"
 )
 
+// vocabulary
+
 type Vocabulary struct {
 	sync.RWMutex
 	Words map[string]*Word
@@ -25,6 +27,7 @@ func NewVocabulary() *Vocabulary {
 }
 
 type Word struct {
+	sync.RWMutex
 	Text                string
 	TotalFrequency      int
 	FrequencyByInput    map[string]int
@@ -43,6 +46,8 @@ func NewWord(text string) *Word {
 	return word
 }
 
+// global vocabulary
+
 var GlobalVocabulary = NewVocabulary()
 
 func (self *Vocabulary) Add(text string) {
@@ -55,6 +60,32 @@ func (self *Vocabulary) Add(text string) {
 	self.Texts = append(self.Texts, text)
 }
 
+func (self *Vocabulary) Len() int {
+	self.Lock()
+	defer self.Unlock()
+	return len(self.Texts)
+}
+
+func (self *Vocabulary) GetByIndex(i int) *Word {
+	self.Lock()
+	defer self.Unlock()
+	return self.Words[self.Texts[i]]
+}
+
+func (self *Vocabulary) Get(text string) *Word {
+	self.Lock()
+	defer self.Unlock()
+	ret, ok := self.Words[text]
+	if !ok {
+		self.Add(text)
+		return self.Words[text]
+	} else {
+		return ret
+	}
+}
+
+// compiled regex
+
 var compiled_regex_bin []*regexp.Regexp
 
 func compile_regex(p string) *regexp.Regexp {
@@ -62,6 +93,8 @@ func compile_regex(p string) *regexp.Regexp {
 	compiled_regex_bin = append(compiled_regex_bin, re)
 	return re
 }
+
+// word collecting
 
 func collect_words(bufferp unsafe.Pointer, isEditMode bool, rep unsafe.Pointer) {
 	var start_iter, end_iter C.GtkTextIter
