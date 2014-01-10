@@ -143,8 +143,9 @@ function core_view_init(self)
     local buf = view.buffer.buf
     local gview = view.widget
     vadj.on_changed:connect(function()
-      local total_line = buf:get_line_count()
       local current_line = buf:get_iter_at_mark(buf:get_insert()):get_line()
+      if current_line < 35 then return end
+      local total_line = buf:get_line_count()
       if total_line - current_line < 35 then
         gview:scroll_to_mark(buf:get_insert(), 0, true, 1, 0)
       end
