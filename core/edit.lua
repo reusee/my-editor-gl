@@ -177,7 +177,7 @@ function core_edit_init(self)
     end
   end, 'backspace with dedent')
 
-  -- change or insert quotation
+  -- brackets operations
   local function change_brackets(args)
     local new = chr(args.keyval)
     if not self.BRACKETS[new] then return end
@@ -201,27 +201,54 @@ function core_edit_init(self)
     buf:end_user_action()
   end
 
-  local function wrap_brackets(args)
-    local left = chr(args.keyval)
-    local right = self.BRACKETS[left]
-    if not right then return end
-    local buf = args.buffer.buf
+  local function wrap_brackets(buf, left, right)
     local it = buf:get_iter_at_mark(buf:get_selection_bound())
+    buf:begin_user_action()
     buf:insert(it, left, -1)
     it = buf:get_iter_at_mark(buf:get_insert())
     buf:insert(it, right, -1)
+    buf:end_user_action()
     buf:place_cursor(it)
   end
 
   self.bind_command_key('q', function()
     return function(args)
       if args.buffer.buf:get_has_selection() then -- insert
-        wrap_brackets(args)
+        local left = chr(args.keyval)
+        local right = self.BRACKETS[left]
+        if not right then return end
+        wrap_brackets(args.buffer.buf, left, right)
       else -- change
         change_brackets(args)
       end
     end
   end, 'brackets change or wrap')
+
+  local function wrap_word(args, left, right)
+    if not args.buffer.buf:get_has_selection() then
+      Transform(
+        {false},
+        {self.iter_jump_to_word_edge},
+        'all').apply(args.buffer)
+    end
+    wrap_brackets(args.buffer.buf, left, right)
+  end
+
+  self.bind_command_key('(', function(args)
+    wrap_word(args, '(', ')')
+  end)
+
+  self.bind_command_key(',[', function(args)
+    wrap_word(args, '[', ']')
+  end)
+
+  self.bind_command_key(',"', function(args)
+    wrap_word(args, '"', '"')
+  end)
+
+  self.bind_command_key(",'", function(args)
+    wrap_word(args, "'", "'")
+  end)
 
   -- macros
 
