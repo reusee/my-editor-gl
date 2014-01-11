@@ -9,13 +9,8 @@ Pango = lgi.Pango
 GObject = lgi.GObject
 Vte = lgi.Vte
 
+require 'base.strict'
 require 'base.extra_method'
-
-require 'lib.Strict'
-decl = Strict.declareGlobal
-Strict.strong = true
-decl('_')
-
 require 'base.signal'
 require 'base.object'
 require 'base.trace'
