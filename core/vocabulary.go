@@ -15,13 +15,13 @@ import (
 
 type Vocabulary struct {
 	sync.RWMutex
-	Words map[string]*Word
-	Texts []string
+	words map[string]*Word
+	texts []string
 }
 
 func NewVocabulary() *Vocabulary {
 	vocab := &Vocabulary{
-		Words: make(map[string]*Word),
+		words: make(map[string]*Word),
 	}
 	return vocab
 }
@@ -53,32 +53,32 @@ var GlobalVocabulary = NewVocabulary()
 func (self *Vocabulary) Add(text string) {
 	self.Lock()
 	defer self.Unlock()
-	if _, has := self.Words[text]; has {
+	if _, has := self.words[text]; has {
 		return
 	}
-	self.Words[text] = NewWord(text)
-	self.Texts = append(self.Texts, text)
+	self.words[text] = NewWord(text)
+	self.texts = append(self.texts, text)
 }
 
 func (self *Vocabulary) Len() int {
 	self.Lock()
 	defer self.Unlock()
-	return len(self.Texts)
+	return len(self.texts)
 }
 
 func (self *Vocabulary) GetByIndex(i int) *Word {
 	self.Lock()
 	defer self.Unlock()
-	return self.Words[self.Texts[i]]
+	return self.words[self.texts[i]]
 }
 
 func (self *Vocabulary) Get(text string) *Word {
 	self.Lock()
 	defer self.Unlock()
-	ret, ok := self.Words[text]
+	ret, ok := self.words[text]
 	if !ok {
 		self.Add(text)
-		return self.Words[text]
+		return self.words[text]
 	} else {
 		return ret
 	}
