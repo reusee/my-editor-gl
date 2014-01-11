@@ -1,5 +1,3 @@
-require 'lib.fun' ()
-
 lgi = require 'lgi'
 Gtk = lgi.require('Gtk', '3.0')
 GtkSource = lgi.require('GtkSource', '3.0')

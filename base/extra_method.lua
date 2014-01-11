@@ -7,3 +7,19 @@ function string.each(self, func)
     func(self:sub(i, i))
   end
 end
+
+decl('each')
+function each(f, t)
+  for i = 1, #t do
+    f(t[i])
+  end
+end
+
+decl('index_of')
+function index_of(e, t)
+  for i = 1, #t do
+    if t[i] == e then
+      return i
+    end
+  end
+end
