@@ -7,7 +7,6 @@ package core
 #include <glib.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <lua.h>
 
 int fd;
 

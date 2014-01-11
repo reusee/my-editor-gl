@@ -1,6 +1,6 @@
 package core
 
-//#cgo pkg-config: gtksourceview-3.0 gtk+-3.0 lua
+//#cgo pkg-config: gtksourceview-3.0 gtk+-3.0
 //#include <gtk/gtk.h>
 import "C"
 
