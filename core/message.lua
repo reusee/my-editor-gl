@@ -12,7 +12,6 @@ function core_message_init(self)
 
   self.bind_command_key(',,,', function()
     self.show_message('> yes, sir ' .. Time_current_time_in_millisecond())
-    foobar()
   end, 'test message')
 
   self.bind_command_key(',,h', function()
