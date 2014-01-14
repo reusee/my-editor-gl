@@ -1,9 +1,7 @@
 package extra
 
 import (
-	"../core"
 	"bytes"
-	"code.google.com/p/go.tools/imports"
 	"encoding/json"
 	"fmt"
 	"go/format"
@@ -12,6 +10,9 @@ import (
 	"strconv"
 	"unicode/utf8"
 	"unsafe"
+
+	"../core"
+	"code.google.com/p/go.tools/imports"
 )
 
 // completion

@@ -36,11 +36,11 @@ void init_string_value(GValue* value) {
 import "C"
 
 import (
-	"github.com/reusee/lgo"
 	"strings"
 	"sync"
 	"time"
 	"unsafe"
+	"github.com/reusee/lgo"
 )
 
 // async result

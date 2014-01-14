@@ -1,14 +1,10 @@
 package main
 
 import (
-	"./core"
-	"./extra"
-	"./lib/mimemagic"
 	"bytes"
 	"encoding/xml"
 	"flag"
 	"fmt"
-	"github.com/reusee/lgo"
 	"io/ioutil"
 	"math/rand"
 	"os"
@@ -20,6 +16,11 @@ import (
 	"syscall"
 	"time"
 	"unicode/utf8"
+
+	"./core"
+	"./extra"
+	"./lib/mimemagic"
+	"github.com/reusee/lgo"
 )
 
 var debugFlag = flag.Bool("debug", false, "enable debug")
