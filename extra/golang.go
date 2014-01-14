@@ -3,6 +3,7 @@ package extra
 import (
 	"../core"
 	"bytes"
+	"code.google.com/p/go.tools/imports"
 	"encoding/json"
 	"fmt"
 	"go/format"
@@ -12,6 +13,8 @@ import (
 	"unicode/utf8"
 	"unsafe"
 )
+
+// completion
 
 var gocodePath = "/home/reus/gopath/bin/gocode"
 
@@ -65,8 +68,20 @@ func provide(input string, text []byte, info map[string]interface{}) [][]string 
 	return ret
 }
 
+// gofmt
+
 func gofmt(src []byte) (string, string) {
 	out, err := format.Source(src)
+	if err != nil {
+		return "", fmt.Sprintf("%v", err)
+	}
+	return string(out), ""
+}
+
+// goimports
+
+func goimports(src []byte) (string, string) {
+	out, err := imports.Process("", src, nil)
 	if err != nil {
 		return "", fmt.Sprintf("%v", err)
 	}

@@ -7,6 +7,7 @@ import (
 var Registry = map[string]interface{}{
 	// golang
 	"gofmt":                   gofmt,
+	"goimports":               goimports,
 	"golang_setup_completion": golang_setup_completion,
 
 	// lua
