@@ -77,7 +77,9 @@ func (self *Vocabulary) Get(text string) *Word {
 	defer self.Unlock()
 	ret, ok := self.words[text]
 	if !ok {
+		self.Unlock()
 		self.Add(text)
+		self.Lock()
 		return self.words[text]
 	} else {
 		return ret
