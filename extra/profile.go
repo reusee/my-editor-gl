@@ -3,8 +3,16 @@ package extra
 import (
 	"bytes"
 	"io/ioutil"
+	"net/http"
+	_ "net/http/pprof"
 	"runtime/pprof"
 )
+
+func init() {
+	go func() {
+		http.ListenAndServe("127.0.0.1:65432", nil)
+	}()
+}
 
 var profileBuffer bytes.Buffer
 
