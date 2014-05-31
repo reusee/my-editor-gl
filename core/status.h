@@ -1,5 +1,7 @@
 #include <gtk/gtk.h>
 #include <gtksourceview/gtksource.h>
+#include <glib.h>
+#include <glib/gprintf.h>
 
 void on_query_data(GtkSourceGutterRenderer *renderer, GtkTextIter *start, GtkTextIter *end, GtkSourceGutterRendererState state, gpointer data) {
   GtkTextBuffer *buffer = gtk_text_view_get_buffer(data);

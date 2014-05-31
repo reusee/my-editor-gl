@@ -10,12 +10,13 @@ package core
 
 int fd;
 
-extern callgofunc(void*);
+extern void callgofunc(void*);
 
 gboolean on_event(GIOChannel *source, GIOCondition cond, gpointer fun) {
 	uint64_t i;
 	read(fd, &i, sizeof(uint64_t));
 	callgofunc((void*)fun);
+	return TRUE;
 }
 
 void setup_completion(void *fun) {
@@ -24,7 +25,7 @@ void setup_completion(void *fun) {
   g_io_add_watch(chan, G_IO_IN, on_event, fun);
 }
 
-int emit() {
+void emit() {
 	uint64_t i = 1;
 	write(fd, (void*)&i, sizeof(uint64_t));
 }
