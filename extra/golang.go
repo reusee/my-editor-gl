@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"go/format"
-	"log"
 	"os/exec"
 	"strconv"
 	"unicode/utf8"
@@ -26,8 +25,8 @@ func golang_setup_completion(providersp unsafe.Pointer) {
 
 var last_provided [][]string
 
-func provide(input string, text []byte, info map[string]interface{}) [][]string {
-	char_offset := info["char_offset"].(int)
+func provide(input string, text []byte, info map[string]interface{}) (ret [][]string) {
+	char_offset := int(info["char_offset"].(float64))
 	byte_offset := 0
 	cur_char_offset := 0
 	var size int
@@ -44,19 +43,18 @@ func provide(input string, text []byte, info map[string]interface{}) [][]string 
 	cmd.Stdout = &out
 	err := cmd.Run()
 	if err != nil {
-		log.Fatalf("gocode run error %v", err)
+		return
 	}
 	var i interface{}
 	err = json.Unmarshal(out.Bytes(), &i)
 	if err != nil {
-		log.Fatalf("gocode json decode error %v", err)
+		return
 	}
 	i2 := i.([]interface{})
 	if len(i2) == 0 {
 		return last_provided
 	}
 
-	var ret [][]string
 	var entry map[string]interface{}
 	for _, entryI := range i2[1].([]interface{}) {
 		entry = entryI.(map[string]interface{})
