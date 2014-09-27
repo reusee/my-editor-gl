@@ -1,8 +1,8 @@
 decl('core_terminal_init')
 function core_terminal_init(self)
   local function new_terminal(argv)
-    local term = Vte.Terminal()
-    term:set_cursor_blink_mode(Vte.TerminalCursorBlinkMode.OFF)
+    local term = Vte.Terminal.new()
+    term:set_cursor_blink_mode(Vte.CursorBlinkMode.OFF)
     term:set_font(Pango.FontDescription.from_string('Terminus 13'))
     term:set_scrollback_lines(-1)
     local margin = 50
@@ -14,7 +14,7 @@ function core_terminal_init(self)
     self.widget:add_overlay(term)
     self.on_realize(function() term:hide() end)
     local function run_shell()
-      term:fork_command_full(
+      term:spawn_sync(
         Vte.PtyFlags.DEFAULT,
         '.',
         argv,
