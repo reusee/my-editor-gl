@@ -27,6 +27,9 @@ function core_layout_init(self)
     end
   end)
 
+  -- switch mode. single / two
+  -- switch view
+
   -- split
   local function split_view(view, orientation)
     local wrapper = view.wrapper
@@ -154,8 +157,10 @@ function core_layout_init(self)
     local next_stack = self.stacks[index]
     gstack:get_parent():remove(gstack)
     local next_view = self.view_from_wrapper(next_stack.widget:get_visible_child())
-    next_view.widget:grab_focus()
-    next_view.restore_cursor_position()
+    if next_view ~= nil then
+      next_view.widget:grab_focus()
+      next_view.restore_cursor_position()
+    end
   end, 'close view stack')
 
 end
