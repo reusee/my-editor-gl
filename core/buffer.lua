@@ -87,7 +87,6 @@ Buffer = class{
     self.buf:set_highlight_syntax(true)
     self.buf:set_highlight_matching_brackets(true)
     self.buf:set_max_undo_levels(-1)
-    self.buf:get_insert():set_visible(false)
 
     -- proxy signal
     self.proxy_gsignal(self.buf.on_changed, 'on_changed')
