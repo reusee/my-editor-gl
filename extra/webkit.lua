@@ -1,5 +1,5 @@
 decl('WebKit')
-WebKit = lgi.require('WebKit2', '3.0')
+WebKit = lgi.require('WebKit2', '4.0')
 
 decl('extra_webkit_init')
 function extra_webkit_init(self)

@@ -10,8 +10,8 @@ import (
 	"unicode/utf8"
 	"unsafe"
 
-	"../core"
-	"code.google.com/p/go.tools/imports"
+	"github.com/reusee/my-editor-gl/core"
+	"golang.org/x/tools/imports"
 )
 
 // completion

@@ -17,10 +17,10 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"./core"
-	"./extra"
-	"./lib/mimemagic"
 	"github.com/reusee/lgo"
+	"github.com/reusee/my-editor-gl/core"
+	"github.com/reusee/my-editor-gl/extra"
+	"github.com/reusee/my-editor-gl/lib/mimemagic"
 )
 
 var debugFlag = flag.Bool("debug", false, "enable debug")
